@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>旋转扑克</title>
+    <style>
+        div {
+            width: 100px;
+            height: auto;
+            position: absolute;
+            /*background: red;*/
+            margin: 200px auto;
+            overflow: hidden;
+
+        }
+    </style>
+</head>
+<body>
+<div>
+    <a class="box" href="http://www.baidu.com">aa</a>
+    <p>p</p>
+</div>
+<script>
+    window.onload = function () {
+        /*使用tap事件*/
+        /*1. 响应的速度比click要快   150ms */
+        /*2. 不能滑动*/
+        var p = document.querySelector('p');
+        var bindTapEvent = function (dom, callback) {
+            /*事件的执行顺序*/
+            /*在谷歌浏览器模拟看不到300ms的效果*/
+            /*在真机上面才能看看到延时效果*/
+            var startTime = 0;
+            var isMove = false;
+            dom.addEventListener('touchstart', function () {
+                //console.log('touchstart');
+                startTime = Date.now();
+                /*Date.now();*/
+            });
+            dom.addEventListener('touchmove', function () {
+                //console.log('touchmove');
+                isMove = true;
+            });
+            dom.addEventListener('touchend', function (e) {
+                //console.log('touchend');
+                console.log((Date.now() - startTime));
+                if ((Date.now() - startTime) < 150 && !isMove) {
+                    callback && callback.call(this, e);
+                }
+
+                startTime = 0;
+                isMove = false;
+            });
+            /*dom.addEventListener('click',function () {
+             //console.log('click');
+             });*/
+        }
+
+        bindTapEvent(document.querySelector('.box'), function (e) {
+            console.log(this);
+            console.log(e);
+            console.log('tap事件')
+            p.innerText = 'ddddd';
+        });
+    }
+</script>
+</body>
+</html>

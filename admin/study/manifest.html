@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" manifest="demo.appcache">
+<head>
+    <meta charset="UTF-8">
+    <title>Eric</title>
+    <!--    ctrl shift alt j 全选相同-->
+    <!--    alt j 单选相同-->
+    <style>
+        #box {
+            /*width: 200px;*/
+            /*height: 300px;*/
+            margin: 100px auto;
+        }
+
+    </style>
+</head>
+<body>
+<div id="box">
+    <img src="../../static/assets/img/1.jpg">
+</div>
+<script src="../../static/assets/vendors/jq/jquery-1.12.2.js"></script>
+<script>
+    $(function () {
+        console.log($('.item').eq(3).addClass('aa'))
+    })
+</script>
+</body>
+</html>
