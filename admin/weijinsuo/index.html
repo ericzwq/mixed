@@ -4,35 +4,105 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
-    <title>Bootstrap 101 Template</title>
-
-    <!-- Bootstrap -->
+    <title>微金所</title>
     <link href="lib/bootstrap/css/bootstrap.css" rel="stylesheet">
-
-    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
-    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <link href="css/index.css" rel="stylesheet">
     <!--[if lt IE 9]>
     <script src="lib/html5shiv/html5shiv.js"></script>
     <script src="lib/respond/respond.src.js"></script>
     <![endif]-->
-    <style>
-        div ~ a {
-            font-size: 34px;
-        }
-    </style>
 </head>
 <body>
-<h1>你好，世界！</h1>
-<div>
-    <a>a</a>
-    <a>a</a>
-    <a>a</a>
+<header class="wjs_topBar hidden-sm hidden-xs">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2">
+                <a class="wjs_app">
+                    <span class="wjs_icon wjs_icon_phone">手机微金所</span>
+                    <span class="glyphicon glyphicon-menu-down"></span>
+                    <img src="images/code.jpg">
+                </a>
+            </div>
+            <div class="col-md-5">
+                <span class="wjs_icon wjs_icon_tel">4006-89-4006（服务时间：9:00-21:00）</span>
+            </div>
+            <div class="col-md-2">
+                <a href="#">常见问题</a>
+                <a href="#">财富登录</a>
+            </div>
+            <div class="col-md-3">
+                <a href="#" class="wjs_register btn btn-danger btn-xs">免费注册</a>
+                <a href="#" class="wjs_login">登录</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<nav class="navbar wjs_nav">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">
+                <span class="wjs_icon wjs_icon_logo"></span>
+                <span class="wjs_icon wjs_icon_name"></span>
+            </a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">我要投资</a></li>
+                <li><a href="#">我要借贷</a></li>
+                <li><a href="#">平台介绍</a></li>
+                <li><a href="#">新手专区</a></li>
+                <li><a href="#">最新动态</a></li>
+                <li><a href="#">微平台</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right hidden-sm">
+                <li><a href="#">个人中心</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div id="carousel-example-generic" class="carousel slide wjs_banner" data-ride="carousel">
+    <ol class="carousel-indicators">
+        <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+        <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+        <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+        <li data-target="#carousel-example-generic" data-slide-to="3"></li>
+    </ol>
+    <div class="carousel-inner">
+        <div class="item active">
+            <a class="pc_imgBox hidden-xs" style="background-image: url('images/slide_01_2000x410.jpg')"></a>
+            <a class="m_imgBox visible-xs"><img src="images/slide_01_640x340.jpg" alt="..."></a>
+        </div>
+        <div class="item">
+            <a class="pc_imgBox hidden-xs" style="background-image: url('images/slide_02_2000x410.jpg')"></a>
+            <a class="m_imgBox visible-xs"><img src="images/slide_02_640x340.jpg" alt="..."></a>
+        </div>
+        <div class="item">
+            <a class="pc_imgBox hidden-xs" style="background-image: url('images/slide_03_2000x410.jpg')"></a>
+            <a class="m_imgBox visible-xs"><img src="images/slide_03_640x340.jpg" alt="..."></a>
+        </div>
+        <div class="item">
+            <a class="pc_imgBox hidden-xs" style="background-image: url('images/slide_04_2000x410.jpg')"></a>
+            <a class="m_imgBox visible-xs"><img src="images/slide_04_640x340.jpg" alt="..."></a>
+        </div>
+    </div>
+    <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+        <span class="glyphicon glyphicon-chevron-left"></span>
+    </a>
+    <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+        <span class="glyphicon glyphicon-chevron-right"></span>
+    </a>
 </div>
-<a>b</a>
-<a>b</a>
-<a>b</a>
 <script src="lib/jquery/jquery.js"></script>
 <script src="lib/bootstrap/js/bootstrap.js"></script>
+<script src="js/index.js"></script>
 </body>
 </html>
