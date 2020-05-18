@@ -2,26 +2,39 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>test2</title>
+    <link rel="stylesheet" href="../static/assets/vendors/bootstrap/css/bootstrap.css">
     <style>
-        a {
+        #d1 {
+            width: 200px;
+            height: 200px;
             background: red;
-            text-decoration: none;
-            padding: 2px;
+        }
+
+        #d2 {
+            width: 200px;
+            height: 200px;
+            background: green;
+        }
+        input:{
+            background: red;
+            outline: 1px solid blue;
+            border: 1px solid red;
         }
     </style>
 </head>
 <body>
-<div>
-    <a class="box" href="http://www.baidu.com">免费注册</a>
-</div>
+<div id="d1"></div>
+<span id="d2">aa</span>
+<p>p</p>
+<input type="checkbox" id="ck">
+<script src="../static/assets/vendors/jq/jquery-1.12.2.js"></script>
 <script>
-    var xhr = new XMLHttpRequest();
-    xhr.open('get', 'http://myfile/admin/data.php');
-    xhr.send();
-    xhr.onreadystatechange = function () {
-        if (this.readyState != 4) return;
-        console.log(this.responseText)
+    var ck = document.getElementById('ck');
+    ck.onchange = function () {
+        console.log(ck.checked)
+        console.log($('#ck').prop('checked'))
     }
 </script>
 </body>

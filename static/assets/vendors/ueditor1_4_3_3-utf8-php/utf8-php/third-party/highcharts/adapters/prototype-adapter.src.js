@@ -169,7 +169,7 @@ return {
 		// animate wrappers and DOM elements
 		if (hasEffect) {
 			for (key in params) {
-				// The fx variable is seemingly thrown away here, but the Effect.setup will add itself to the _highcharts_animation object
+				// The fx variable.less is seemingly thrown away here, but the Effect.setup will add itself to the _highcharts_animation object
 				// on the element itself so its not really lost.
 				fx = new Effect.HighchartsTransition($(el), key, params[key], options);
 			}

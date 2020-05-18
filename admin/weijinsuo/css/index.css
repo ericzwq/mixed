@@ -75,6 +75,10 @@ a:hover {
     content: '\e93e';
 }
 
+.wjs_icon_money:before {
+    content: '\e903';
+}
+
 .wjs_topBar .wjs_icon_tel:before, .wjs_topBar .wjs_icon_phone:before {
     margin-right: 4px;
 }
@@ -235,4 +239,19 @@ fieldset[disabled] .wjs_nav .btn-link:focus {
 .wjs_banner .carousel-inner .item .m_imgBox img {
     display: block;
     width: 100%;
+}
+
+.wjs_info {
+}
+
+.wjs_info > div {
+    margin-top: 40px;
+}
+.wjs_info > div > a:hover {
+    color: red;
+}
+
+
+.wjs_info a .media .media-left {
+    font-size: 30px;
 }

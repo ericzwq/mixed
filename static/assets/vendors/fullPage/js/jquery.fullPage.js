@@ -1876,10 +1876,10 @@
 		}
 
 		/*
-		* Sets the state for a variable with multiple states (original, and temporal)
+		* Sets the state for a variable.less with multiple states (original, and temporal)
 		* Some variables such as `autoScrolling` or `recordHistory` might change automatically its state when using `responsive` or `autoScrolling:false`.
 		* This function is used to keep track of both states, the original and the temporal one.
-		* If type is not 'internal', then we assume the user is globally changing the variable.
+		* If type is not 'internal', then we assume the user is globally changing the variable.less.
 		*/
 		function setVariableState(variable, value, type){
 			options[variable] = value;

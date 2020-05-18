@@ -70,30 +70,8 @@
 </nav>
 
 <div id="carousel-example-generic" class="carousel slide wjs_banner" data-ride="carousel">
-    <ol class="carousel-indicators">
-        <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
-        <li data-target="#carousel-example-generic" data-slide-to="1"></li>
-        <li data-target="#carousel-example-generic" data-slide-to="2"></li>
-        <li data-target="#carousel-example-generic" data-slide-to="3"></li>
-    </ol>
-    <div class="carousel-inner">
-        <div class="item active">
-            <a class="pc_imgBox hidden-xs" style="background-image: url('images/slide_01_2000x410.jpg')"></a>
-            <a class="m_imgBox visible-xs"><img src="images/slide_01_640x340.jpg" alt="..."></a>
-        </div>
-        <div class="item">
-            <a class="pc_imgBox hidden-xs" style="background-image: url('images/slide_02_2000x410.jpg')"></a>
-            <a class="m_imgBox visible-xs"><img src="images/slide_02_640x340.jpg" alt="..."></a>
-        </div>
-        <div class="item">
-            <a class="pc_imgBox hidden-xs" style="background-image: url('images/slide_03_2000x410.jpg')"></a>
-            <a class="m_imgBox visible-xs"><img src="images/slide_03_640x340.jpg" alt="..."></a>
-        </div>
-        <div class="item">
-            <a class="pc_imgBox hidden-xs" style="background-image: url('images/slide_04_2000x410.jpg')"></a>
-            <a class="m_imgBox visible-xs"><img src="images/slide_04_640x340.jpg" alt="..."></a>
-        </div>
-    </div>
+    <ol class="carousel-indicators"></ol>
+    <div class="carousel-inner"></div>
     <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
         <span class="glyphicon glyphicon-chevron-left"></span>
     </a>
@@ -101,8 +79,106 @@
         <span class="glyphicon glyphicon-chevron-right"></span>
     </a>
 </div>
+
+<div class="container wjs_info hidden-xs">
+    <div class="col-sm-6 col-md-4">
+        <a href="javascript:;">
+            <div class="media">
+                <div class="media-left">
+                    <div class="wjs_icon wjs_icon_money"></div>
+                </div>
+                <div class="media-body">
+                    <h4 class="media-heading">支付交易保障</h4>
+                    <p>银联支付全程保证安全</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-md-4">
+        <a href="javascript:;">
+            <div class="media">
+                <div class="media-left">
+                    <div class="wjs_icon wjs_icon_money"></div>
+                </div>
+                <div class="media-body">
+                    <h4 class="media-heading">支付交易保障</h4>
+                    <p>银联支付全程保证安全</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-md-4">
+        <a href="javascript:;">
+            <div class="media">
+                <div class="media-left">
+                    <div class="wjs_icon wjs_icon_money"></div>
+                </div>
+                <div class="media-body">
+                    <h4 class="media-heading">支付交易保障</h4>
+                    <p>银联支付全程保证安全</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-md-4">
+        <a href="javascript:;">
+            <div class="media">
+                <div class="media-left">
+                    <div class="wjs_icon wjs_icon_money"></div>
+                </div>
+                <div class="media-body">
+                    <h4 class="media-heading">支付交易保障</h4>
+                    <p>银联支付全程保证安全</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-md-4">
+        <a href="javascript:;">
+            <div class="media">
+                <div class="media-left">
+                    <div class="wjs_icon wjs_icon_money"></div>
+                </div>
+                <div class="media-body">
+                    <h4 class="media-heading">支付交易保障</h4>
+                    <p>银联支付全程保证安全</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-md-4">
+        <a href="javascript:;">
+            <div class="media">
+                <div class="media-left">
+                    <div class="wjs_icon wjs_icon_money"></div>
+                </div>
+                <div class="media-body">
+                    <h4 class="media-heading">支付交易保障</h4>
+                    <p>银联支付全程保证安全</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+<script type="text/x-art-template" id="pointTemp">
+    <% for(var i = 0; i < data.length; i++) { %>
+    <li data-target="#carousel-example-generic" data-slide-to="<%=i%>" class="<%=i==0?'active':''%>"></li>
+    <% } %>
+</script>
+<script type="text/x-art-template" id="imgTemp">
+    <% for(var i = 0; i < data.length; i++) { %>
+    <div class="item <%=i==0?'active':''%>">
+        <% if (isMobile) {%>
+        <a class="m_imgBox"><img src="<%=data[i].mImg%>" alt="..."></a>
+        <% } else { %>
+        <a class="pc_imgBox" style="background-image: url(<%=data[i].pcImg%>)"></a>
+        <% } %>
+    </div>
+    <% } %>
+</script>
 <script src="lib/jquery/jquery.js"></script>
 <script src="lib/bootstrap/js/bootstrap.js"></script>
+<script src="lib/art-template/template-web.js"></script>
 <script src="js/index.js"></script>
 </body>
 </html>

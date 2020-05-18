@@ -2113,7 +2113,7 @@ var helpers = {
 	noop: function() {},
 
 	/**
-	 * Returns a unique id, sequentially generated from a global variable.
+	 * Returns a unique id, sequentially generated from a global variable.less.
 	 * @returns {number}
 	 * @function
 	 */

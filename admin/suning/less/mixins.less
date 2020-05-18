@@ -1,0 +1,12 @@
+@charset "UTF-8";
+.adapter(@index) when (@index > 0) {
+  //@index when (@index > 0) {
+  @media (min-width: extract(@adapterList, @index)) {
+    html {
+      //font-size: extract(@adapterList,@index) / @designSize * @baseSize;
+      font-size: extract(@adapterList,@index);
+    }
+  }
+  .adapter(@index - 1)
+}
+//}

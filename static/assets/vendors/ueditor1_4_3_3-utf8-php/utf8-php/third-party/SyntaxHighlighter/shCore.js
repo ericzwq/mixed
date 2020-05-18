@@ -376,7 +376,7 @@ if (XRegExp) {
             result = nativ.replace.call(str, search, function () {
                 var args = arguments; // Keep this function's `arguments` available through closure
                 return nativ.replace.call(replacement + "", replacementToken, function ($0, $1, $2) {
-                    // Numbered backreference (without delimiters) or special variable
+                    // Numbered backreference (without delimiters) or special variable.less
                     if ($1) {
                         switch ($1) {
                             case "$": return "$";
@@ -673,7 +673,7 @@ if (typeof(SyntaxHighlighter) == 'undefined') var SyntaxHighlighter = function()
         XRegExp = require('XRegExp').XRegExp;
     }
 
-// Shortcut object which will be assigned to the SyntaxHighlighter variable.
+// Shortcut object which will be assigned to the SyntaxHighlighter variable.less.
 // This is a shorthand for local reference in order to avoid long namespace
 // references to SyntaxHighlighter.whatever...
     var sh = {
@@ -2408,7 +2408,7 @@ typeof(exports) != 'undefined' ? exports.SyntaxHighlighter = SyntaxHighlighter :
             { regex: /\b([\d]+(\.[\d]+)?|0x[a-f0-9]+)\b/gi,				css: 'value' },			// numbers
             { regex: new RegExp(this.getKeywords(inits), 'gm'),			css: 'color3' },		// initializations
             { regex: new RegExp(this.getKeywords(keywords), 'gm'),		css: 'keyword' },		// keywords
-            { regex: new RegExp('var', 'gm'),							css: 'variable' },		// variable
+            { regex: new RegExp('var', 'gm'),							css: 'variable' },		// variable.less
             { regex: new RegExp('trace', 'gm'),							css: 'color1' }			// trace
         ];
 
@@ -3381,7 +3381,7 @@ typeof(exports) != 'undefined' ? exports.SyntaxHighlighter = SyntaxHighlighter :
 			{ regex: SyntaxHighlighter.regexLib.singleQuotedString,		css: 'string' },		// single quoted strings
 			{ regex: /\b[A-Z0-9_]+\b/g,									css: 'constants' },		// constants
 			{ regex: /:[a-z][A-Za-z0-9_]*/g,							css: 'color2' },		// symbols
-			{ regex: /(\$|@@|@)\w+/g,									css: 'variable bold' },	// $global, @instance, and @@class variables
+			{ regex: /(\$|@@|@)\w+/g,									css: 'variable.less bold' },	// $global, @instance, and @@class variables
 			{ regex: new RegExp(this.getKeywords(keywords), 'gm'),		css: 'keyword' },		// keywords
 			{ regex: new RegExp(this.getKeywords(builtins), 'gm'),		css: 'color1' }			// builtins
 			];

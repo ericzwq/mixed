@@ -9469,7 +9469,7 @@ jQuery.extend( {
 			// Cross-domain detection vars
 			parts,
 
-			// Loop variable
+			// Loop variable.less
 			i,
 
 			// URL without anti-cache param
@@ -10627,7 +10627,7 @@ jQuery.fn.load = function( url, params, callback ) {
 		jQuery.ajax( {
 			url: url,
 
-			// If "type" variable is undefined, then "GET" method will be used.
+			// If "type" variable.less is undefined, then "GET" method will be used.
 			// Make value of this field explicit since
 			// user can override it through ajaxSetup method
 			type: type || "GET",

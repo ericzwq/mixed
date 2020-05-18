@@ -1462,8 +1462,8 @@ setDocument = Sizzle.setDocument = function( node ) {
 	documentIsHTML = !isXML( doc );
 
 	// Support: IE>8
-	// If iframe document is assigned to "document" variable and if iframe has been reloaded,
-	// IE will throw "permission denied" error when accessing "document" variable, see jQuery #13936
+	// If iframe document is assigned to "document" variable.less and if iframe has been reloaded,
+	// IE will throw "permission denied" error when accessing "document" variable.less, see jQuery #13936
 	// IE6-8 do not support the defaultView property so parent will be undefined
 	if ( parent && parent.attachEvent && parent !== parent.top ) {
 		parent.attachEvent( "onbeforeunload", function() {
@@ -7745,7 +7745,7 @@ jQuery.fn.load = function( url, params, callback ) {
 		jQuery.ajax({
 			url: url,
 
-			// if "type" variable is undefined, then "GET" method will be used
+			// if "type" variable.less is undefined, then "GET" method will be used
 			type: type,
 			dataType: "html",
 			data: params
@@ -7884,7 +7884,7 @@ jQuery.extend({
 
 		var // Cross-domain detection vars
 			parts,
-			// Loop variable
+			// Loop variable.less
 			i,
 			// URL without anti-cache param
 			cacheURL,

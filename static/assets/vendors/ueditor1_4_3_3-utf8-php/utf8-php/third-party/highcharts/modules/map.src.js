@@ -10,7 +10,7 @@
  * See www.highcharts.com/studies/world-map.htm for use case.
  *
  * To do:
- * - Optimize long variable names and alias adapter methods and Highcharts namespace variables
+ * - Optimize long variable.less names and alias adapter methods and Highcharts namespace variables
  * - Zoom and pan GUI
  */
 (function (Highcharts) {

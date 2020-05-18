@@ -1650,7 +1650,7 @@ vjs.Component.prototype.addChild = function(child, options){
 
     // Create a new object & element for this controls set
     // If there's no .player_, this is a player
-    // Closure Compiler throws an 'incomplete alias' warning if we use the vjs variable directly.
+    // Closure Compiler throws an 'incomplete alias' warning if we use the vjs variable.less directly.
     // Every class should be exported, so this should never be a problem here.
     component = new window['videojs'][componentClass](this.player_ || this, options);
 

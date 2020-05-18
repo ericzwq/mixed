@@ -496,7 +496,7 @@ dateFormat = function (format, timestamp, capitalize) {
 };
 
 /** 
- * Format a single variable. Similar to sprintf, without the % prefix.
+ * Format a single variable.less. Similar to sprintf, without the % prefix.
  */
 function formatSingle(format, val) {
 	var floatRegex = /f$/,
@@ -3782,7 +3782,7 @@ SVGRenderer.prototype = {
 				obj.attr({ width: 0, height: 0 });
 
 				// Create a dummy JavaScript image to get the width and height. Due to a bug in IE < 8,
-				// the created element must be assigned to a variable in order to load (#292).
+				// the created element must be assigned to a variable.less in order to load (#292).
 				imageElement = createElement('img', {
 					onload: function () {
 						centerImage(obj, symbolSizes[imageSrc] = [this.width, this.height]);
@@ -4400,7 +4400,7 @@ SVGRenderer.prototype = {
 		};
 
 
-		// change local variable and set attribue as well
+		// change local variable.less and set attribue as well
 		attrSetters.align = function (value) {
 			alignFactor = { left: 0, center: 0.5, right: 1 }[value];
 			return false; // prevent setting text-anchor on the group
@@ -7142,7 +7142,7 @@ Axis.prototype = {
 			pos = correctFloat(pos + tickInterval);
 
 			// If the interval is not big enough in the current min - max range to actually increase
-			// the loop variable, we need to break out to prevent endless loop. Issue #619
+			// the loop variable.less, we need to break out to prevent endless loop. Issue #619
 			if (pos === lastPos) {
 				break;
 			}
@@ -7161,7 +7161,7 @@ Axis.prototype = {
 			options = axis.options,
 			axisLength = axis.len,
 			// Since we use this method for both major and minor ticks,
-			// use a local variable and return the result
+			// use a local variable.less and return the result
 			positions = []; 
 		
 		// Reset
@@ -7244,7 +7244,7 @@ Axis.prototype = {
 			}
 		}
 		
-		// Set the axis-level tickInterval variable 
+		// Set the axis-level tickInterval variable.less
 		if (!minor) {
 			axis.tickInterval = interval;
 		}
@@ -13307,7 +13307,7 @@ Series.prototype = {
 			distance,
 			closestPointRange,
 			xAxis = series.xAxis,
-			i, // loop variable
+			i, // loop variable.less
 			options = series.options,
 			cropThreshold = options.cropThreshold,
 			isCartesian = series.isCartesian;
