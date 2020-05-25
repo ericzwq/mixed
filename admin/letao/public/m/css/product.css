@@ -1,0 +1,101 @@
+body {
+    background: #fff;
+}
+
+.bb {
+    border-bottom: 1px solid #ccc;
+}
+
+.lt_main {
+    padding-bottom: 55px;
+}
+
+.lt_main .proName {
+    color: #000;
+    font-size: 18px;
+    padding: 15px 5px;
+}
+
+.lt_main .proPriceBox {
+    height: 50px;
+    line-height: 35px;
+    padding: 0 5px;
+    font-size: 14px;
+}
+
+.lt_main .proPriceBox .pro_price {
+    color: red;
+    font-size: 24px;
+}
+
+.lt_main .proPriceBox .pro_oldPrice {
+    color: #ccc;
+    font-size: 13px;
+}
+
+.lt_main .proSize {
+    padding: 0 5px 10px;
+    font-size: 14px;
+}
+
+.lt_main .proSize span, .lt_main .proNum span {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+
+.lt_main .proSize .sizeItem {
+    margin: 10px 2px 0 0;
+}
+
+.lt_main .proSize .sizeItem.now {
+    background: #fa672d;
+}
+
+.lt_main .proNum {
+    padding: 10px 5px;
+    font-size: 14px;
+}
+
+.lt_main .proNum span {
+    border-right: none;
+}
+
+.lt_main .proNum span:last-of-type {
+    border-right: 1px solid #ccc;
+}
+
+.lt_tabs {
+    width: 100%;
+    line-height: 50px;
+    background: #ddd;
+    padding-top: 0;
+    padding-right: 5px;
+}
+
+.lt_tabs .pro_opt {
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.lt_tabs span {
+    width: 50px;
+    margin-top: 20px;
+    float: left;
+}
+
+.lt_tabs .pro_opt a {
+    width: 50%;
+    height: 45px;
+}
+
+.lt_tabs .pro_opt .pro_addCart {
+    background: #991020;
+}
+
+.lt_tabs .pro_opt .pro_buy {
+    background: #fa672d;
+}

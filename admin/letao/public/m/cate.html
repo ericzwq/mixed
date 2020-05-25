@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="">
+    <title>乐淘云购-分类</title>
+    <link rel="stylesheet" href="assets/fa/css/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/mui/css/mui.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/cate.css">
+</head>
+<body>
+<div class="lt_container">
+    <header class="lt_topBar">
+        <a class="lt_back fa fa-arrow-left" href="javascript:history.back()"></a>
+        <form action="javascript:;"><input type="search" name="search"></form>
+        <a class="lt_search fa fa-search"></a>
+    </header>
+    <div class="lt_main mui-scroll-wrapper">
+        <div class="mui-scroll">
+            <div class="cate_left">
+
+            </div>
+            <div class="cate_right">
+
+            </div>
+        </div>
+    </div>
+    <footer class="lt_tabs">
+        <a class="tab_home fa fa-home" href="index.html"><span>首页</span></a>
+        <a class="tab_cate fa fa-bars now" href="cate.html"><span>分类</span></a>
+        <a class="tab_cart fa fa-shopping-cart" href="cart.html"><span>购物车</span></a>
+        <a class="tab_user fa fa-user" href="user/index.html"><span>会员中心</span></a>
+    </footer>
+</div>
+<script type="text/x-art-template" id="firstCate">
+    <ul class="mui-clearfix">
+        <% for(var i = 0; i < rows.length; i++) {%>
+        <li class="<%=i==0?'now':''%>"><a id="<%=rows[i].id%>"><%=rows[i].categoryName%></a></li>
+        <% } %>
+    </ul>
+</script>
+<script type="text/x-art-template" id="secondCate">
+    <ul>
+        <% for(var i = 0; i < rows.length; i++) {%>
+        <li><a><img src="<%=rows[i].brandLogo%>"><span><%=rows[i].brandName%></span></a></li>
+        <% } %>
+    </ul>
+</script>
+<script src="assets/mui/js/mui.min.js"></script>
+<script src="assets/zepto/zepto.min.js"></script>
+<script src="assets/artTemplate/template-native.js"></script>
+<!--<script src="js/common.js"></script>-->
+<script src="js/cate.js"></script>
+</body>
+</html>
