@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>扇形</title>
+    <style>
+        canvas {
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+<canvas width="600" height="400"></canvas>
+<script>
+    var ctx = document.querySelector('canvas').getContext('2d');
+    ctx.moveTo(ctx.canvas.width / 2, ctx.canvas.height / 2); // 相当于设置起始点，便于系统自动闭合
+    ctx.arc(ctx.canvas.width / 2, ctx.canvas.height / 2, 150, 0, Math.PI / 2);
+    ctx.closePath();
+    ctx.stroke();
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title></title>
+	<style type="text/css">
+	</style>
+</head>
+<body>
+	<a id="a">a</a>
+	<div id="dv"></div> 
+	<div  style="width: 500px;">
+		<canvas id="chart"></canvas>
+	</div>
+	<script src="/static/assets/vendors/jq/jquery-1.12.2.js"></script>
+	<script src="/static/assets/vendors/chart/Chart.js"></script>
+	<script src="/static/assets/vendors/ueditor1_4_3_3-utf8-php/utf8-php/ueditor.config.js"></script>
+	<script src="/static/assets/vendors/ueditor1_4_3_3-utf8-php/utf8-php/ueditor.all.js"></script>
+<script>
+	var a = document.getElementById('a');
+	var xhr = new XMLHttpRequest();
+	a.onclick = function () {
+		$.get('test.php',function (res,aa){
+			console.log(res,aa)
+		})
+	// 	xhr.open('get','test.php')
+	// xhr.send()
+	// xhr.onreadystatechange = function(){
+	// 	if(this.readyState != 4) return;
+	// 	console.log(this.responseText);
+	// }
+	}
+	UE.getEditor('dv')	//{initialFrameHeight: 1320,autoHeight: false}
+    var ctx = document.getElementById('chart').getContext('2d')
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        datasets: [
+          {
+            data: [3, 3, 4],
+            backgroundColor: [
+              'hotpink',
+              'pink',
+              'deeppink',
+            ]
+          },
+          {
+            data: [5,4,2],
+            backgroundColor: [
+              'black',
+              'red',
+              'blue',
+            ]
+          }
+        ],
+
+        // These labels appear in the legend and in the tooltips when hovering different arcs
+        labels: [
+          '文章',
+          '分类',
+          '评论',
+        ]
+      }
+    })
+</script>
+</body>
+</html>

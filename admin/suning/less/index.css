@@ -1,0 +1,231 @@
+@charset "UTF-8";
+*,
+*::before,
+*::after {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+li {
+  list-style-type: none;
+}
+input {
+  border: none;
+  outline: none;
+  -webkit-appearance: none;
+}
+.clearFix::before,
+.clearFix::after {
+  content: "";
+  display: block;
+  visibility: hidden;
+  height: 0;
+  line-height: 0;
+  clear: both;
+}
+.f_left {
+  float: left;
+}
+.f_right {
+  float: right;
+}
+@media (min-width: 320px) {
+  html {
+    font-size: 320px;
+  }
+}
+@media (min-width: 360px) {
+  html {
+    font-size: 360px;
+  }
+}
+@media (min-width: 375px) {
+  html {
+    font-size: 375px;
+  }
+}
+@media (min-width: 384px) {
+  html {
+    font-size: 384px;
+  }
+}
+@media (min-width: 400px) {
+  html {
+    font-size: 400px;
+  }
+}
+@media (min-width: 414px) {
+  html {
+    font-size: 414px;
+  }
+}
+@media (min-width: 424px) {
+  html {
+    font-size: 424px;
+  }
+}
+@media (min-width: 480px) {
+  html {
+    font-size: 480px;
+  }
+}
+@media (min-width: 540px) {
+  html {
+    font-size: 540px;
+  }
+}
+@media (min-width: 640px) {
+  html {
+    font-size: 640px;
+  }
+}
+@media (min-width: 720px) {
+  html {
+    font-size: 720px;
+  }
+}
+@media (min-width: 750px) {
+  html {
+    font-size: 750px;
+  }
+}
+.sn_container {
+  max-width: 1rem;
+  width: 100%;
+  height: 1.06666667rem;
+  margin: 0 auto;
+  padding-top: 0.12rem;
+}
+.sn_topBar {
+  width: 100%;
+  height: 0.12rem;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background: #fabc09;
+  z-index: 999;
+}
+.sn_topBar a {
+  width: 0.12rem;
+  height: 0.12rem;
+  display: block;
+  position: absolute;
+  top: 0;
+}
+.sn_topBar a.sn_icon_cate {
+  background: url("../images/icon_category.png") no-repeat center / 0.05866667rem 0.09333333rem;
+  left: 0;
+}
+.sn_topBar a.sn_icon_shopping {
+  background: url("../images/icon_cart.png") no-repeat center / 0.084rem 0.09066667rem;
+  right: 0;
+}
+.sn_topBar form {
+  position: relative;
+  width: 100%;
+  height: 0.12rem;
+  display: block;
+  padding: 0.02rem 0.12rem;
+}
+.sn_topBar form span {
+  width: 0.04rem;
+  height: 0.04rem;
+  display: block;
+  position: absolute;
+  transform: translateY(50%);
+  background: url("../images/icon_search.png") no-repeat center / 0.036rem 0.03733333rem;
+  margin-left: 0.01333333rem;
+}
+.sn_topBar form input {
+  width: 100%;
+  height: 0.08rem;
+  display: block;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 0.00666667rem;
+  font-size: 0.032rem;
+  padding-left: 0.06666667rem;
+}
+.sn_banner {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+.sn_banner .ban_img {
+  width: 1000%;
+  position: relative;
+  display: block;
+  transform: translateX(-10%);
+}
+.sn_banner .ban_img li {
+  width: 10%;
+  float: left;
+}
+.sn_banner .ban_img li a {
+  width: 100%;
+}
+.sn_banner .ban_img li a img {
+  width: 100%;
+  display: block;
+}
+.sn_banner .ban_dot {
+  position: absolute;
+  right: 0.02666667rem;
+  bottom: 0.02666667rem;
+}
+.sn_banner .ban_dot li {
+  width: 0.016rem;
+  height: 0.016rem;
+  float: left;
+  background: white;
+  margin-left: 0.01333333rem;
+  border-radius: 50%;
+}
+.sn_banner .ban_dot li.now {
+  background: #fabc09;
+}
+.sn_nav {
+  width: 100%;
+}
+.sn_nav a {
+  width: 20%;
+  display: block;
+  float: left;
+  font-size: 0.024rem;
+  margin-top: 0.01333333rem;
+}
+.sn_nav a img {
+  width: 0.10666667rem;
+  height: 0.10666667rem;
+  display: block;
+  margin: 0 auto;
+}
+.sn_nav a p {
+  text-align: center;
+}
+.sn_footer {
+  width: 100%;
+  height: 0.13333333rem;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  background: #fff;
+  border-top: 1px solid #ccc;
+  z-index: 999;
+}
+.sn_footer a {
+  width: 20%;
+  display: block;
+  float: left;
+  font-size: 0.05333333rem;
+  text-align: center;
+  margin-top: 0.01333333rem;
+}
+.sn_footer p {
+  text-align: center;
+  margin-top: 0.01333333rem;
+  font-size: 0.024rem;
+}
+/*# sourceMappingURL=common.css.map */

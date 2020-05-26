@@ -1,0 +1,57 @@
+/*用户管理*/
+th {
+    text-align: center;
+}
+
+.table > tbody > tr > td {
+    line-height: 45px;
+}
+
+/*模态框*/
+.user_modal .modal-body {
+    color: red;
+}
+
+/*分页*/
+[id*='Page'] {
+    float: right;
+}
+
+/*一级分类*/
+table {
+    margin-top: 10px;
+}
+
+/*二级分类*/
+img {
+    display: block;
+    height: 45px;
+    margin: 0 auto;
+}
+ul.dropdown-menu{
+
+}
+.seCaForm {
+}
+.seCaForm .seCaName {
+    margin-top: 10px;
+}
+
+.seCaForm .fileupload input {
+    opacity: 0;
+}
+
+.seCaForm .fileupload a {
+    margin-top: -40px;
+}
+
+.seCaForm .upImg {
+    width: 100px;
+    height: 100px;
+}
+
+.seCaForm .upImg img {
+    width: 100%;
+    height: 100%;
+    display: block;
+}

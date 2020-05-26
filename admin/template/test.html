@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>模板字符串</title>
+</head>
+<body>
+	<table id="tb"></table>
+	<script src="template-web.js"></script>
+	<script type="text/x-art-template" id="tmpl">
+		{{each target}}
+			<tr>
+				<td>{{$value}}</td>
+				
+			</tr>
+		{{/each}}
+	</script>
+	<script>
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET','test.php')
+		xhr.send()
+		xhr.onreadystatechange = function () {
+			if (this.readyState !== 4 ) return;
+			var res = JSON.parse(this.responseText);
+			var obj = {target:res.data}
+			var html = template('tmpl',obj);
+			document.getElementById("tb").innerHTML = html;
+		}
+	</script>
+</body>
+</html>

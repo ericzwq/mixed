@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>员工管理系统登录</title>
+    <link href="styles.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+<form action="index.html" onsubmit="return register1()">
+    <h2 id="title">员工管理系统登录</h2>
+    <div id="all">
+        <div>
+            <label class="text">用户名：</label>
+            <div><input type="text" placeholder="请输入用户名" onclick="showUserTip()" onkeyup="showUserTip()" id="user">
+            </div>
+            <span id="userTip" class="tip"></span>
+        </div>
+        <div>
+            <label class="text">密码：</label>
+            <div><input type="password" placeholder="请输入密码" onclick="showPasswordTip()" onkeyup="showPasswordTip()"
+                        id="password"></div>
+            <span id="passwordTip" class="tip"></span>
+        </div>
+        <div id="registerDiv">
+            <input type="submit" class="register" id="register" value="登录">
+        </div>
+        <div id="result"></div>
+    </div>
+</form>
+<script>
+    var user = document.getElementById("user");
+    var password = document.getElementById("password");
+    var register = document.getElementById("register");
+    var result = document.getElementById("result");
+
+    function showUserTip() {
+        var user = document.getElementById("user");
+        var userTip = document.getElementById("userTip");
+        if (user.value.length < 2) {
+            userTip.innerHTML = "<span style='color: red'>请输入2位字符及以上</span>";
+        } else {
+            userTip.innerHTML = "<span style='color: green'>符合</span>";
+        }
+        if (result.childNodes[0]) {
+            result.removeChild(result.childNodes[0])
+        }
+    }
+
+    function showPasswordTip() {
+        var password = document.getElementById("password");
+        var passwordTip = document.getElementById("passwordTip");
+        if (password.value.length < 6) {
+            passwordTip.innerHTML = "<span style='color: red'>请输入6位字符以上</span>";
+        } else {
+            passwordTip.innerHTML = "<span style='color: green'>符合</span>";
+        }
+        if (result.childNodes[0]) {
+            result.removeChild(result.childNodes[0])
+        }
+    }
+
+
+    function register1() {
+        register.style.backgroundColor = "#9d1e1e";
+        var userValue = user.value;
+        var paswValue = password.value;
+        if (userValue === "admin" && paswValue === "123456") {
+            return true;
+        } else {
+            if (result.children[0] == undefined) {
+                var p = document.createElement("p");
+                p.innerText = "用户名或密码错误，请重新输入";
+                p.style.color = "red";
+                result.style.textAlign = "center";
+                result.appendChild(p)
+            }
+            setTimeout(function () {
+                register.style.backgroundColor = "red";
+            }, 100);
+            return false;
+        }
+    }
+</script>
+</body>
+</html>

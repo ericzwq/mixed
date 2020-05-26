@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<input type="file" name="file">
+<script>
+    var formdata = new FormData();
+    var input = document.querySelector('input');
+    input.onchange = function () {
+        formdata.append('file', this.files[0]);
+        var xhr = new XMLHttpRequest();
+        xhr.open('post', 'default.php');
+        xhr.send(formdata);
+        xhr.onreadystatechange = function () {
+            if (this.readyState != 4) return
+            console.log(this.responseText)
+        }
+    }
+</script>
+</body>
+</html>

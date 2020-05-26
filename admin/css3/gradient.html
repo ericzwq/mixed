@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>颜色渐变</title>
+    <style>
+        div {
+            margin: 100px 50px;
+            display: inline-block;
+        }
+
+        .circle {
+            width: 300px;
+            height: 300px;
+        }
+
+        .ellipse {
+            width: 300px;
+            height: 200px;
+        }
+
+        .linear {
+            background: linear-gradient(red 20%, green 40%, blue 60%, yellow 80%, purple);
+        }
+
+        .radial {
+            animation: l 1.5s linear infinite;
+            background: repeating-radial-gradient(ellipse closest-corner,black 0%,red 20%, green 40%, blue 60%, yellow 80%, purple 100%);
+        }
+
+        @keyframes l {
+            from {
+                background: radial-gradient(ellipse closest-corner,black 0%,red 20%, green 40%, blue 60%, yellow 80%, purple 100%);
+            }
+            10% {
+                background: radial-gradient(ellipse closest-corner,red 0%,green 20%, blue 40%, yellow 60%, purple 80%, black 100%);
+            }
+            20% {
+                background: radial-gradient(ellipse closest-corner,green 0%,blue 20%, yellow 40%, purple 60%, black 80%, red 100%);
+            }
+            30% {
+                background: radial-gradient(ellipse closest-corner,blue 0%,yellow 20%, purple 40%, black 60%, red 80%, green 100%);
+            }
+            40% {
+                background: radial-gradient(ellipse closest-corner,yellow 0%,purple 20%, black 40%, red 60%, green 80%, blue 100%);
+            }
+            50% {
+                background: radial-gradient(ellipse closest-corner,purple 0%,black 20%, red 40%, green 60%, blue 80%, yellow 100%);
+            }
+            60% {
+                background: radial-gradient(ellipse closest-corner,black 0%,red 20%, green 40%, blue 60%, yellow 80%, purple 100%);
+            }
+            70% {
+                background: radial-gradient(ellipse closest-corner,red 0%,green 20%, blue 40%, yellow 60%, purple 80%, black 100%);
+            }
+            80% {
+                background: radial-gradient(ellipse closest-corner,green 0%,blue 20%, yellow 40%, purple 60%, black 80%, red 100%);
+            }
+            90% {
+                background: radial-gradient(ellipse closest-corner,blue 0%,yellow 20%, purple 40%, black 60%, red 80%, green 100%);
+            }
+            100% {
+                background: radial-gradient(ellipse closest-corner,yellow 0%,purple 20%, black 40%, red 60%, green 80%, blue 100%);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="circle linear"></div>
+<div class="circle radial"></div>
+<div class="ellipse linear"></div>
+<div class="ellipse radial"></div>
+</body>
+</html>
