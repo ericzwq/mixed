@@ -1,5 +1,9 @@
 var BE = {};
+<<<<<<< HEAD
 BE.indexUrl = '/admin33/layout.html';
+=======
+BE.indexUrl = '/admin33/index.html';
+>>>>>>> 362e22225c41d4ceb7e44a4b3cdeb8697e6d35e7
 BE.loginUrl = '/admin33/login.html';
 BE.productManageUrl = '/admin33/productManage.html';
 BE.userManageUrl = '/admin33/userManage.html';
