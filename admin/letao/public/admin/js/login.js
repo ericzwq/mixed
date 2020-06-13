@@ -59,7 +59,7 @@ $(function(){
                 if(data.success){
                     /*后台管理员 root 123456*/
                     /*登录成功*/
-                    location.href = 'index.html';
+                    location.href = 'layout.html';
                 }else{
                     /*登录不成功*/
                     /*8.恢复可提交的按钮*/

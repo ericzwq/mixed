@@ -1,0 +1,8 @@
+li{
+    list-style: none;
+}
+div{
+    width: 400px;
+    height: 400px;
+    background: url("../img/4.jpg");
+}

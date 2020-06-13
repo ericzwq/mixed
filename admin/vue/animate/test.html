@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../static/assets/vendors/animate/animate.min.css">
+    <style>
+        ul {
+            /*transform: translateY(80px);*/
+            /*transition: all 1s;*/
+        }
+
+        ul.current {
+            transform: none;
+        }
+
+        .bg {
+            background-color: red;
+        }
+
+        li {
+            width: 100%;
+            font-size: 12px;
+            border: 1px dashed black;
+            padding: 5px;
+            margin-top: 5px;
+            transition: all .5s;
+        }
+
+        li:hover {
+            background: hotpink;
+            /*transition: all 0s;*/
+        }
+
+        .my-move {
+            transition: all 1s;
+        }
+
+        .my-enter, .my-leave-to {
+            transform: translateY(80px);
+        }
+
+        .aa {
+            position: absolute;
+            transition: all .5s;
+        }
+
+        .my-leave-active {
+
+        }
+
+        .v-appear-active {
+            background-color: blue;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    A<input type="radio" name="ck" @click="view='v-a'" checked>
+    B<input type="radio" name="ck" @click="view='v-b'">
+    <transition name="component-fade" mode="out-in">
+        <component v-bind:is="view"></component>
+    </transition>
+    <a :is="'v-a'"></a>
+</div>
+<script src="../../../static/assets/vendors/vue/vue-2.6.11.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            view: 'v-a'
+        },
+        components: {
+            'v-a': {
+                template: '<div>Component A</div>'
+            },
+            'v-b': {
+                template: '<div>Component B</div>'
+            }
+        },
+        methods: {}
+    })
+</script>
+</body>
+</html>

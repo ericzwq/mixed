@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .v-enter, .v-leave-to {
+            opacity: 0;
+            transform: translateX(150px);
+        }
+
+        .v-enter-active, .v-leave-active {
+            transition: all .2s;
+        }
+
+        .myActive {
+            background: red;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <!--    <a href="#/login">登录</a>-->
+    <!--    <a href="#/register">注册</a>-->
+    <router-link :to="{name:'login',params:{id:1}}">登录</router-link>
+    <router-link to="/register?name=zs">注册</router-link>
+    <transition mode="out-in">
+        <router-view></router-view>
+    </transition>
+</div>
+<script src="../../../static/assets/vendors/vue/vue-2.6.11.js"></script>
+<script src="../../../static/assets/vendors/vue/vue-router.js"></script>
+<script>
+    let login = {
+        template: '<h3>登录组件---{{ $route.params.id }}</h3>'
+    };
+    let register = {
+        template: '<h3>注册组件---{{ $route.query.name }}</h3>'
+    };
+    let router = new VueRouter({
+        routes: [
+            {path: '/', redirect: '/login'},
+            {path: '/login/:id', component: login, name: 'login'},
+            {path: '/register', component: register, name: 'register'},
+        ],
+        linkActiveClass: 'myActive'
+    })
+    var vm = new Vue({
+        el: '#app',
+        data: {},
+        router: router
+    })
+</script>
+</body>
+</html>

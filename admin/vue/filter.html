@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="app">
+    <table :title="list | myFilter">
+        <tr v-for="i in list">
+            <td>{{i.id | myFilter}}</td>
+        </tr>
+    </table>
+</div>
+<script src="../../static/assets/vendors/vue/vue-2.6.11.js"></script>
+<script>
+    Vue.filter('myFilter', function (value) {
+        return value % 2 === 0 ? value : '';
+    })
+    let vm = new Vue({
+        el: '#app',
+        data: {
+            inputName: '',
+            filterName: '',
+            gender: '',
+            list: [
+                {id: 1, name: 'jack', gender: '女'},
+                {id: 2, name: 'sdaf', gender: '男'},
+                {id: 3, name: 'sdlfjadsfj', gender: '女'},
+                {id: 4, name: 'dflgjs', gender: '男'},
+                {id: 5, name: 'iuef', gender: '女'},
+                {id: 6, name: 'dslfj', gender: '男'},
+                {id: 7, name: 'lfdjv', gender: '男'}
+            ]
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../static/assets/vendors/animate/animate.min.css">
+    <style>
+        ul {
+            /*transform: translateY(80px);*/
+            /*transition: all 1s;*/
+        }
+
+        ul.current {
+            transform: none;
+        }
+
+        .bg {
+            background-color: red;
+        }
+
+        li {
+            width: 100%;
+            font-size: 12px;
+            border: 1px dashed black;
+            padding: 5px;
+            margin-top: 5px;
+            transition: all .5s;
+        }
+
+        li:hover {
+            background: hotpink;
+            /*transition: all 0s;*/
+        }
+
+        .my-move {
+            transition: all 1s;
+        }
+
+        .my-enter, .my-leave-to {
+            transform: translateY(80px);
+        }
+
+        .aa {
+            position: absolute;
+            transition: all .5s;
+        }
+
+        .my-leave-active {
+
+        }
+
+        .v-appear-active {
+            background-color: blue;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    ID:<input type="text" v-model="id">
+    NAME:<input type="text" v-model="name">
+    <input type="button" value="添加" @click="add">
+    <transition-group name="my" tag="ul" appear leave-active-class="aa" enter-active-class="bg">
+        <li v-for="(item,i) in list" :key="item.id+1" @click="del(i)">{{ item.id }}---{{ item.name }}</li>
+    </transition-group>
+</div>
+<script src="../../../static/assets/vendors/vue/vue-2.6.11.js"></script>
+<script>
+    Vue.directive('my-move', function (el) {
+        setTimeout(function () {
+            el.className = 'current';
+        }, 100)
+    })
+    new Vue({
+        el: '#app',
+        data: {
+            flag: false,
+            name: '',
+            id: '',
+            list: [
+                {id: 1, name: '赵高'},
+                {id: 2, name: '秦桧'},
+                {id: 3, name: '严嵩'},
+                {id: 4, name: '魏忠贤'}
+            ]
+        },
+        methods: {
+            add() {
+                this.list.push({id: this.id, name: this.name});
+                this.id = this.name = '';
+            },
+            del(i) {
+                this.list.splice(i, 1);
+            }
+        }
+    })
+</script>
+</body>
+</html>

@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="WEB_MODULE" version="4">
   <component name="NewModuleRootManager">
-    <content url="file://$MODULE_DIR$" />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/admin" />
+      <excludeFolder url="file://$MODULE_DIR$/admin/css3" />
+      <excludeFolder url="file://$MODULE_DIR$/admin/html5" />
+      <excludeFolder url="file://$MODULE_DIR$/admin/jdM" />
+      <excludeFolder url="file://$MODULE_DIR$/admin/jsonp" />
+      <excludeFolder url="file://$MODULE_DIR$/admin/letao" />
+      <excludeFolder url="file://$MODULE_DIR$/admin/mysqlTest" />
+      <excludeFolder url="file://$MODULE_DIR$/admin/node" />
+      <excludeFolder url="file://$MODULE_DIR$/admin/study" />
+      <excludeFolder url="file://$MODULE_DIR$/admin/suning" />
+      <excludeFolder url="file://$MODULE_DIR$/static/assets" />
+      <excludeFolder url="file://$MODULE_DIR$/static/uploads" />
+    </content>
+    <content url="file://$MODULE_DIR$/admin/vue" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>

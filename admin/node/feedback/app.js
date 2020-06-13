@@ -25,11 +25,12 @@ var comments = [
 ];
 require('http').createServer(function (req, res) {
     var parseUrl = url.parse(req.url, true);
+    console.log(parseUrl)
     var path = parseUrl.pathname;
     var query = parseUrl.query;
     if (path === '/') {
 
-        fs.readFile('./views/index.html', function (err, data) {
+        fs.readFile('./views/layout.html', function (err, data) {
             if (err) res.end('busy');
             var s = tpl.render(data.toString(), {data: comments});
             res.end(s);

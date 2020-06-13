@@ -1,5 +1,5 @@
 var BE = {};
-BE.indexUrl = '/admin33/index.html';
+BE.indexUrl = '/admin33/layout.html';
 BE.loginUrl = '/admin33/login.html';
 BE.productManageUrl = '/admin33/productManage.html';
 BE.userManageUrl = '/admin33/userManage.html';
