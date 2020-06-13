@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            width: 100%;
+            height: 100px;
+            background: red;
+        }
+
+        .left {
+            width: 20%;
+            height: 400px;
+            background: pink;
+            float: left;
+        }
+
+        .main {
+            width: 80%;
+            height: 400px;
+            background: skyblue;
+            float: right;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <router-view></router-view>
+    <router-view name="left"></router-view>
+    <router-view name="main"></router-view>
+</div>
+<script src="../../../static/assets/vendors/vue/vue-2.6.11.js"></script>
+<script src="../../../static/assets/vendors/vue/vue-router.js"></script>
+<script>
+    let header = {
+        template: '<p class="header">header</p>'
+    };
+    let left = {
+        template: '<p class="left">left</p>'
+    };
+    let main = {
+        template: '<p class="main">main</p>'
+    };
+    let router = new VueRouter({
+        routes: [
+            {
+                path: '/', components: {
+                    default: header,
+                    left: left,
+                    main: main
+                }
+            }
+        ]
+    });
+    let vm = new Vue({
+        el: '#app',
+        router
+    })
+</script>
+</body>
+</html>

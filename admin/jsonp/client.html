@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JSONP</title>
+</head>
+<body>
+<div id="dv"></div>
+<script src="/jq/jquery-1.12.2.js"></script>
+<script type="text/javascript">
+    //跨域请求
+    // $.ajax({
+    // 	url:'http://localhost/test.php',
+    // 	type:'get',
+    // 	success:function (res) {
+    // 		console.log(res)
+    // 	}
+    // })
+    var fucName = 'foo' + '_' + Date.now();
+    var script = document.createElement('script')
+    script.src = `http://localhost/jsonp/server.php?id=1,2,3,4,5,6,7,8,3&callback=${fucName}`
+    document.body.appendChild(script)
+    window[fucName] = function (res) {
+        console.log(res)
+    }
+</script>
+</body>
+</html>

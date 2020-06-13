@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>事件委托</title>
+</head>
+<body>
+<table>
+    <tbody>
+    <tr>
+        <td>1</td>
+        <td>2</td>
+        <td>3</td>
+        <td>4</td>
+        <td>
+            <a id="1" href="#">删除</a>
+            <a href="#">修改</a>
+        </td>
+    </tr>
+    <tr>
+        <td>11</td>
+        <td>22</td>
+        <td>33</td>
+        <td>44</td>
+        <td>
+            <a id="2" href="#">删除</a>
+            <a href="">修改</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<script>
+    document.querySelector("tbody").onclick = function (e) {
+        e = e || event;
+        console.log(e.target)
+        // console.log(e.target.id);
+        if (e.target.innerText == '删除') {
+            this.removeChild(e.target.parentNode.parentNode)
+        }
+    }
+</script>
+</body>
+</html>

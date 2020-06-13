@@ -1,0 +1,207 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"for",
+				"foreach\tforeach …"
+			],
+			[
+				"va",
+				"var_dump"
+			],
+			[
+				"file",
+				"file1"
+			],
+			[
+				"pri",
+				"print_r"
+			],
+			[
+				"lo",
+				"localtime"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/D/www/default.sublime-project",
+		"/D/BaiduNetdiskDownload/07.php后台开发（7天）/源码/day-04/day-04/code/demo.php",
+		"/D/BaiduNetdiskDownload/07.php后台开发（7天）/源码/day-06/day-06/code/07-upload.php",
+		"/D/BaiduNetdiskDownload/07.php后台开发（7天）/源码/day-07/day-07/code/03-location2.php",
+		"/D/BaiduNetdiskDownload/07.php后台开发（7天）/源码/day-07/day-07/code/02-location.php",
+		"/D/BaiduNetdiskDownload/07.php后台开发（7天）/源码/day-07/day-07/code/content-type/style.php",
+		"/D/BaiduNetdiskDownload/07.php后台开发（7天）/源码/day-07/day-07/code/content-type/index.html",
+		"/D/BaiduNetdiskDownload/07.php后台开发（7天）/源码/day-07/day-07/code/content-type/style.css",
+		"/D/BaiduNetdiskDownload/07.php后台开发（7天）/源码/day-07/day-07/code/content-type/script.php",
+		"/D/www/index.php",
+		"/C/PHP7.2/php.ini",
+		"/D/www/index.html",
+		"/D/www/com.second/index.php",
+		"/D/www/com.second/phpDemo.php",
+		"/D/MyDocuments/com.second/phpDemo.php",
+		"/D/Apache/conf/mime.types",
+		"/C/Users/Administrator/Downloads/phpDemo.php",
+		"/D/Apache/logs/httpd.pid",
+		"/C/Windows/System32/drivers/etc/lmhosts.sam",
+		"/C/Windows/System32/drivers/etc/networks",
+		"/C/Windows/System32/drivers/etc/protocol",
+		"/C/Windows/System32/drivers/etc/services",
+		"/D/Apache/modules/mod_vhost_alias.so"
+	],
+	"find":
+	{
+		"height": 27.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 27.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "default.sublime-project",
+	"replace":
+	{
+		"height": 70.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

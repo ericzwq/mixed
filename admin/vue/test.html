@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .box {
+            width: 200px;
+            height: 200px;
+            background: red;
+        }
+    </style>
+</head>
+<body>
+<div id="dv1" :value="message" :class="test">
+    <input type="text" v-model="test">
+    <input :value="number" type="text">
+    <input type="button" value="点我加1" @click="number++">
+    <a href="http://www.baidu.com" @click.prevent="test">百度</a>
+    <input v-model="mod" type="text" id="text">
+    <p>{{ mod }}</p>
+    <input type="checkbox" v-model="seen" id="checkbox">
+    <div class="box" v-if="seen"></div>
+    <!--    <div v-for="item in obj"><p>{{obj[item]}}</p></div>-->
+    <div v-for="item in arr">
+        <p>item.name</p>
+    </div>
+</div>
+<script src="../../static/assets/vendors/vue/vue-2.6.11.js"></script>
+<script>
+    var vm = new Vue({
+        el: '#dv1',
+        data: {
+            message: 'test',
+            number: 1,
+            mod: 21323,
+            seen: true,
+            arr: [
+                {name: 'www'},
+                {name: 'www'},
+                {name: 'www'},
+                {name: 'www'},
+                {name: 'www'}
+            ],
+            obj: {name: 'rrr', age: '33'}
+        },
+        methods: {
+            mes() {
+                console.log('message');
+            },
+            test: function () {
+                console.log(this)
+            }
+        }
+    });
+    Vue.config.keyCodes.f2 = 111;
+    console.dir(Vue.config.keyCodes.enter)
+    console.log(Vue.directive('a', function (el) {
+        console.log(el)
+    })===Vue.directive('a'))
+    console.log(Vue.directive('a'))
+    console.log(Vue.directive('aa', {}))
+</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="">
+    <title>乐淘云购-搜索中心</title>
+    <link rel="stylesheet" href="assets/fa/css/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/mui/css/mui.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/search.css">
+</head>
+<body>
+<div class="lt_container">
+    <header class="lt_topBar">
+        <a class="lt_back fa fa-arrow-left" href="javascript:history.back()"></a>
+        <span>搜索中心</span>
+    </header>
+    <div class="lt_main mui-scroll-wrapper">
+        <div class="mui-scroll">
+            <div class="lt_main_search">
+                <a class="btn_search_1" href="javascript:;">搜索</a>
+                <form><input type="search" id="main_search_1"></form>
+            </div>
+            <div class="sh_history">
+                <div class="mui-clearfix">
+                    <p>搜索历史</p>
+                    <p><span class="fa fa-trash-o"></span>清空记录</p>
+                </div>
+                <div class="history_list">
+                    <ul class="mui-clearfix">
+                        <li><span>1</span><span class="sh_delete fa fa-close" id="1"></span></li>
+                        <li><span>2</span><span class="sh_delete fa fa-close" id="2"></span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="lt_tabs">
+        <a class="tab_home fa fa-home" href="index.html"><span>首页</span></a>
+        <a class="tab_cate fa fa-bars" href="cate.html"><span>分类</span></a>
+        <a class="tab_cart fa fa-shopping-cart" href="cart.html"><span>购物车</span></a>
+        <a class="tab_user fa fa-user" href="user/index.html"><span>会员中心</span></a>
+    </footer>
+</div>
+<script src="assets/mui/js/mui.min.js"></script>
+<script src="assets/zepto/zepto.min.js"></script>
+<script src="assets/artTemplate/template-native.js"></script>
+<script src="js/common.js"></script>
+<script src="js/search.js"></script>
+</body>
+</html>

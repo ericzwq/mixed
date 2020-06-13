@@ -1,0 +1,257 @@
+/*reset css*/
+a {
+    text-decoration: none;
+    color: #000;
+}
+
+a:hover {
+    text-decoration: none;
+    color: #000;
+}
+
+/*modal css*/
+.wjs_topBar {
+    height: 40px;
+    border-bottom: 1px solid #ccc;
+    font-size: 12px;
+}
+
+.wjs_topBar .container > .row {
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    transform-style: preserve-3d;
+}
+
+.wjs_topBar .container .row > div {
+    height: 40px;
+    border-left: 1px solid #ccc;
+}
+
+.wjs_topBar .container .row > div:first-of-type {
+    border-left: none;
+}
+
+.wjs_topBar .wjs_app {
+}
+
+.wjs_topBar .wjs_app img {
+    display: none;
+}
+
+.wjs_topBar .wjs_app:hover img {
+    display: inline;
+    margin-top: -3px;
+    border: 1px solid #ccc;
+    border-top: none;
+    transform: translateZ(10px);
+}
+
+@font-face {
+    font-family: wjs;
+    src: url('../fonts/MiFie-Web-Font.eot') format('embedded-opentype'),
+    url('../fonts/Mifie-Web-Font.woff') format('woff'),
+    url('../fonts/MiFie-Web-Font.ttf') format('truetype'),
+    url('../fonts/MiFie-Web-Font.svg') format('svg');
+}
+
+.wjs_icon {
+    font-family: wjs;
+}
+
+.wjs_icon_phone:before {
+    content: '\e908';
+}
+
+.wjs_icon_tel:before {
+    content: '\e909';
+}
+
+.wjs_icon_logo:before {
+    content: '\e920';
+}
+
+.wjs_icon_name:before {
+    content: '\e93e';
+}
+
+.wjs_icon_money:before {
+    content: '\e903';
+}
+
+.wjs_topBar .wjs_icon_tel:before, .wjs_topBar .wjs_icon_phone:before {
+    margin-right: 4px;
+}
+
+.wjs_topBar .wjs_register {
+    margin-right: 10px;
+}
+
+/*导航条*/
+.wjs_nav {
+    border-color: #e7e7e7;
+    margin-top: -1px;
+}
+
+.wjs_nav .navbar-brand {
+    height: 80px;
+    line-height: 50px;
+}
+
+.wjs_nav .navbar-brand .wjs_icon_logo {
+    font-size: 50px;
+    color: red;
+    vertical-align: middle;
+}
+
+.wjs_nav .navbar-brand .wjs_icon_name {
+    font-size: 36px;
+    color: #333;
+    vertical-align: middle;
+}
+
+.wjs_nav .navbar-brand:hover,
+.wjs_nav .navbar-brand:focus {
+    color: #5e5e5e;
+    background-color: transparent;
+}
+
+.wjs_nav .navbar-text {
+    color: #777;
+}
+
+.wjs_nav .navbar-nav > li > a {
+    color: #777;
+    height: 80px;
+    line-height: 50px;
+}
+
+.wjs_nav .navbar-nav > li > a:hover,
+.wjs_nav .navbar-nav > li > a:focus {
+    color: #777;
+    background-color: transparent;
+    border-bottom: 3px solid red;
+}
+
+.wjs_nav .navbar-nav > .active > a,
+.wjs_nav .navbar-nav > .active > a:hover,
+.wjs_nav .navbar-nav > .active > a:focus {
+    color: #777;
+    border-bottom: 3px solid red;
+}
+
+.wjs_nav .navbar-nav > .disabled > a,
+.wjs_nav .navbar-nav > .disabled > a:hover,
+.wjs_nav .navbar-nav > .disabled > a:focus {
+    color: #ccc;
+    background-color: transparent;
+}
+
+.wjs_nav .navbar-toggle {
+    border-color: #ddd;
+    margin-top: 23px;
+}
+
+.wjs_nav .navbar-toggle:hover,
+.wjs_nav .navbar-toggle:focus {
+    background-color: #ddd;
+}
+
+.wjs_nav .navbar-toggle .icon-bar {
+    background-color: #888;
+}
+
+.wjs_nav .navbar-collapse,
+.wjs_nav .navbar-form {
+    border-color: #e7e7e7;
+}
+
+.wjs_nav .navbar-nav > .open > a,
+.wjs_nav .navbar-nav > .open > a:hover,
+.wjs_nav .navbar-nav > .open > a:focus {
+    color: #555;
+    background-color: #e7e7e7;
+}
+
+@media (max-width: 767px) {
+    .wjs_nav .navbar-nav .open .dropdown-menu > li > a {
+        color: #777;
+    }
+
+    .wjs_nav .navbar-nav .open .dropdown-menu > li > a:hover,
+    .wjs_nav .navbar-nav .open .dropdown-menu > li > a:focus {
+        color: #333;
+        background-color: transparent;
+    }
+
+    .wjs_nav .navbar-nav .open .dropdown-menu > .active > a,
+    .wjs_nav .navbar-nav .open .dropdown-menu > .active > a:hover,
+    .wjs_nav .navbar-nav .open .dropdown-menu > .active > a:focus {
+        color: #555;
+        background-color: #e7e7e7;
+    }
+
+    .wjs_nav .navbar-nav .open .dropdown-menu > .disabled > a,
+    .wjs_nav .navbar-nav .open .dropdown-menu > .disabled > a:hover,
+    .wjs_nav .navbar-nav .open .dropdown-menu > .disabled > a:focus {
+        color: #ccc;
+        background-color: transparent;
+    }
+}
+
+.wjs_nav .navbar-link {
+    color: #777;
+}
+
+.wjs_nav .navbar-link:hover {
+    color: #333;
+}
+
+.wjs_nav .btn-link {
+    color: #777;
+}
+
+.wjs_nav .btn-link:hover,
+.wjs_nav .btn-link:focus {
+    color: #333;
+}
+
+.wjs_nav .btn-link[disabled]:hover,
+fieldset[disabled] .wjs_nav .btn-link:hover,
+.wjs_nav .btn-link[disabled]:focus,
+fieldset[disabled] .wjs_nav .btn-link:focus {
+    color: #ccc;
+}
+
+/*轮播图*/
+.wjs_banner .carousel-inner .item .pc_imgBox {
+    height: 400px;
+    display: block;
+    background-position: center;
+    background-size: cover;
+}
+
+.wjs_banner .carousel-inner .item .m_imgBox {
+    display: block;
+    width: 100%;
+}
+
+.wjs_banner .carousel-inner .item .m_imgBox img {
+    display: block;
+    width: 100%;
+}
+
+.wjs_info {
+}
+
+.wjs_info > div {
+    margin-top: 40px;
+}
+.wjs_info > div > a:hover {
+    color: red;
+}
+
+
+.wjs_info a .media .media-left {
+    font-size: 30px;
+}

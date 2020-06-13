@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>边框图片</title>
+    <style>
+        div {
+            width: 100px;
+            height: 100px;
+            left: 100px;
+            position: absolute;
+            background: red;
+            transition: left 2s linear 0s, background-color 2s linear 0s, width 2s linear, height 2s linear;
+        }
+
+        span {
+            display: inline-block;
+            transition: background-color 2s linear, 2s;
+            transform-origin: left bottom;
+        }
+        /*active点击触发过渡*/
+        div:active {
+            background: green;
+            left: 1000px;
+            box-shadow: 1px 1px 10px 1px yellow;
+        }
+        /*hover触发过渡*/
+        div:hover + span {
+            background: blue;
+            transform: translate(300px,300px) rotate(90deg) scale(2) skew(45deg,60deg);
+        }
+    </style>
+</head>
+<body>
+<div id="dv">长按</div>
+<span>span</span>
+<button id="btn">变高</button>
+<script>
+    // js点击按钮触发过渡
+    document.getElementById("dv").onclick = function () {
+        this.style.width = '200px';
+    }
+    document.getElementById("btn").onclick = function () {
+        document.getElementById("dv").style.height = '200px';
+    }
+</script>
+</body>
+</html>

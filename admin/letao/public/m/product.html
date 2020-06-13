@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="">
+    <title>乐淘云购-商品详情</title>
+    <link rel="stylesheet" href="assets/fa/css/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/mui/css/mui.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/product.css">
+</head>
+<body>
+<div class="lt_container">
+    <header class="lt_topBar">
+        <a class="lt_back fa fa-arrow-left" href="javascript:history.back()"></a>
+        <span>商品详情</span>
+        <a class="lt_search fa fa-home" href="index.html"></a>
+    </header>
+    <div class="lt_main mui-scroll-wrapper">
+        <div class="mui-scroll">
+
+        </div>
+    </div>
+    <footer class="lt_tabs">
+        <span class="fa fa-shopping-cart"></span>
+        <div class="pro_opt">
+            <a class="pro_addCart">加入购物车</a>
+            <a class="pro_buy">立即购买</a>
+        </div>
+    </footer>
+    <div class="pro_tip mui-popup mui-popup-in" style="display: none;">
+        <div class="mui-popup-inner">
+            <div class="mui-popup-title">温馨提示</div>
+            <div class="mui-popup-text">添加成功，去购物车看看？</div>
+        </div>
+        <div class="mui-popup-buttons"><span class="pro_yes mui-popup-button">是</span><span
+                class="pro_no mui-popup-button mui-popup-button-bold">否</span></div>
+    </div>
+</div>
+<script type="text/x-art-template" id="proTemp">
+    <div class="mui-slider">
+        <div class="mui-slider-group mui-slider-loop">
+            <% var flag = pic && pic.length ? 1 : 0 %>
+            <% if(flag) { %>
+            <div class="mui-slider-item mui-slider-item-duplicate"><a><img src="<%=pic[pic.length-1].picAddr%>"></a>
+            </div>
+            <% for(var i = 0; i < pic.length; i++) { %>
+            <div class="mui-slider-item"><a><img src="<%=pic[i].picAddr%>"></a></div>
+            <% } %>
+            <div class="mui-slider-item mui-slider-item-duplicate"><a><img src="<%=pic[0].picAddr%>"></a></div>
+            <% } else { %>
+            <% for (var i = 0; i < 3; i++) { %>
+            <div class="mui-slider-item"><a><img src="images/none.png"></a></div>
+            <% } %>
+            <% } %>
+        </div>
+        <div class="mui-slider-indicator">
+            <% if(flag) { %>
+            <% for(var i = 0; i < pic.length; i++) { %>
+            <div class="mui-indicator <%=i==0?'mui-active':''%>"></div>
+            <% } %>
+            <% } else { %>
+            <div class="mui-indicator mui-active"></div>
+            <% } %>
+        </div>
+    </div>
+    <p class="proName bb"><%=proName%></p>
+    <div class="proPriceBox bb">
+        价格：
+        <strong class="pro_price">&yen;<%=price%></strong>
+        <del class="pro_oldPrice">&yen;<%=oldPrice%></del>
+    </div>
+    <div class="proSize bb">
+        尺码：
+        <% var sizeArr = size.split('-');%>
+        <% for(var i = window.parseInt(sizeArr[0]); i <= window.parseInt(sizeArr[1]); i++) { %>
+        <span class="sizeItem <%=i==sizeArr[0]?'now':''%>"><%=i%></span>
+        <% } %>
+    </div>
+    <div class="proNum bb">
+        数量：
+        <span class="pro_minus">-</span><span class="pro_num">0</span><span class="pro_add">+</span>
+        剩余：<%=num%>件
+    </div>
+</script>
+<script src="assets/mui/js/mui.min.js"></script>
+<script src="assets/zepto/zepto.min.js"></script>
+<script src="assets/artTemplate/template-native.js"></script>
+<script src="js/common.js"></script>
+<script src="js/product.js"></script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+/*登录*/
+body {
+    background: #fff;
+}
+
+main {
+    margin-top: 10px;
+}
+
+.lt_main {
+    position: relative;
+    padding-top: 0;
+    padding-bottom: 0;
+    height: calc(100% - 100px);
+    background: #efeff4;
+}
+
+/*购物车*/
+.mui-table-cell a {
+    color: #000;
+    font-size: 14px;
+}
+
+.mui-table-cell .cart_info strong {
+    color: red;
+}
+
+.mui-table-cell .cart_info del, .mui-table-cell .cart_info span {
+    color: #ccc;
+    font-size: 12px;
+}
+
+.mui-table-cell input {
+    margin-top: -20px;
+}
+
+.mui-table-cell .mui-media-object {
+    line-height: 60px;
+    max-width: 60px;
+    height: 60px;
+}
+
+/*购物车编辑*/
+.cart_edit {
+    text-align: left;
+}
+
+.cart_edit .cart_size span, .cart_edit .cart_num span {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    display: inline-block;
+    border: 1px solid #ccc;
+    margin-top: 10px;
+}
+
+.cart_edit .cart_size span.now {
+    background: orangered;
+}
+
+.cart_edit .cart_num span {
+    border-right: none;
+}
+
+.cart_edit .cart_num span:last-of-type {
+    border-right: 1px #ccc solid;
+}
+
+/*个人中心*/
+.mui-content {
+}
+
+
+.user_content .user_icon {
+    width: 60px;
+    height: 60px;
+    line-height: 60px;
+    font-size: 44px;
+    float: left;
+}
+
+.user_content .user_info {
+    overflow: hidden;
+    padding-top: 10px;
+}
+
+.user_content .user_info p:first-of-type {
+    color: #000;
+}

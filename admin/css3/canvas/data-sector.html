@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数据渲染扇形</title>
+    <style>
+        canvas {
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+<canvas width="600" height="400"></canvas>
+<script>
+    var data = [100, 250, 280, 500, 370];
+    var ctx = document.querySelector('canvas').getContext('2d');
+    var startAngle = 0, endAngle = 0, sum = 0;
+    for (var i = 0; i < data.length; i++) {
+        sum += data[i]
+    }
+    data.forEach(function (item) {
+        endAngle = Math.PI * 2 * (item / sum) + startAngle;
+        ctx.beginPath();
+        ctx.moveTo(ctx.canvas.width / 2, ctx.canvas.height / 2);
+        ctx.arc(ctx.canvas.width / 2, ctx.canvas.height / 2, 150, startAngle, endAngle);
+        ctx.fillStyle = getRandomColor();
+        ctx.closePath();
+        ctx.stroke();
+        ctx.fill();
+        startAngle = endAngle;
+    });
+
+    function getRandomColor() {
+        var r = Math.floor(Math.random() * 256);
+        var g = Math.floor(Math.random() * 256);
+        var b = Math.floor(Math.random() * 256);
+        return 'rgb(' + r + ',' + g + ',' + b + ')';
+    }
+</script>
+</body>
+</html>
