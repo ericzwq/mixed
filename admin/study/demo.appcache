@@ -1,7 +1,0 @@
-CACHE MANIFEST
-CACHE:
-#../../static/assets/img/1.jpg
-FALLBACK:
-../static/assets/img/11.jpg ../static/assets/img/12.jpg
-NETWORK:
-/
