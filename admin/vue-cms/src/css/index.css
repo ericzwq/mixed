@@ -1,0 +1,15 @@
+.clearFix:after {
+    content: '';
+    clear: both;
+    visibility: hidden;
+    display: block;
+}
+
+.lastP {
+    text-align: center;
+    margin-bottom: 0;
+}
+
+* {
+    touch-action: pan-y;
+}

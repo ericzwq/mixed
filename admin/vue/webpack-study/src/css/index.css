@@ -1,8 +1,13 @@
-li{
+li {
     list-style: none;
 }
-div{
-    width: 400px;
-    height: 400px;
+
+.bg {
+    width: 100px;
+    height: 100px;
     background: url("../img/4.jpg");
+}
+
+.linked {
+    color: red;
 }

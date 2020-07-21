@@ -1,98 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>test2</title>
-    <link rel="stylesheet" href="../static/assets/vendors/bootstrap/css/bootstrap.css">
-    <style>
-        #d1 {
-            width: 200px;
-            height: 200px;
-            background: red;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>test2</title>
+  <link rel="stylesheet" href="../static/assets/vendors/bootstrap/css/bootstrap.css">
+  <style>
+    #d1 {
+      width: 200px;
+      height: 200px;
+      font-size: 30px;
+      color: red;
+    }
 
-<<<<<<< HEAD
-        .box {
-            width: 100%;
-            height: 50px;
-
-        }
-
-        .left {
-            background: blue;
-            width: 50px;
-            height: 50px;
-            float: left;
-        }
-
-        .contain {
-            width: 100%;
-            padding: 0 50px;
-        }
-
-        .center {
-            height: 50px;
-            background: pink;
-        }
-
-        .right {
-            background: red;
-            width: 50px;
-            height: 50px;
-            float: right;
-=======
-        #d2 {
-            width: 200px;
-            height: 200px;
-            background: green;
-        }
-
-        input {
-            background: red;
-            outline: 1px solid blue;
-            border: 1px solid red;
->>>>>>> 362e22225c41d4ceb7e44a4b3cdeb8697e6d35e7
-        }
-    </style>
+    aa {
+      font-size: 50px;
+      color: red;
+    }
+  </style>
 </head>
 <body>
-<<<<<<< HEAD
-<div class="box">
-    <div class="left"></div>
-    <div class="right"></div>
-    <div class="contain">
-        <div class="center"></div>
-    </div>
-
-</div>
-=======
->>>>>>> 362e22225c41d4ceb7e44a4b3cdeb8697e6d35e7
-<div id="d1"></div>
+<div id="d1" v-html="msg">{{msg}}</div>
+<aa>22</aa>
 <script type="text/x-art-template" id="temp">
 </script>
 <script src="../static/assets/vendors/jq/jquery-1.12.2.js"></script>
 <script src="../static/assets/vendors/artTemplate/template-native.js"></script>
+<script src="../static/assets/vendors/vue/vue-2.6.11.js"></script>
 <script>
-<<<<<<< HEAD
-    var d1 = document.getElementById('d1');
-    const person = {
-        name: 'zs',
-        age: 22,
-        gender: '男'
-    }
-    // 变量的解构赋值
-    // let {name: name123, age, gender} = person
-    // name123 = '哈哈'
-    // console.log(age)
-    var {name: name1, age} = {name: '11', age: 45}
-    // name = 3;
-    console.log(name1)
-=======
-    $('#d1').on('click', function (e) {
-        console.log(arguments, e)
-    });
->>>>>>> 362e22225c41d4ceb7e44a4b3cdeb8697e6d35e7
+  let d = document.getElementById('d1');
+  let obj = {name: 'ss', age: 34}
+  console.log({
+    obj,
+    aa: 1
+  })
+  {
+    console.log(cc)
+    let cc = 10;
+  }
 </script>
 </body>
 </html>

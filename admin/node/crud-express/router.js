@@ -14,7 +14,7 @@ router.get('/', function (req, res) {
 router.get('/students/add', function (req, res) {
     res.render('addStudent.html')
 });
-[].find()
+
 router.post('/students/add', function (req, res) {
     read(function (data) {
         var data1 = JSON.parse(data);

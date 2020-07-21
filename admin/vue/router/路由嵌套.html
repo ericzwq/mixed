@@ -5,6 +5,7 @@
     <title>Title</title>
 </head>
 <div id="app">
+    <button @click="test">btn</button>
     <router-link to="/account">Account</router-link>
     <router-view></router-view>
 </div>
@@ -41,7 +42,29 @@
     let vm = new Vue({
         el: '#app',
         router,
-        data: {}
+        data: {},
+        watch: {
+            '$route.fullPath': function () {
+                console.log(1)
+            },
+            '$route.path'(to, from) {
+                console.log(to);   //to表示去往的界面
+                console.log(from); //from表示来自于哪个界面
+                if (to.path == "/shop/detail") {
+                    console.log("商品详情");
+                }
+            }
+        },
+        methods: {
+            test() {
+                console.log(location.hash)
+            }
+        },
+        mounted() {
+            onresize = function () {
+                console.log('aa')
+            }
+        },
     })
 </script>
 </body>

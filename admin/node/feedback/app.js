@@ -25,19 +25,19 @@ var comments = [
 ];
 require('http').createServer(function (req, res) {
     var parseUrl = url.parse(req.url, true);
-<<<<<<< HEAD
-    console.log(parseUrl)
-=======
->>>>>>> 362e22225c41d4ceb7e44a4b3cdeb8697e6d35e7
+// <<<<<<< HEAD
+//     console.log(parseUrl)
+// =======
+// >>>>>>> 362e22225c41d4ceb7e44a4b3cdeb8697e6d35e7
     var path = parseUrl.pathname;
     var query = parseUrl.query;
     if (path === '/') {
 
-<<<<<<< HEAD
-        fs.readFile('./views/layout.html', function (err, data) {
-=======
+// <<<<<<< HEAD
+//         fs.readFile('./views/layout.html', function (err, data) {
+// =======
         fs.readFile('./views/index.html', function (err, data) {
->>>>>>> 362e22225c41d4ceb7e44a4b3cdeb8697e6d35e7
+// >>>>>>> 362e22225c41d4ceb7e44a4b3cdeb8697e6d35e7
             if (err) res.end('busy');
             var s = tpl.render(data.toString(), {data: comments});
             res.end(s);

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>title</title>
+</head>
+<body>
+<div id="d1" v-html="msg">{{msg}}</div>
+<aa>22</aa>
+<script type="text/x-art-template" id="temp">
+</script>
+<script src="../static/assets/vendors/vue/vue-2.6.11.js"></script>
+<script>
+    let d = document.getElementById('d1');
+
+    class FF {
+        constructor() {
+
+        }
+    }
+
+    function F(option) {
+        this.$el = document.querySelector(option.el);
+        this._option = option;
+        proxy.apply(this);
+        compile.apply(this);
+
+        function proxy() {
+            for (let key in this._option.data) {
+                Object.defineProperty(this, key, {
+                    configurable: false,
+                    enumerable: true,
+                    get() {
+                        return this._option.data[key];
+                    },
+                    set(v) {
+                        this._option.data[key] = v;
+                        console.log(1)
+                    }
+                })
+            }
+        }
+
+        function compile() {
+            let attrs = this.$el.attributes;
+            for (let a of attrs) {
+                let res = /^(v-)(.+)/.exec(a.name);
+                if (res) console.log(res.input)
+            }
+            Object.keys(attrs).forEach(i => {
+                if (attrs[i].nodeType === 2) {
+                    let v = attrs[i].nodeValue.replace(/.+/, (i, vv) => {
+                        // console.log(i, vv)
+                    })
+                }
+            })
+        }
+    }
+
+    let obj = new F({
+        el: '#d1',
+        data: {
+            msg: 111
+        }
+    });
+    // new Vue({
+    //     el:'#d1',
+    //     data:{
+    //         msg:222
+    //     }
+    // })
+</script>
+</body>
+</html>
