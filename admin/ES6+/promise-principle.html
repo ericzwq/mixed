@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="">
+<head>
+    <meta charset="UTF-8">
+    <title>promise</title>
+</head>
+<body>
+<script>
+    class MyPromise {
+        sList = [];
+        fList = [];
+
+        then(sFn, fFn) {
+            if (typeof sFn === 'function') {
+                this.sList.push(sFn);
+            }
+            if (typeof fFn === 'function') {
+                this.fList.push(fFn);
+            }
+            return this;
+        }
+
+        constructor(fn) {
+            this.resolve = function (res) {
+                this.sList.pop()(res);
+            };
+            this.reject = function (res) {
+                this.fList.pop()(res);
+            };
+            this.catch = function (fn) {
+                if (typeof fn === 'function') {
+                    this.fList.push(fn);
+                }
+                return this;
+            };
+            fn(this.resolve.bind(this), this.reject.bind(this));
+        }
+    }
+
+    let myP = new MyPromise(function (resolve, reject) {
+        setTimeout(() => {
+            if (false) {
+                resolve('success');
+            } else {
+                reject('fail');
+            }
+        }, 1000)
+    });
+    let p = myP.then(res => console.log(res)).catch(res => console.log(res));
+    console.dir(p)
+</script>
+</body>
+</html>

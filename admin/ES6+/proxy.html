@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>代理</title>
+    <style>
+        .blue {
+            color: blue;
+        }
+
+        .redBg {
+            background: red;
+        }
+    </style>
+</head>
+<body>
+<script>
+    let DOM = new Proxy({}, {
+        get(target, p, receiver) {
+            // console.log(target, p, receiver)
+            return function (attr, ...childNode) {
+                let element = document.createElement(p);
+                for (let i of childNode) {
+                    if (typeof i === 'string') {
+                        let text = document.createTextNode(i);
+                        element.append(text)
+                    }
+                }
+                for (let i in attr) {
+                    element.setAttribute(i, attr[i]);
+                }
+                document.body.append(element)
+            }
+        },
+        set(target, p, value, receiver) {
+            console.log(target, p, value, receiver);
+            target[p] = value;
+        }
+    });
+    DOM.div({id: 'div1', class: 'blue'}, 'hello', 'world');
+    DOM.ul({id: 'ul'},
+        DOM.li({id: 'li1'}, 'li1'),
+        DOM.li({id: 'li2', class: 'redBg'}, 'li2'),
+        DOM.li({id: 'li3'}, 'li3'),
+        DOM.li({id: 'li4', class: 'redBg'}, 'li4'));
+    DOM.age = 45;
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>title</h1>
+<script>
+    async function f() {
+        let res2 = await fetch('http://api.cms.liulongbin.top/api/goods/getshopcarlist/88');
+        console.log(res2);
+        console.log(12);
+        await new Promise((resolve, reject) => {
+            return reject('ss')
+        }).catch(e => console.log(e));
+        console.log(122)
+        let res1 = await fetch('http://api1.cms.liulongbin.top/api/goods/getshopcarlist/87').catch(reason => console.log(reason));
+        let res3 = await Promise.reject('reject11').catch(reason => console.log(reason));
+        console.log(1)
+    }
+
+    f();
+</script>
+</body>
+</html>

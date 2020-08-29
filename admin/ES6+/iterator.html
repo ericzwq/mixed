@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>迭代器与生成器</title>
+</head>
+<body>
+<script>
+    /*生成器生成迭代器，生成器函数运行结束则迭代完成，所以需要无限循环，再根据条件退出该循环*/
+    function* f(count = 10) {
+        let first = 1;
+        let second = 1;
+        let num = 1;
+        if (num === 1) {
+            yield 1;
+            num++;
+        }
+        if (num === 2) {
+            yield 1;
+            num++;
+        }
+        while (true) {
+            let res = first + second;
+            first = second;
+            second = res;
+            yield res;
+            num++;
+            if (num > count) {
+                break;
+            }
+        }
+    }
+
+    let iterator = f(20);
+    for (let i of iterator) {
+        console.log(i)
+    }
+</script>
+</body>
+</html>
