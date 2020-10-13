@@ -26,12 +26,12 @@
 </template>
 
 <script>
-  import goods_numbox from "../goods/goods_numbox.vue";
+  import numbox from "../goods/goods_numbox.vue";
   import {mapState} from 'vuex';
 
   export default {
     name: 'cart',
-    components: {numbox: goods_numbox},
+    components: {numbox},
     // computed: {
     //     test() {
     //     },
@@ -109,13 +109,15 @@
         text-align: center;
         align-items: center;
         display: flex;
-        flex: 1;
-        padding: 0 10px;
+        /*flex: 1;*/
+        width: 20%;
+        padding: 0 5px;
       }
 
       .cc_img {
-        flex: 2;
-
+        /*flex: 2;*/
+        width: 20%;
+        margin: 0 5px;
         img {
           width: 100%;
           display: block;
@@ -123,22 +125,39 @@
       }
 
       .cc_info {
-        flex: 6;
-        padding: 10px;
+        /*flex: 6;*/
+        width: 60%;
+        padding: 5px;
 
         .cc_tit {
           font-size: 14px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
         }
 
         .cc_num {
           display: flex;
-          justify-content: space-between;
+          justify-content: space-around;
           align-items: center;
-          font-size: 14px;
+          font-size: 12px;
           margin-top: 15px;
 
           .cc_price {
             color: red;
+            /*font-size: 12px;*/
+            /*width: 23%;*/
+            /*margin: 0 1%;*/
+          }
+          numbox{
+            /*width: 48%;*/
+            /*margin: 0 1%;*/
+          }
+
+          a{
+            font-size: 12px;
+            /*width: 23%;*/
+            /*margin: 0 1%;*/
           }
         }
       }
@@ -146,14 +165,14 @@
 
     .cc_check {
       display: flex;
-      justify-content: space-between;
+      justify-content: space-around;
       align-items: center;
       background: #fff;
       margin-top: 10px;
       padding: 0 5px;
 
       .cc_money {
-        padding: 10px 20px 0;
+        padding: 10px 0;
 
         .cc_text {
         }
@@ -166,7 +185,7 @@
       }
 
       .cc_buy {
-        margin-right: 20px;
+        /*margin-right: 20px;*/
       }
     }
   }

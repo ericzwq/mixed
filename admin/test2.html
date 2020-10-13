@@ -2,41 +2,93 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width">
   <title>test2</title>
-  <link rel="stylesheet" href="../static/assets/vendors/bootstrap/css/bootstrap.css">
+  <!-- <link rel="stylesheet" href="../static/assets/vendors/bootstrap/css/bootstrap.css"> -->
   <style>
-    #d1 {
-      width: 200px;
-      height: 200px;
-      font-size: 30px;
-      color: red;
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
     }
 
-    aa {
-      font-size: 50px;
-      color: red;
+    body {
+      /*width: 200px;*/
+    }
+
+    .div2 {
+      /*position: relative;*/
+      /*padding-top: 10%;*/
+      /*padding-left: 10%;*/
+      width: 300px;
+      height: 300px;
+      /*border: 1px solid black;*/
+      display: flex;
+      /*justify-content: space-around;*/
+    }
+
+    .div2 div {
+      /*flex: 1;*/
+      /*border: 1px solid red;*/
+      /*float: left;*/
+      height: 100px;
+    }
+
+    .d1 {
+      flex: 1 1 20%;
+      /*width: 100px;*/
+      background: red;
+    }
+
+    .d2 {
+      flex: 1 2 40%;
+      /*width: 50px;*/
+      background: blue;
+    }
+
+    .d3 {
+      flex: 1 1 60%;
+      /*width: 50px;*/
+      background: yellowgreen;
+    }
+
+    .d4 {
+      width: 50px;
+      height: 50px;
+      /*border: 25px red solid;*/
+      border-bottom: 50px solid transparent;
+      border-right: 50px solid transparent;
+      border-left: 50px solid transparent;
+      border-top: 50px solid green;
     }
   </style>
 </head>
 <body>
-<div id="d1" v-html="msg">{{msg}}</div>
-<aa>22</aa>
+<div class="div2">
+  <div class="d1"></div>
+  <div class="d2"></div>
+  <div class="d3"></div>
+</div>
+<div class="d4"></div>
 <script type="text/x-art-template" id="temp">
-</script>
+		</script>
 <script src="../static/assets/vendors/jq/jquery-1.12.2.js"></script>
 <script src="../static/assets/vendors/artTemplate/template-native.js"></script>
 <script src="../static/assets/vendors/vue/vue-2.6.11.js"></script>
+<script id="worker" type="application/x-worker">
+  self.addEventListener('message', function (e) {
+    self.postMessage('You said: ' + e.data);
+    console.log(e)
+  }, false);
+
+</script>
 <script>
-  let d = document.getElementById('d1');
-  let obj = {name: 'ss', age: 34}
-  console.log({
-    obj,
-    aa: 1
-  })
-  {
-    console.log(cc)
-    let cc = 10;
+  let blob = new Blob([document.getElementById('worker').textContent])
+  let url = URL.createObjectURL(blob)
+  let worker = new Worker(url)
+  worker.postMessage('hello')
+  worker.onmessage = function (event) {
+    console.log('Received message ' + event.data);
   }
 </script>
 </body>

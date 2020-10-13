@@ -115,7 +115,8 @@
                 this.show = !this.show;
             }
         },
-        created() {
+        activated() {
+            this.id = this.$route.params.id
             this.getGoodsContent();
             this.getGoodsImg();
         }

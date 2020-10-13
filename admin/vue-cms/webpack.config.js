@@ -62,7 +62,7 @@ module.exports = {
   performance: {
     hints: false //性能优化提示
   },
-  mode: 'production' //production development
+  mode: 'production', //production development
 }
 /*.babelrc文件注释*/
 //  在plugins数组中加入此代码"transform-remove-strict-mode"可禁用严格模式打包

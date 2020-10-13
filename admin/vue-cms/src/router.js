@@ -13,6 +13,7 @@ import VueRouter from 'vue-router';
 // import noPage from './components/common/noPage.vue';
 
 let router = new VueRouter({
+    // mode:'history',
     routes: [
         {path: '/', redirect: '/home'},
         {
@@ -37,7 +38,7 @@ let router = new VueRouter({
         {path: '/home/goodsdesc/:id', component: () => import('./components/goods/goods_desc.vue'), name: 'goodsdesc'},
         {path: '*', component: () => import('./components/common/noPage.vue')}
     ],
-    linkActiveClass: 'mui-active'
+    linkActiveClass: 'mui-active',
 });
 router.beforeEach((to, from, next) => {
     next();

@@ -7,11 +7,7 @@ mui('.mui-scroll-wrapper').scroll({
 //     interval: 2000//自动轮播周期，若为0则不自动播放，默认为0
 // });
 var LT = {};
-<<<<<<< HEAD
-LT.userIndexUrl = '/m/user/layout.html';
-=======
 LT.userIndexUrl = '/m/user/index.html';
->>>>>>> 362e22225c41d4ceb7e44a4b3cdeb8697e6d35e7
 LT.userLoginUrl = '/m/user/login.html';
 LT.cartUrl = '/m/cart.html';
 LT.cateUrl = '/m/cate.html';

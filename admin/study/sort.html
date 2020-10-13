@@ -1,82 +1,82 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="">
-  <head>
-    <meta charset="UTF-8">
-    <title>sort</title>
-  </head>
-  <body>
-    <script>
-      fetch('http://api.cms.liulongbin.top/api/goods/getshopcarlist/87').then(r => {
-        console.log(r);
-        return r.json()
-      }).then(r => console.log(r))
-      let arr = [34, 56, 87, 2, 67, 78, 5, 84, 7, 698, 6];
-      for (let i = 0; i < 20000; i++) {
-        arr.push(Math.floor(Math.random() * 1000000));
-      }
-      let arr2 = arr.slice(0);
+	<head>
+		<meta charset="UTF-8">
+		<title>sort</title>
+	</head>
+	<body>
+		<script>
+			fetch('http://api.cms.liulongbin.top/api/goods/getshopcarlist/87').then(r => {
+				console.log(r);
+				return r.json()
+			}).then(r => console.log(r))
+			let arr = [34, 56, 87, 2, 67, 78, 5, 84, 7, 698, 6];
+			for (let i = 0; i < 20000; i++) {
+				arr.push(Math.floor(Math.random() * 1000000));
+			}
+			let arr2 = arr.slice(0);
 
-      function List(arr) {
-        List.prototype.swap = function(m, n) {
-          let temp = arr[m];
-          arr[m] = arr[n];
-          arr[n] = temp;
-        };
-        List.prototype.selectionSort = function() {
-          let t = Date.now();
-          for (let j = 0; j < arr.length - 1; j++) {
-            for (let i = j; i < arr.length; i++) {
-              if (arr[j] > arr[i]) {
-                this.swap(j, i);
-                continue;
-              }
-            }
-          }
-          console.log("选择排序时间" + (Date.now() - t));
-        };
-        List.prototype.insertionSort = function() {
-          let t = Date.now();
-          // let n = 1;
-          let current, preIndex;
-          for (let i = 1; i < arr.length; i++) {
-            preIndex = i - 1;
-            current = arr[i];
-            while (current <= arr[preIndex] && preIndex >= 0) {
-              arr[preIndex + 1] = arr[preIndex];
-              preIndex--;
-            }
-            arr[preIndex + 1] = current;
-          }
-          console.log("插入排序时间" + (Date.now() - t));
-        };
-        List.prototype.shellSort = function() {
-          let gap = Math.floor(arr.length / 2);
-          let t = Date.now();
-          while (gap >= 1) { //间隔减少循环
-            let current, preGap;
-            for (let i = gap; i < arr.length; i++) {
-              preGap = i - gap;
-              current = arr[i];
-              while (current <= arr[preGap] && preGap >= 0) {
-                arr[preGap + gap] = arr[preGap];
-                preGap -= gap;
-              }
-              arr[preGap + gap] = current;
-            }
-            gap = Math.floor(gap / 2);
-          }
-          console.log("希尔排序时间" + (Date.now() - t));
-        }
-      }
+			function List(arr) {
+				List.prototype.swap = function(m, n) {
+					let temp = arr[m];
+					arr[m] = arr[n];
+					arr[n] = temp;
+				};
+				List.prototype.selectionSort = function() {
+					let t = Date.now();
+					for (let j = 0; j < arr.length - 1; j++) {
+						for (let i = j; i < arr.length; i++) {
+							if (arr[j] > arr[i]) {
+								this.swap(j, i);
+								continue;
+							}
+						}
+					}
+					console.log("选择排序时间" + (Date.now() - t));
+				};
+				List.prototype.insertionSort = function() {
+					let t = Date.now();
+					// let n = 1;
+					let current, preIndex;
+					for (let i = 1; i < arr.length; i++) {
+						preIndex = i - 1;
+						current = arr[i];
+						while (current <= arr[preIndex] && preIndex >= 0) {
+							arr[preIndex + 1] = arr[preIndex];
+							preIndex--;
+						}
+						arr[preIndex + 1] = current;
+					}
+					console.log("插入排序时间" + (Date.now() - t));
+				};
+				List.prototype.shellSort = function() {
+					let gap = Math.floor(arr.length / 2);
+					let t = Date.now();
+					while (gap >= 1) { //间隔减少循环
+						let current, preGap;
+						for (let i = gap; i < arr.length; i++) {
+							preGap = i - gap;
+							current = arr[i];
+							while (current <= arr[preGap] && preGap >= 0) {
+								arr[preGap + gap] = arr[preGap];
+								preGap -= gap;
+							}
+							arr[preGap + gap] = current;
+						}
+						gap = Math.floor(gap / 2);
+					}
+					console.log("希尔排序时间" + (Date.now() - t));
+				}
+			}
 
-      let list = new List(arr);
-      // console.log(arr);
-      // list.selectionSort();
-      // list.insertionSort();
-      list.shellSort();
-      console.log(arr);
-      // let list2 = new List(arr2);
-      // list2.selectionSort();
-    </script>
-  </body>
+			let list = new List(arr);
+			// console.log(arr);
+			// list.selectionSort();
+			// list.insertionSort();
+			list.shellSort();
+			console.log(arr);
+			// let list2 = new List(arr2);
+			// list2.selectionSort();
+		</script>
+	</body>
 </html>

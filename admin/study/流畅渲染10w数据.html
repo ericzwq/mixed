@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+  <title>流畅渲染10w数据</title>
+</head>
+<body>
+<ul id="ul"></ul>
+<script>
+  let ul = document.getElementById('ul');
+  let total = 100000;
+  let once = 500;
+  let hasRender = 1;
+  let countLi = 0
+  console.time();
+
+  function add() {
+    let fragment = document.createDocumentFragment();
+    for (let i = 0; i <= once; i++) {
+      let li = document.createElement('li');
+      li.innerText = countLi + '';
+      fragment.appendChild(li);
+      countLi++;
+    }
+    ul.appendChild(fragment);
+    loop();
+  }
+
+  function loop() {
+    if (Math.ceil(total / once) >= hasRender) {
+      // setTimeout(add, 16);
+      window.requestAnimationFrame(add)
+      hasRender++;
+    }
+  }
+
+  loop();
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+  <title>web-worker</title>
+</head>
+<body>
+<script id="worker" type="application/x-worker">
+  self.addEventListener('message', function (e) {
+    self.postMessage('You said: ' + e.data);
+    console.log(e)
+  }, false);
+
+</script>
+<script>
+  let blob = new Blob([document.getElementById('worker').textContent])
+  let url = URL.createObjectURL(blob)
+  let worker = new Worker(url)
+  worker.postMessage('hello')
+  worker.onmessage = function (event) {
+    console.log('Received message ' + event.data);
+  }
+</script>
+</body>
+</html>

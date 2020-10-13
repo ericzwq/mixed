@@ -55,7 +55,7 @@ const store = new Vuex.Store({
         getIndexById(state, id) {
             state.index = -1;//遍历前重置
             state.data.forEach((v, i) => {
-                if (v.id === parseInt(id)) return state.index = i;
+                if (parseInt(v.id) === parseInt(id)) return state.index = i;
             });
         },
         saveData(state) {
