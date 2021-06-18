@@ -66,6 +66,9 @@
         }
         return title;
       }
+    },
+    created(){
+      fetch('/api/user').then(r=>r.json()).then(r=>console.log(r))
     }
   }
 </script>

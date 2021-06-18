@@ -31,6 +31,13 @@
 				}
 			}
 
+      let arr = [1, 2, 3]
+      let obj = {name: 'age', age: 19}
+      console.log(arr[Symbol.iterator], Symbol.iterator)
+      obj[Symbol.iterator] = f
+      for (let i of obj) {
+        console.log(i)
+      }
 			let iterator = f(20);
 			for (let i of iterator) {
 				console.log(i)

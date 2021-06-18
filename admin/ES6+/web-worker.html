@@ -18,6 +18,7 @@
   let url = URL.createObjectURL(blob)
   let worker = new Worker(url)
   worker.postMessage('hello')
+  worker.postMessage('hello2')
   worker.onmessage = function (event) {
     console.log('Received message ' + event.data);
   }

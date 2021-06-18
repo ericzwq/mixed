@@ -1,6 +1,6 @@
 <template>
     <mt-swipe :auto="2000" class="slider">
-        <mt-swipe-item v-for="i in list" :key="i.img || i.src">
+        <mt-swipe-item v-for="(i,idx) in list" :key="idx">
             <img :src="i.img || i.src" :class="{'full':isFull}">
         </mt-swipe-item>
     </mt-swipe>

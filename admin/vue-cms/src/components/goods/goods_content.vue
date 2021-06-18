@@ -1,5 +1,5 @@
 <template>
-    <div class="gc">
+    <div class="gc" ref="scr">
         <transition @before-enter="beforeEnter" @enter="enter" @after-enter="afterEnter">
             <span class="ball" v-show="show"></span>
         </transition>
@@ -36,7 +36,7 @@
             </div>
         </div>
         <mt-button type="primary" plain size="large" @click="toGoodsDesc(gContent.id)">图文介绍</mt-button>
-        <comments :id="id"></comments>
+        <comments :id="id" :height="height" @getHeight="getHeight"></comments>
     </div>
 </template>
 
@@ -57,10 +57,15 @@
                 gDesc: [],
                 gImg: [],
                 cou: 1,
-                show: false
+                show: false,
+                height: 0
             }
         },
         methods: {
+            getHeight() {
+              if (!this && !this.$refs.scr) return;
+              this.height = this.$refs.scr.clientHeight;
+            },
             getGoodsContent() {
                 this.$http.get('api/goods/getinfo/' + this.id).then(function (res) {
                     if (res.body.status === 0) {

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+  <title>斐波那契</title>
+</head>
+<body>
+<script>
+  function Fibonacci(count) {
+    let prev = 1, next = 0;
+    while (--count > 0) {
+      prev = prev + next;
+      next = prev - next;
+    }
+    return prev;// 1 1 2 3 5 8 13 21 34 55
+  }
+
+  console.log(Fibonacci(6))
+  console.log(Fibonacci(7))
+  console.log(Fibonacci(8))
+  console.log(Fibonacci(9))
+  console.log(Fibonacci(10))
+</script>
+</body>
+</html>

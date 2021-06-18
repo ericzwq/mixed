@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<script>
+  function test(x) {
+    console.log(x)
+    {
+      console.log(x) // 产生屏蔽
+      let x = 1
+      console.log(x)
+    }
+    console.log(x)
+  }
+
+  test(0)
+</script>
+</body>
+</html>

@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');// 启用热更新的 第2步
 const htmlWebpackPlugin = require('html-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin')// runtime-only vue 插件引入
+const apiMocker = require('mocker-api')
 module.exports = {
   // devtool: 'source-map', //debugger模式
   entry: path.join(__dirname, './src/index.js'),
@@ -9,13 +10,19 @@ module.exports = {
     filename: 'bundle.js',
     path: path.join(__dirname, './dist')
   },
+  devtool:'cheap-module-eval-source-map',//配置调试
   devServer: { // 这是配置 dev-server 命令参数的第二种形式，相对来说，这种方式麻烦一些
     //  --open --port 3000 --contentBase dist --hot
     open: true, // 自动打开浏览器
     port: 3000, // 设置启动时候的运行端口
     contentBase: 'dist', // 指定托管的根目录
     hot: true, // 启用热更新 的 第1步
-    // host: '192.168.0.106'
+    // host: '192.168.19.91',
+    host: '0.0.0.0',
+    before (app) {
+      // console.log(app)
+      apiMocker(app, path.resolve('./src/mocker.js'))
+    }
   },
   plugins: [// 配置插件的节点
     new webpack.HotModuleReplacementPlugin(), // new 一个热更新的 模块对象， 这是 启用热更新的第 3 步
@@ -57,12 +64,14 @@ module.exports = {
     extensions: ['.js', '.vue', '.json'],
     alias: {// 修改 Vue 被导入时候的包的路径
       // "vue$": "vue/dist/vue.js"
+      "@":path.resolve('./src'),
     }
   },
   performance: {
     hints: false //性能优化提示
   },
-  mode: 'production', //production development
+  mode: 'development', //production development
+
 }
 /*.babelrc文件注释*/
 //  在plugins数组中加入此代码"transform-remove-strict-mode"可禁用严格模式打包

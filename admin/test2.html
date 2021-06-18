@@ -6,90 +6,269 @@
   <title>test2</title>
   <!-- <link rel="stylesheet" href="../static/assets/vendors/bootstrap/css/bootstrap.css"> -->
   <style>
-    * {
-      padding: 0;
-      margin: 0;
-      box-sizing: border-box;
-    }
+      * {
+          padding: 0;
+          margin: 0;
+          box-sizing: border-box;
+      }
 
-    body {
-      /*width: 200px;*/
-    }
-
-    .div2 {
-      /*position: relative;*/
-      /*padding-top: 10%;*/
-      /*padding-left: 10%;*/
-      width: 300px;
-      height: 300px;
-      /*border: 1px solid black;*/
-      display: flex;
-      /*justify-content: space-around;*/
-    }
-
-    .div2 div {
-      /*flex: 1;*/
-      /*border: 1px solid red;*/
-      /*float: left;*/
-      height: 100px;
-    }
-
-    .d1 {
-      flex: 1 1 20%;
-      /*width: 100px;*/
-      background: red;
-    }
-
-    .d2 {
-      flex: 1 2 40%;
-      /*width: 50px;*/
-      background: blue;
-    }
-
-    .d3 {
-      flex: 1 1 60%;
-      /*width: 50px;*/
-      background: yellowgreen;
-    }
-
-    .d4 {
-      width: 50px;
-      height: 50px;
-      /*border: 25px red solid;*/
-      border-bottom: 50px solid transparent;
-      border-right: 50px solid transparent;
-      border-left: 50px solid transparent;
-      border-top: 50px solid green;
-    }
+      .t:after {
+          content: '';
+          /*clear: both;*/
+          /*display: block;*/
+          /*zoom: normal;*/
+      }
   </style>
 </head>
 <body>
-<div class="div2">
-  <div class="d1"></div>
-  <div class="d2"></div>
-  <div class="d3"></div>
-</div>
-<div class="d4"></div>
-<script type="text/x-art-template" id="temp">
-		</script>
+<div id="div">div</div>
+<p style="text-align: center;margin-top: 50px"> 1</p>
+<pre style="text-align: center">
+
+  1111
+    2222
+</pre>
+<script type="text/x-art-template" id="temp"></script>
 <script src="../static/assets/vendors/jq/jquery-1.12.2.js"></script>
 <script src="../static/assets/vendors/artTemplate/template-native.js"></script>
 <script src="../static/assets/vendors/vue/vue-2.6.11.js"></script>
-<script id="worker" type="application/x-worker">
-  self.addEventListener('message', function (e) {
-    self.postMessage('You said: ' + e.data);
-    console.log(e)
-  }, false);
-
-</script>
+<!-- <script src="test.js"></script> -->
 <script>
-  let blob = new Blob([document.getElementById('worker').textContent])
-  let url = URL.createObjectURL(blob)
-  let worker = new Worker(url)
-  worker.postMessage('hello')
-  worker.onmessage = function (event) {
-    console.log('Received message ' + event.data);
+  function theCityThatAlwaysSleeps () {
+    let getCity
+
+    if (true) {
+      let city = 'Seattle'
+      getCity = function () {
+        return city
+      }
+    }
+    return getCity()
   }
+
+  console.log(theCityThatAlwaysSleeps())
+  let reg = new RegExp('(^|&)' + 'token' + '=([^&]*)(&|$)', 'i')
+  console.log(reg)
+  let r = location.search.substr(1).match(reg)
+  console.log(reg)
+  if (r !== null) console.log(unescape(r[2]))
+
+  let div = document.getElementById('div')
+  let timer, i = 1, t = Date.now()
+  timer = setInterval(() => {
+    i++
+    // console.log(i)
+    if (i > 500) {
+      clearInterval(timer)
+      console.log('over')
+    }
+  }, 0)
+  setInterval(() => {
+    div.innerText = 'div' + (Date.now() - t) / 1000
+  }, 1000)
+  let a = [1, 2, 3]
+  for (let i of a) {
+    console.log(i)
+    if (i > 0) break
+  }
+  // let arr = [3, 7, 34, 9, 4, 5, 7, 14, 11, 1, 2, 6, 4, 3, 1]
+  // let arr = [1, 1, 2, 3, 4, 5, 6, 7, 9, 11, 14, 34]
+  let arr = [1, 1, 1, 1]
+  arr.forEach((i, idx) => console.log(idx + ':' + i))
+
+  function addByNum (arr, sum) {
+    let len = arr.length, res = []
+    for (let i = 1; i <= len; i++) {
+      loop(res, arr, sum, len, i)
+    }
+    console.log(res, res.length)
+    return res
+
+    function loop (res, arr, sum, len, addCount, start = 0, data = [], level = 1) {
+      if (level <= addCount) {
+        let maxIdx = len - addCount + level
+        for (let i = start; i < maxIdx; i++) {
+          data[level - 1] = i
+          if (level === addCount) {
+            res.push(data.slice())
+            let idxs = res.pop(), r = 0, flag // idxs.reduce((pre, curIdx) => pre + arr[curIdx], 0)
+            for (let idx of idxs) {
+              r += arr[idx]
+              if (r > sum) {
+                return true
+                // flag = true
+              } else if (r === sum) {
+                // flag = true
+                res.push(idxs.map(i => ({ [i]: arr[i] })))
+              }
+            }
+            // if (flag) continue
+          }
+          let flag = loop(res, arr, sum, len, addCount, i + 1, data, level + 1)
+          if (flag) {
+            break
+          }
+        }
+      }
+    }
+  }
+
+  addByNum(arr, 3)
+  // addByNum([0, 1, 2, 3, 4, 5, 6, 7], 4)
+  // addByNum([0, 1, 2, 3, 4, 5, 6, 7], 3)
+  // addByNum([0, 1, 2, 3, 4, 5, 6, 7], 2)
+
+  // n = 2
+  // for (let k = 0; k < len; k++) {
+  //   for (let i = k + 1; i < len; i++) {
+  //     console.log(k,i)
+  //   }
+  // }
+
+  // n = 3
+  // let flag
+  // for (let k = 0; k < len; k++) {
+  //   for (let i = k + 1; i < len; i++) {
+  //     for (let j = i + 1; j < len; j++) {
+  //       console.log(k, i, j)
+  //       let s = k + i + j
+  //       if (s > 3) {
+  //         flag = true
+  //         break
+  //       }
+  //     }
+  //     if (flag) break
+  //   }
+  // }
+
+  function getSum (arr, n) {
+    let len = arr.length
+    let r = []
+    for (let i = 0; i < len; i++) { // 寻找 i + 1个数相加结果
+      let sum = 0
+      let _r = [] // 保存临时所有已累加的下标
+      let j = i
+      let isFirstSumTrue = false
+      for (let _i = j; _i < i + 1; _i++) { // 计算第j轮时，arr[j]到arr[i + 1](加数的数量)的总和
+        sum += arr[_i]
+        _r.push(_i)
+        if (sum === n) {
+          r.push(_r)
+          isFirstSumTrue = true
+        }
+      }
+      if (isFirstSumTrue) continue
+      while (j >= 0) {
+
+      }
+      j--
+      for (let j = i; j < len; j++) {
+        if (sum + arr[j] < n) {
+          _r.push(j)
+          sum += arr[j]
+        } else if (sum + arr[j] === n) {
+          _r.push(j)
+        } else {
+          r.push(_r)
+        }
+      }
+    }
+    return r
+  }
+
+  // console.log(getSum(arr, n))
+
+  function formatSecret (secretSum, max) {
+    if (max < secretSum) {
+      let sum = 0
+      for (let v of secretSum.toString()) {
+        sum += parseInt(v)
+      }
+      return formatSecret(sum, max)
+    } else {
+      return secretSum
+    }
+  }
+
+  function addTime (key, time, secret, secretSum) {
+    // let random = Math.floor(Math.random() * 10) // 0-9
+    console.log(key)
+    let radix = Math.floor(Math.random() * 26 + 11) // 11-36
+    let radixTime = time.toString(radix) + radix // 以现在的时间算该值长度一定大于10,等大于99时已是n亿年以后了
+    // console.log('before secretSum', secretSum)
+    secretSum = formatSecret(secretSum, key.length - 1)
+    // console.log('after secretSum', secretSum)
+    console.log('radixTime', radixTime)
+    let len = radixTime.length
+    let front = key.substring(0, secretSum)
+    let behind = key.substring(secretSum)
+    console.log('radixTime length', len)
+    return front + ',' + radixTime + ',' + behind + secretSum + radixTime.length // 后3位即是插入key中的index及长度
+  }
+
+  // console.log(addTime(getKey({},'secret'), Date.now()));
+
+  function _key (data, secret) {
+    let validTime = data.time || 60
+    let now = Date.now() + validTime * 1000
+    let key = ''
+    let i = 1
+    let secretSum = 0
+    for (let k of secret.toString()) {
+      let radix = k.charCodeAt() % 36
+      // console.log(radix)
+      secretSum += radix
+      key += now.toString(radix)
+      i++
+      if (i > 15) break
+    }
+    key = addTime(key, now, secret, secretSum)
+    console.log(key, key.length)
+    console.log('secretSum', secretSum)
+    return key
+  }
+
+  function getKey (data, secret) {
+    return _key(data, secret)
+  }
+
+  function authKey (key) {
+
+  }
+
+  // let key = getKey({}, 'secret')
+
+  function test3 () {
+    // 如何优雅的取随机字符串
+    console.log('Math.random().toString(16).substring(2)', Math.random().toString(16).substring(2))
+    console.log('Math.random().toString(36).substring(2)', Math.random().toString(36).substring(2))
+  }
+
+  function test () {
+    let t = 1000000
+    let sql_where = ''
+    // for (let i = 0; i < 20; i++) {
+    //   obj['name' + i] = i
+    // }
+    // console.log(obj)
+    let t1 = Date.now()
+    for (let i = 0; i < t; i++) {
+      let _where = `studentId = ${i} AND courseId = ${i}`
+      sql_where += `(${_where}) OR `
+    }
+    sql_where = sql_where.slice(0, -3)
+    console.log(sql_where.length)
+    console.log(Date.now() - t1)
+    let sql_where2 = '', tt = t - 1
+    let t2 = Date.now()
+    for (let i = 0; i < t; i++) {
+      let _where = `studentId = ${i} AND courseId = ${i}`
+      sql_where2 += `(${_where}) ${i === tt ? '' : 'OR'} `
+    }
+    console.log(Date.now() - t2)
+  }
+
+  // test()
 </script>
 </body>
 </html>

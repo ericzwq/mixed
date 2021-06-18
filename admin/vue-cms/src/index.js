@@ -13,7 +13,8 @@ import moment from 'moment';//时间格式化插件
 // import MintUI, {Toast, Indicator,InfiniteScroll} from 'mint-ui';
 import vuePreview from 'vue-preview';
 import Vuex from 'vuex';
-
+import VConsole from 'vconsole'
+// new VConsole
 Vue.prototype.$mui = mui;
 Vue.filter('dataFormat', function (data, pattern = 'YYYY-MM-DD HH:mm:ss') {
     return moment(data).format(pattern);

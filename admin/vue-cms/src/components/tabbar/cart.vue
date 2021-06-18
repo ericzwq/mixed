@@ -22,6 +22,7 @@
       </div>
       <mt-button size="small" type="danger" class="cc_buy">去结算</mt-button>
     </div>
+    <input @change="toQR"  type="file" accept="image/*" capture="camera">
   </div>
 </template>
 
@@ -50,6 +51,9 @@
       }
     },
     methods: {
+      toQR(){
+        console.log(arguments)
+      },
       getCartList() {
         if (!this.$store.state.data.length) return;
         let idStr = '';

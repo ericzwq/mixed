@@ -39,7 +39,7 @@
                     if (res.body.status === 0) {
                         this.comments = this.comments.concat(res.body.message);
                         this.$indicator.close();
-                        if (res.body.message.length < 10) this.hasMore = false;
+                        this.hasMore = res.body.message.length >= 10;
                     } else {
                         this.$err();
                     }
@@ -77,14 +77,16 @@
                 timer = setTimeout(() => {
                     //if no comments is not necessary to load more data
                     this.$emit('getHeight');
-                    if (!this || !this.$refs.scr || !this.height) return;
-                    let s = e.target;
-                    if (s.scrollTop + s.clientHeight - 90 + 24 >= this.height) {
+                    this.$nextTick(()=>{
+                      if (!this || !this.$refs.scr || !this.height) return;
+                      let s = e.target;
+                      if (s.scrollTop + s.clientHeight - 90 + 24 >= this.height) {
                         //24 is the spinner-icon's height,90 is the container's padding
                         this.pageIndex++;
                         this.showSpinner = true;
                         this.getComments();
-                    }
+                      }
+                    })
                 }, 250)
             }, true)
 

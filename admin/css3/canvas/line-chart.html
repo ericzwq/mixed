@@ -8,16 +8,22 @@
     <style>
         canvas {
             border: 1px solid #ccc;
+            /*display: none;*/
         }
     </style>
 </head>
 <body>
 <canvas width="600" height="400"></canvas>
+<a download="pic">下载</a>
 <script>
-    var LineChart = function (ctx) {
-        this.ctx = ctx || document.querySelector('canvas').getContext('2d');
-        this.canvasWidth = this.ctx.canvas.width;
-        this.canvasHeight = this.ctx.canvas.height;
+    var LineChart = function (canvas) {
+        this.canvas = canvas || document.querySelector('canvas')
+        // this.canvas.height = this.canvas.height * 2
+        // this.canvas.width = this.canvas.width * 2
+        this.ctx = this.canvas.getContext('2d');
+        // this.ctx.scale(2,2)
+        this.canvasWidth = this.canvas.width;
+        this.canvasHeight = this.canvas.height;
         this.gridSize = 10;
         this.space = 20;
         this.arrowSize = 6;
@@ -29,6 +35,8 @@
         this.drawGrid();
         this.drawAxis();
         this.drawDots(data);
+        console.log(this.canvas.toDataURL())
+        document.querySelector('a').href = this.canvas.toDataURL()
     };
     LineChart.prototype.drawGrid = function () {
         // x方向线
@@ -93,7 +101,7 @@
             }
         });
     };
-    var lc = new LineChart();
+    var lc = new LineChart(document.querySelector('canvas'));
     var data = [
         {
             x: 100,
@@ -116,6 +124,11 @@
             y: 320
         }
     ];
+    // data.forEach(i=>{
+    //     for(k in i){
+    //         i[k] = i[k] * 2
+    //     }
+    // })
     lc.init(data);
 </script>
 </body>
