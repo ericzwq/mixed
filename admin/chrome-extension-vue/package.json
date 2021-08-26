@@ -1,0 +1,38 @@
+{
+  "name": "vue-extension",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "build-watch": "vue-cli-service build-watch"
+  },
+  "dependencies": {
+    "babel-preset-env": "^7.0.0-beta.3",
+    "core-js": "^3.6.5",
+    "echarts": "^4.8.0",
+    "element-ui": "^2.15.2",
+    "moment": "^2.29.1",
+    "sweetalert2": "^7.15.1",
+    "vue": "^2.6.11",
+    "vue-clipboard2": "^0.3.1"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^4.5.0",
+    "@vue/cli-plugin-eslint": "^4.5.0",
+    "@vue/cli-service": "^4.5.0",
+    "axios": "^0.18.0",
+    "babel-eslint": "^10.1.0",
+    "babel-plugin-component": "^1.1.1",
+    "copy-webpack-plugin": "^4.6.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "sass": "^1.26.5",
+    "sass-loader": "^8.0.2",
+    "vue-cli-plugin-axios": "0.0.4",
+    "vue-cli-plugin-chrome-ext": "0.0.5",
+    "vue-cli-plugin-element": "~1.0.1",
+    "vue-template-compiler": "^2.6.11"
+  }
+}

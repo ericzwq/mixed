@@ -22,19 +22,22 @@
 </head>
 <body>
 <div id="div">div</div>
-<p style="text-align: center;margin-top: 50px"> 1</p>
-<pre style="text-align: center">
-
-  1111
-    2222
-</pre>
+<div style="text-align: center;height: 200px;background: red" id="p1"><div style="width: 200px;height: 100px"></div></div>
+<div style="width: 300px;height: 300px;background: blue;position: relative;top: 0">
+  <span>123</span>
+  <span style="display:inline-block;width: 100px;height: 100px;background: yellow;margin-top: 100px"></span>
+</div>
+<iframe id="iframe"></iframe>
 <script type="text/x-art-template" id="temp"></script>
 <script src="../static/assets/vendors/jq/jquery-1.12.2.js"></script>
 <script src="../static/assets/vendors/artTemplate/template-native.js"></script>
 <script src="../static/assets/vendors/vue/vue-2.6.11.js"></script>
 <!-- <script src="test.js"></script> -->
 <script>
-  function theCityThatAlwaysSleeps () {
+  let arr = [1,2,3]
+
+
+  function theCityThatAlwaysSleeps() {
     let getCity
 
     if (true) {
@@ -76,7 +79,7 @@
   let arr = [1, 1, 1, 1]
   arr.forEach((i, idx) => console.log(idx + ':' + i))
 
-  function addByNum (arr, sum) {
+  function addByNum(arr, sum) {
     let len = arr.length, res = []
     for (let i = 1; i <= len; i++) {
       loop(res, arr, sum, len, i)
@@ -84,7 +87,7 @@
     console.log(res, res.length)
     return res
 
-    function loop (res, arr, sum, len, addCount, start = 0, data = [], level = 1) {
+    function loop(res, arr, sum, len, addCount, start = 0, data = [], level = 1) {
       if (level <= addCount) {
         let maxIdx = len - addCount + level
         for (let i = start; i < maxIdx; i++) {
@@ -99,7 +102,7 @@
                 // flag = true
               } else if (r === sum) {
                 // flag = true
-                res.push(idxs.map(i => ({ [i]: arr[i] })))
+                res.push(idxs.map(i => ({[i]: arr[i]})))
               }
             }
             // if (flag) continue
@@ -141,7 +144,7 @@
   //   }
   // }
 
-  function getSum (arr, n) {
+  function getSum(arr, n) {
     let len = arr.length
     let r = []
     for (let i = 0; i < len; i++) { // 寻找 i + 1个数相加结果
@@ -178,7 +181,7 @@
 
   // console.log(getSum(arr, n))
 
-  function formatSecret (secretSum, max) {
+  function formatSecret(secretSum, max) {
     if (max < secretSum) {
       let sum = 0
       for (let v of secretSum.toString()) {
@@ -190,7 +193,7 @@
     }
   }
 
-  function addTime (key, time, secret, secretSum) {
+  function addTime(key, time, secret, secretSum) {
     // let random = Math.floor(Math.random() * 10) // 0-9
     console.log(key)
     let radix = Math.floor(Math.random() * 26 + 11) // 11-36
@@ -208,7 +211,7 @@
 
   // console.log(addTime(getKey({},'secret'), Date.now()));
 
-  function _key (data, secret) {
+  function _key(data, secret) {
     let validTime = data.time || 60
     let now = Date.now() + validTime * 1000
     let key = ''
@@ -228,23 +231,23 @@
     return key
   }
 
-  function getKey (data, secret) {
+  function getKey(data, secret) {
     return _key(data, secret)
   }
 
-  function authKey (key) {
+  function authKey(key) {
 
   }
 
   // let key = getKey({}, 'secret')
 
-  function test3 () {
+  function test3() {
     // 如何优雅的取随机字符串
     console.log('Math.random().toString(16).substring(2)', Math.random().toString(16).substring(2))
     console.log('Math.random().toString(36).substring(2)', Math.random().toString(36).substring(2))
   }
 
-  function test () {
+  function test() {
     let t = 1000000
     let sql_where = ''
     // for (let i = 0; i < 20; i++) {

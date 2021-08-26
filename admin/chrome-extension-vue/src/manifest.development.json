@@ -1,0 +1,53 @@
+{
+  "manifest_version": 2,
+  "name": "chrome-ext",
+  "description": "chrome extension",
+  "version": "0.0.1",
+  "options_page": "options.html",
+  "browser_action": {
+    "default_popup": "popup.html"
+  },
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "content_scripts": [{
+    "matches": [
+      "*://*.amazon.com/*",
+      "*://*.amazon.co.uk/*",
+      "*://*.amazon.co.jp/*",
+      "*://*.www.amazon.de/*",
+      "*://shopee.com.my/*",
+      "*://xiapi.xiapibuy.com/*",
+      "*://shopee.co.id/*",
+      "*://shopee.co.th/*",
+      "*://shopee.ph/*",
+      "*://shopee.sg/*",
+      "*://shopee.vn/*",
+      "*://shopee.com.br/*",
+      "*://my.xiapibuy.com/*",
+      "*://id.xiapibuy.com/*",
+      "*://th.xiapibuy.com/*",
+      "*://ph.xiapibuy.com/*",
+      "*://sg.xiapibuy.com/*",
+      "*://vn.xiapibuy.com/*",
+      "*://br.xiapibuy.com/*"
+    ],
+    "js": [
+      "js/content.js"
+    ],
+    "css": [
+      "css/content.css"
+    ],
+    "run_at": "document_end",
+    "include_globs": []
+  }],
+  "permissions": [
+    "tabs",
+    "storage",
+    "https://*/*",
+    "declarativeContent",
+    "webNavigation"
+  ],
+  "background": {
+    "scripts": ["js/background.js"],
+    "persistent": false
+  }
+}
