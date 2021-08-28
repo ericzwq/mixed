@@ -12,23 +12,31 @@
           margin: 0;
           box-sizing: border-box;
       }
+
+      div:last-child {
+          color: red;
+      }
   </style>
 </head>
-<body>
-<div style="padding: 200px">
-  <p style="width: 200px">12</p>
-  <span style="background: purple;border-radius: 5px;padding: 2px 4px">123</span>
-  <h2><span style="background: red;border-radius: 5px;padding: 2px 4px">123</span></h2>
-  <p><span style="background: blue;border-radius: 5px;padding: 2px 4px">123</span></p>
+<body style="overflow: hidden">
+<div style="position: absolute;bottom: 0;margin-bottom: -400px;height: 500px;background: red">
+  <p>pppppp</p>
+  <p>pppppp</p>
+  <p>pppppp</p>
+  <p>pppppp</p>
+  <p>pppppp</p>
+  <p>pppppp</p>
+  <p>pppppp</p>
 </div>
 <!--<script src="../static/assets/vendors/jq/jquery-1.12.2.js"></script>-->
 <!--<script src="../static/assets/vendors/axios/axios.js"></script>-->
 <script>
-  let arr = [1,2]
+  let arr = [1, 2]
   for (let i in arr) {
     console.log('cccc', i)
     break
   }
+
   function fff() {
     let i = 4
     for (let j = 0; j < 3; j++) {
@@ -41,13 +49,16 @@
       // return
     }
   }
+
   fff()
+
   function* generator() {
     let a = yield 1
     console.log(a)
     yield console.log(1)
     yield console.log(2)
   }
+
   let it = generator()
   console.log(it)
   console.log('-------------------------1')
@@ -105,5 +116,14 @@
   //   }, e => console.log(e))
 
 </script>
+<div>
+  <p>pppppp</p>
+  <p>pppppp</p>
+  <p>pppppp</p>
+  <p>pppppp</p>
+  <p>pppppp</p>
+  <p>pppppp</p>
+  <p>pppppp</p>
+</div>
 </body>
 </html>
