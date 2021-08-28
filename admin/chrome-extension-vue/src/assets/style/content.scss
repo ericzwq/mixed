@@ -1,0 +1,381 @@
+.clearfix:after {
+    content: "";
+    display: block;
+    width: 0;
+    height: 0;
+    clear: both;
+}
+.fright {
+    float: right;
+}
+
+.fleft {
+    float: left;
+}
+
+.txt-blue {
+    color: #198ede;
+}
+
+// 详情页按钮
+.hy-btn-collect, .hy-btn-uncollect, .hy-btn-source, .hy-amazon-btn{
+    // text-decoration: none;
+    display: inline-block;
+    padding: 5px 10px;
+    color: #fff;
+    font-size: 14px;
+    border-radius: 4px;
+    line-height: 20px;
+    font-weight: 400;
+    cursor: pointer;
+    margin-left: 10px;
+}
+// 详情页货源链接按钮
+.hy-btn-source {
+    border: 1px solid #ee4d2d;
+    background-color: #e96b51;
+    &:hover {
+        background-color: #f0816b;
+    }
+}
+// 详情页关注按钮
+.hy-btn-collect, .hy-btn-uncollect{
+    border: 1px solid #1b76df;
+    background-color:  #2d87ee;
+    &:hover {
+        background-color: #4c99f1;
+    }
+}
+
+// amazon按钮
+.hy-amazon-btn {
+    border: 1px solid #9c7e31;
+    color: #0f1111;
+    background: linear-gradient(to bottom,#f7dfa5,#f0c14b);
+    &:hover {
+        border-color: #a88734 #9c7e31 #846a29;
+        background: linear-gradient(to bottom,#f7dfa5,#e2b441);
+    }
+}
+
+.hy-amazon-btn-source {
+    border: 1px solid #af3c25;
+    background-color: #e96b51;
+    &:hover {
+        background-color: #f0816b;
+    }
+}
+
+.hy-copy-btn{
+    cursor: pointer;
+    &:hover {
+        color: #198ede;
+        text-decoration: underline;
+    }
+}
+
+
+// echarts 图
+.amazon-chart-box {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #e2e2e2;
+    box-shadow: 0 0 5px #ddd;
+    border-radius: 5px;
+    padding: 15px 0;
+    position: relative;
+    // max-width: 1200px;
+
+    .source-top {
+        position: absolute;
+        right: 20px;
+        bottom: 20px;
+        color: #999;
+        font-size: 13px;
+        // font-weight: 700;
+    }
+
+    .title-panal {
+        font-size: 20px;
+        line-height: 60px;
+        padding-left: 18px;
+        color: #666;
+        // font-weight: 700;
+        border-bottom: 2px solid #f2f2f2;
+    }
+
+    // 走势图
+    .hy-chart-part {
+        float: left;
+        width: 60%;
+        min-height: 400px;
+        // border-right: 1px solid #ddd;
+        border-right: 1px dashed #ddd;
+
+        #asin-chart {
+            width: 100%;
+            height: 400px;
+            // max-width: 1200px;
+            padding-top: 20px;
+            padding-bottom: 15px;
+        }
+    }
+
+    // asin信息区
+    .hy-info-part {
+        float: left;
+        width: 40%;
+        padding: 0 20px;
+
+        .info-header {
+            line-height: 42px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #e2e2e2;
+        }
+        .info-ontent {
+            padding-top: 10px;
+        }
+
+        .info-col {
+            float: left;
+            width: 50%;
+        }
+        
+        // 每一行
+        .info-row {
+            line-height: 28px;
+            color: #0F1111;
+            border-bottom: 1px dashed #e8e8e8;
+
+            &:after {
+                content: '';
+                display: block;
+                width: 0;
+                height: 0;
+                clear: both;
+            }
+            .info-row-label {
+                // display: inline-block;
+                float: left;
+                width: 30%;
+                // text-align: right;
+            }
+            .info-row-val {
+                // display: inline-block;
+                float: left;
+                width: 65%;
+                text-align: right;
+                font-weight: 700;
+            }
+        }
+
+        .cate-rank-row {
+            padding-left: 20px;
+        }
+    }
+
+    .no-data {
+        line-height: 350px;
+        height: 400px;
+        text-align: center;
+        font-size: 25px;
+        font-weight: 700;
+        color: #666;
+    }
+
+    .chart-box-noLogin {
+        display: block;
+        line-height: 350px;
+        height: 400px;
+        text-align: center;
+        font-size: 18px;
+        font-weight: 700;
+        color: #666;
+
+        .go-login {
+            color: #198ede;
+            cursor: pointer;
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+}
+
+
+// shopee 详情页
+.shopee-chart-box {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    // box-shadow: 0 1px 1px 0 rgb(0 0 0 / 5%);
+    box-shadow: 0 0 5px #e2e2e2;
+    border-radius: 4px;
+    max-width: 1200px;
+    background-color: #fff;
+    padding-bottom: 15px;
+    padding-top: 15px;
+    position: relative;
+
+    // 右下角来源
+    .source-top {
+        position: absolute;
+        right: 15px;
+        bottom: 15px;
+        color: #999;
+        font-size: 13px;
+    }
+
+    // .title-panal {
+    //     font-size: 16px;
+    //     line-height: 60px;
+    //     padding-left: 18px;
+    //     color: #666;
+    //     // font-weight: 700;
+    //     border-bottom: 2px solid #f2f2f2;
+
+    //     .right-info {
+    //         // padding-top: 5px;
+    //         float: right;
+    //         color: #555;
+    //         padding-right: 20px;
+    //         font-size: 14px;
+    //         line-height: 60px;
+    //         // font-weight: 700;
+    //         display: flex;
+
+    //         .right-label {
+    //             display: inline-block;
+    //             width: 80px;
+    //             text-align: right;
+    //         }
+    //     }
+    // }
+
+    // 走势图部分
+    .hy-chart-part {
+        width: 71%;
+        float: left;
+        // border-right: 1px solid #e2e2e2;
+        border-right: 1px dashed #e2e2e2;
+    }
+
+    // 信息部分
+    .hy-info-part {
+        float: left;
+        width: 27%;
+
+        .info-part-title {
+            padding: 0 0 10px 10px;
+            line-height: 42px;
+            border-bottom: 1px dashed #e2e2e2;
+            .id-box {
+                font-size: 15px;
+            }
+        }
+
+        .info-part-content {
+            padding-top: 10px;
+            // padding-left: 10px;
+        }
+
+        .info-row {
+            line-height: 30px;
+            font-size: 14px;
+            margin-left: 25px;
+            margin-right: 5px;
+            border-bottom: 1px dashed #e8e8e8;
+
+            &:after {
+                content: '';
+                display: block;
+                height: 0;
+                width: 0;
+                clear: both;
+            }
+
+            .info-label {
+                float: left;
+                width: 34%;
+                padding-left: 5px;
+                // margin-left: 10px;
+                // padding-left: 6%;
+                // display: inline-block;
+                // text-align: right;
+                // padding-right: 4%;
+            }
+            .info-value {
+                float: right;
+                // display: inline-block;
+                width: 60%;
+                font-weight: 700;
+                // text-align: left;
+                text-align: right;
+            }
+        }
+    }
+
+    #detail-chart {
+        width: 100%;
+        height: 400px;
+        max-width: 1200px;
+        margin-top: 20px;
+    }
+
+    .no-data {
+        display: block;
+        line-height: 350px;
+        height: 400px;
+        text-align: center;
+        font-size: 25px;
+        font-weight: 700;
+        color: #666;
+    }
+    .chart-box-noLogin {
+        display: block;
+        line-height: 350px;
+        height: 400px;
+        text-align: center;
+        font-size: 18px;
+        // font-weight: 700;
+        color: #666;
+
+        .go-login {
+            color: #198ede;
+            cursor: pointer;
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    // 货源链接等按钮
+    .hy-tools-box {
+        padding-left: 30px;
+        // .hy-btn-collect, .hy-btn-uncollect, .hy-btn-source {
+        //     padding: 5px 10px;
+        //     color: #fff;
+        //     font-size: 14px;
+        //     border-radius: 4px;
+        //     line-height: 20px;
+        //     font-weight: 400;
+        //     cursor: pointer;
+        //     margin-left: 10px;
+        // }
+
+        // .hy-btn-source {
+        //     border: 1px solid #ee4d2d;
+        //     background-color: #e96b51;
+        //     &:hover {
+        //         background-color: #f0816b;
+        //     }
+        // }
+
+        // .hy-btn-collect, .hy-btn-uncollect{
+        //     border: 1px solid #1b76df;
+        //     background-color:  #2d87ee;
+        //     &:hover {
+        //         background-color: #4c99f1;
+        //     }
+        // }
+    }
+}

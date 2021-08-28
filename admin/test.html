@@ -7,123 +7,67 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
   <style>
+      :root {
+          --text-color: red;
+      }
+
       * {
           padding: 0;
           margin: 0;
           box-sizing: border-box;
       }
 
-      div:last-child {
+      .d1 {
           color: red;
+      }
+
+      [id="d1"] {
+          color: greenyellow;
       }
   </style>
 </head>
-<body style="overflow: hidden">
-<div style="position: absolute;bottom: 0;margin-bottom: -400px;height: 500px;background: red">
-  <p>pppppp</p>
-  <p>pppppp</p>
-  <p>pppppp</p>
-  <p>pppppp</p>
-  <p>pppppp</p>
-  <p>pppppp</p>
-  <p>pppppp</p>
-</div>
+<body>
+<div style="height: 50px;width: 200px;background: red;border-radius: 10%"></div>
+<div id="dv">11</div>
+<input type="button" onclick="click1();" value="11">按钮</input>
+<div style="height: 25px;padding-bottom: 10px;border-bottom: 1px black solid;font-size: 28px">1212</div>
 <!--<script src="../static/assets/vendors/jq/jquery-1.12.2.js"></script>-->
 <!--<script src="../static/assets/vendors/axios/axios.js"></script>-->
 <script>
-  let arr = [1, 2]
-  for (let i in arr) {
-    console.log('cccc', i)
-    break
+  function a({row: {detail}, $index}) {
+    console.log(detail, $index)
   }
 
-  function fff() {
-    let i = 4
-    for (let j = 0; j < 3; j++) {
-      console.log('ddd', j)
-      return
+  let scope = {row: {detail: {a: 2}}, $index: 0}
+  a(scope)
+
+  function f() {
+    let t = Date.now()
+    for (let i = 0; i < 1000000000; i++) {
+      let b = +'3423.234'
     }
-    while (i > 0) {
-      console.log(i)
-      i--
-      // return
+    console.log(Date.now() - t)
+  }
+
+  // f()
+  function f2() {
+    let t2 = Date.now()
+    for (let i = 0; i < 1000000000; i++) {
+      let b = ~~'3423.234'
     }
+    console.log(Date.now() - t2)
   }
 
-  fff()
-
-  function* generator() {
-    let a = yield 1
-    console.log(a)
-    yield console.log(1)
-    yield console.log(2)
-  }
-
-  let it = generator()
-  console.log(it)
-  console.log('-------------------------1')
-  it.next()
-  console.log('-------------------------2')
-  it.next()
-  console.log('-------------------------3')
-  console.log(it.next());
-  console.log('-------------------------4')
-  console.log(it.next());
-  // console.log(it.next(20));
-  // console.log(it.next());
-  console.log('------------------------')
-  var s = "<td class='a'>2020-02-08</td><br/><td class='a'>2020-09-19</td>";
-  var r = /<.*>(.*)<\/.*>(.*)<.*>(.*)<\/.*>/
-  console.log(r.exec(s))
-  // console.log(s.match(r))
-  var re = /quick\s(brown).+?(jumps)/ig;
-
-  let re2 = /(\/.+\/)*(.*)/i;
-  let re3 = /^\/home(?:\/(?=$))?$/i;
-  let str = 'The Quick Brown Fox Jumps Over The Lazy Dog'
-
-  let str2 = '/home'
-  let str3 = '/home/news/:id/:page'
-  console.log(re3.exec(str2));
-  console.log(re.exec(str));
-  // console.log([].slice(0,1001))
-
-  // let r = [1, 2, 3].reduce((pre, cur) => (pre += cur, cur), 0)
-  // console.log(r)
-  // let r2 = fff((a, b) => (a += b, a))
-  //
-  // function fff(c) {
-  //   return c(1, 2)
-  // }
-
-  // console.log(r2)
-  // axios.get('http://localhost:3000/test').then(r => console.log(r), e => console.log(e))
-  // axios.get('http://api.cms.liulongbin.top/api/postcomment/13').then(r => console.log(r), e => console.log(e))
-  let url = 'http://api.cms.liulongbin.top/api/postcomment/13'
-
-  let headers = new Headers({
-    // 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-    'Content-Type': 'application/json;charset=UTF-8',
-  })
-  let data = {content: 'content'}
-
-  // fetch(url, { method: 'post', headers, body: 'content=con' })
-  //   .then(r => {
-  //     return r.json()
-  //   })
-  //   .then(r => {
-  //     console.log(r)
-  //   }, e => console.log(e))
+  // f2()
 
 </script>
-<div>
-  <p>pppppp</p>
-  <p>pppppp</p>
-  <p>pppppp</p>
-  <p>pppppp</p>
-  <p>pppppp</p>
-  <p>pppppp</p>
-  <p>pppppp</p>
-</div>
+<script>
+  function jsShow(location) {
+    console.log(location)
+  }
+
+
+</script>
+<script src="https://whois.pconline.com.cn/jsFunction.jsp?callback=jsShow&ip=183.11.69.22"></script>
 </body>
 </html>

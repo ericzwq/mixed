@@ -1,0 +1,19 @@
+$mpClassList: ['ml', 'mr', 'mt', 'mb', 'pl', 'pr', 'pt', 'pb'];
+$mpMap: (
+        ml: margin-left,
+        mr: margin-right,
+        mt: margin-top,
+        mb: margin-bottom,
+        pl: padding-left,
+        pr: padding-right,
+        pt: padding-top,
+        pb: padding-bottom
+);
+$pxList: [5, 10, 15, 20];
+@each $px in $pxList {
+  @each $margin in $mpClassList {
+    .hy-#{$margin}-#{$px} {
+      #{map-get($mpMap, $margin)}: #{$px}px;
+    }
+  }
+}

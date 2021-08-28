@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+      * {
+          padding: 0;
+          margin: 0;
+          box-sizing: border-box;
+      }
+  </style>
+</head>
+<body>
+<div id="divdiv" name="33" onclick="javascript:console.log(1)">divdiv</div>
+<div style="padding: 200px">
+  <p style="width: 200px">12</p>
+  <span style="background: purple;border-radius: 5px;padding: 2px 4px">123</span>
+  <h2><span style="background: red;border-radius: 5px;padding: 2px 4px">123</span></h2>
+  <p><span style="background: blue;border-radius: 5px;padding: 2px 4px">123</span></p>
+</div>
+<!--<script src="../static/assets/vendors/jq/jquery-1.12.2.js"></script>-->
+<!--<script src="../static/assets/vendors/axios/axios.js"></script>-->
+<script>
+  let arr = [1, 2]
+  for (let i in arr) {
+    console.log('cccc', i)
+    break
+  }
+
+  function fff() {
+    let i = 4
+    for (let j = 0; j < 3; j++) {
+      console.log('ddd', j)
+      return
+    }
+    while (i > 0) {
+      console.log(i)
+      i--
+      // return
+    }
+  }
+
+  fff()
+
+  function* generator() {
+    let a = yield 1
+    console.log(a)
+    yield console.log(1)
+    yield console.log(2)
+  }
+
+  let it = generator()
+  console.log(it)
+  console.log('-------------------------1')
+  it.next()
+  console.log('-------------------------2')
+  it.next()
+  console.log('-------------------------3')
+  console.log(it.next());
+  console.log('-------------------------4')
+  console.log(it.next());
+  // console.log(it.next(20));
+  // console.log(it.next());
+  console.log('------------------------')
+  var s = "<td class='a'>2020-02-08</td><br/><td class='a'>2020-09-19</td>";
+  var r = /<.*>(.*)<\/.*>(.*)<.*>(.*)<\/.*>/
+  console.log(r.exec(s))
+  // console.log(s.match(r))
+  var re = /quick\s(brown).+?(jumps)/ig;
+
+  let re2 = /(\/.+\/)*(.*)/i;
+  let re3 = /^\/home(?:\/(?=$))?$/i;
+  let str = 'The Quick Brown Fox Jumps Over The Lazy Dog'
+
+  let str2 = '/home'
+  let str3 = '/home/news/:id/:page'
+  console.log(re3.exec(str2));
+  console.log(re.exec(str));
+  // console.log([].slice(0,1001))
+
+  // let r = [1, 2, 3].reduce((pre, cur) => (pre += cur, cur), 0)
+  // console.log(r)
+  // let r2 = fff((a, b) => (a += b, a))
+  //
+  // function fff(c) {
+  //   return c(1, 2)
+  // }
+
+  // console.log(r2)
+  // axios.get('http://localhost:3000/test').then(r => console.log(r), e => console.log(e))
+  // axios.get('http://api.cms.liulongbin.top/api/postcomment/13').then(r => console.log(r), e => console.log(e))
+  let url = 'http://api.cms.liulongbin.top/api/postcomment/13'
+
+  let headers = new Headers({
+    // 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+    'Content-Type': 'application/json;charset=UTF-8',
+  })
+  let data = {content: 'content'}
+
+  // fetch(url, { method: 'post', headers, body: 'content=con' })
+  //   .then(r => {
+  //     return r.json()
+  //   })
+  //   .then(r => {
+  //     console.log(r)
+  //   }, e => console.log(e))
+
+</script>
+</body>
+</html>

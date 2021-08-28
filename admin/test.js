@@ -1,17 +1,14 @@
-// console.log(new Buffer('ss').toString());
-let q = 5, p = 3
-let n = q * p
-let f = (q - 1) * (p - 1)
-let e = 7
-let d = 1
-while ((e * d) % f !== 1) {
-  d++
-}
-console.log(d)
-
-let c = 0
-let power = 2 ** e
-while (c % n !== power) { // x % 15 = 128
-  c++
-}
-console.log(c)
+let fs = require('fs')
+let path = require('path')
+console.log(fs.createWriteAppendStream)
+let readStream = fs.createReadStream(path.resolve(__dirname, 'test.html'))
+readStream.setEncoding('utf8')
+let writeStream = fs.createWriteStream(path.resolve(__dirname, '2test.html'))
+readStream.on('data', chunk => {
+  // console.log(chunk, 6)
+  writeStream.write(chunk, 'utf8')
+})
+console.log(path.resolve('/a', '../test.html'), path.join('a', 'test.html'), 9)
+readStream.on('end', function () {
+  console.log(arguments)
+})

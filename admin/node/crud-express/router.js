@@ -16,6 +16,9 @@ router.get('/students/add', function (req, res) {
 });
 
 router.post('/students/add', function (req, res) {
+  console.log(req.headers, 22)
+  res.setHeader('Set-Cookie', 'a=1')
+  return res.end('ok')
   read(function (data) {
     var data1 = JSON.parse(data);
     data1.push(req.body);
