@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Promise</title>
+</head>
+<body>
+<script src="Promise.js"></script>
+<script>
+  // then和resolve优先级测试
+  // let p = new Promise((resolve, reject) => {
+  //   setTimeout(() => {
+  //     // resolve(1)
+  //   }, 1000)
+  //   reject(6)
+  // })
+  // setTimeout(() => {
+  //   let p2 = p.then(r => {
+  //     console.log('p.then：', r)
+  //     return 'p.then返回的结果'
+  //   }, err => {
+  //     console.log('p.err', err)
+  //   })
+  //   p.then(r => {
+  //     console.log('p.then2：', r)
+  //   }, err => {
+  //     console.log('p.err2', err)
+  //   })
+  //   p2.then(r2 => {
+  //     console.log('p.then.then：', r2)
+  //   })
+  //   console.log(p2)
+  // }, 2000)
+  // console.log(33)
+
+  // then和catch链式调用测试
+  // let p = new Promise((resolve, reject) => {
+  //   resolve(4)
+  // }).then(r => {
+  //   console.log('p', r)
+  //   return new Promise((resolve, reject) => {
+  //     setTimeout(() => resolve(99), 1000)
+  //   })
+  // }, err => console.log('2err', err)).then(() => {
+  //   console.log('3')
+  //   // return new Promise(() => {})
+  //   return new Promise((resolve, reject) => {
+  //     // setTimeout(() => {
+  //     reject(88)
+  //     // }, 1000)
+  //   })
+  // }, err => {
+  //   console.log('3err', err)
+  //   throw 33
+  // }).then(r => console.log('4', r))
+  //   .catch(err => console.log('catch', err))
+  //   .then(r => {
+  //     console.log('9',r)
+  //     // throw 9
+  //   }, err => console.log('9err', err))
+
+  // 测试中断promise链
+  // Promise.resolve(2).then(r => {
+  //   console.log(r)
+  //   return new Promise(() => 1)
+  // }).then(r => console.log(r))
+
+  // 测试错误处理
+  // let p = new Promise((r, r2) => {
+  //   r2(4)
+  // }).then(r => console.log(r))
+  // console.log(1)
+  // setTimeout(() => p.then(r => console.log(r), e => console.log(e)), 1000)
+
+  // 测试race, 若最新结束的任务是失败的则进入失败回调，若最新结束的任务是成功的则进入成功回调
+  // let p1 = new Promise((resolve, reject) => {
+  //   setTimeout(() => reject(6), 1000)
+  // })
+  // let p2 = new Promise((resolve, reject) => {
+  //   setTimeout(() => resolve(2), 2000)
+  // })
+  // let p = Promise.race([p1, p2]).then(r => {
+  //   console.log(r)
+  // }, err => console.log('err', err))
+
+  // 测试all
+  // let p1 = new Promise((resolve, reject) => {
+  //   setTimeout(() => reject(6), 2000)
+  // })
+  // let p2 = new Promise((resolve, reject) => {
+  //   setTimeout(() => resolve(2), 1000)
+  // })
+  // let p = Promise.all([p1, p2]).then(r => {
+  //   console.log(r)
+  // }, err => console.log('err', err))
+</script>
+</body>
+</html>

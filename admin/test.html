@@ -17,48 +17,65 @@
           box-sizing: border-box;
       }
 
-      .d1 {
-          color: red;
-      }
-
-      [id="d1"] {
-          color: greenyellow;
-      }
   </style>
 </head>
 <body>
-<div style="height: 50px;width: 200px;background: red;border-radius: 10%"></div>
-<div id="dv">11</div>
-<input type="button" onclick="click1();" value="11">按钮</input>
-<div style="height: 25px;padding-bottom: 10px;border-bottom: 1px black solid;font-size: 28px">1212</div>
+<p style="background: red">aaaaaa</p>
+<input type="text" id="url" value="https://www.wanqiang.top:4000">
+<!--  192.168.1.53  localhost -->
+<button onclick="req()">发请求</button>
+<br/>
+<a href="http://localhost/admin/test.html">跳转自身</a>
 <!--<script src="../static/assets/vendors/jq/jquery-1.12.2.js"></script>-->
 <!--<script src="../static/assets/vendors/axios/axios.js"></script>-->
 <script>
-  function a({row: {detail}, $index}) {
-    console.log(detail, $index)
+  function req() {
+    let url = document.getElementById('url').value
+    fetch(url, {
+      credentials: 'include'
+    })
   }
 
-  let scope = {row: {detail: {a: 2}}, $index: 0}
-  a(scope)
+  var name = 'window';
+  var A = {
+    name: 'A',
+    sayHello: function () {
+      var s = () => console.log(this.name)
+      return s//返回箭头函数s
+    }
+  }
+
+  var sayHello = A.sayHello();
+  sayHello();// 输出A
+
+  var B = {
+    name: 'B'
+  }
+  A.sayHello.call(B)()
+  sayHello.call(B); //还是A
+  sayHello.call(); //还是A
+  sayHello.bind(B)()
+  // f()
+  // f2()
 
   function f() {
     let t = Date.now()
-    for (let i = 0; i < 1000000000; i++) {
-      let b = +'3423.234'
+    for (let i = 0; i < 300000000; i++) {
+
     }
     console.log(Date.now() - t)
   }
 
-  // f()
   function f2() {
     let t2 = Date.now()
-    for (let i = 0; i < 1000000000; i++) {
-      let b = ~~'3423.234'
+    for (let i = 0; i < 300000000; i++) {
+      // let a = obj.a
+      // let b = a.b
+      // let a = obj.a
+      let b = arr[0]
     }
     console.log(Date.now() - t2)
   }
-
-  // f2()
 
 </script>
 <script>
@@ -66,8 +83,14 @@
     console.log(location)
   }
 
+  // document.cookie = 'Cookie_1=value; Path=/; Expires=Thu, 29 Sep 2021 03:09:20 GMT;'
 
 </script>
 <script src="https://whois.pconline.com.cn/jsFunction.jsp?callback=jsShow&ip=183.11.69.22"></script>
+<script>
+  Promise.resolve(new Promise(resolve => {
+    // setTimeout(() => resolve(4), 1000)
+  })).then(r => console.log(r))
+</script>
 </body>
 </html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<input type="button" value="按钮" onclick="f()"/>
+<script>
+  function f() {
+    console.log(2)
+    fetch('http://localhost:3000', {
+      headers: {
+        Cookie: 'cookie=changed',
+        c: 'x',
+        cookie: 'my-cookie'
+      }
+    })
+  }
+</script>
+</body>
+</html>
