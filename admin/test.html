@@ -20,61 +20,183 @@
   </style>
 </head>
 <body>
-<p style="background: red">aaaaaa</p>
+<div style="width: 500px;height: 300px;background: red;display: flex;flex-direction: row-reverse">
+  <div style="width: 100px;height: 100px;background: black;"></div>
+</div>
+<button id="btn">切换</button>
+<select id="select">
+  <option value="1">11不显示</option>
+  <option value="2">22显示</option>
+</select>
+<h2 id="h2" style="display: none">hhhhhhhhhhhhhhhh</h2>
 <input type="text" id="url" value="https://www.wanqiang.top:4000">
 <!--  192.168.1.53  localhost -->
 <button onclick="req()">发请求</button>
 <br/>
+<input readonly value="3333" type="text">
 <a href="http://localhost/admin/test.html">跳转自身</a>
 <!--<script src="../static/assets/vendors/jq/jquery-1.12.2.js"></script>-->
 <!--<script src="../static/assets/vendors/axios/axios.js"></script>-->
+<script src="../static/assets/vendors/htmlparser.js"></script>
+<script src="../static/assets/vendors/moment.js"></script>
 <script>
-  function req() {
-    let url = document.getElementById('url').value
-    fetch(url, {
-      credentials: 'include'
-    })
-  }
+  // a: (10) [0, 3, 8, 13, 19, 26, 32, 37, 41, 44]
+  // b: (4) [1, 4, 6, 7]
+  // c: (2) [2, 5]
+  // d: (7) [16, 23, 28, 34, 39, 42, 46]
+  // f: (7) [11, 18, 24, 30, 36, 40, 47]
+  // j: (5) [12, 17, 22, 29, 35]
+  // l: (5) [10, 14, 20, 25, 31]
+  // s: (8) [9, 15, 21, 27, 33, 38, 43, 45]
+  var lengthOfLongestSubstring = function (s) { // D b c D e f g h D j
+    let l = s.length, map = {}, repeats = {}, first = true, min, max
+    for (let i = 0; i < l; i++) {
+      let item = s[i]
+      if (map[item]) {
+        if (first) {
+          min = i
+          first = false
+        } else max = i
+        if (repeats[item]) repeats[item].push(i)
+        else repeats[item] = [map[item] - 1, i]
+      } else map[s[i]] = i + 1
+    }
+    let lenList = [min], arr = []
+    for (let k in repeats) {
+      lenList.push(getMaxLen(repeats[k]))
+      arr.push(repeats[k])
+      // arr = arr.concat(repeats[k])
+    }
+    lenList.push(l - 1 - max)
+    console.log(getMaxLen(lenList), lenList, map, repeats, s);
+    // arr.sort((a, b) => a - b)
+    // console.log(getMaxLen(arr), arr)
+    getMaxFromAll(3, 8, arr, 0)
+    // let rr = binarySearch([1, 2, 3, 9], 0, 3, function (v) {
+    //   if (v > 3 && v < 8) return 0
+    //   return 8 - v
+    // })
+    // console.log({rr})
+    return getMaxLen(lenList)
 
-  var name = 'window';
-  var A = {
-    name: 'A',
-    sayHello: function () {
-      var s = () => console.log(this.name)
-      return s//返回箭头函数s
+    function getMaxFromAll(l, r, arr, notIn) { // 从所有数据里获取最大长度  3-8  -> 2-7, 3-7, 4-9
+      let help = []
+      arr.forEach((repeat, index) => {
+        if (index === notIn) return
+        // help.push([repeat.findIndex(i => i < l), repeat.findIndex(i => i > r)])
+        // repeat.find(i => )
+      })
+    }
+
+    function binarySearch(arr, l, r, cb) {
+      if (l > r) return -1
+      let m = Math.floor(l + (r - l) / 2)
+      let res = cb(arr[m])
+      if (res > 0) return binarySearch(arr, m + 1, r, cb) // 向右
+      if (res < 0) return binarySearch(arr, l, m - 1, cb) // 向左
+      return m
+    }
+
+    function getMaxLen(arr) { // 获取最大区间长度
+      let max = 0, last = 0
+      arr.forEach(i => {
+        max = i - last > max ? i - last : max
+        last = i
+      })
+      return max + 1
     }
   }
 
-  var sayHello = A.sayHello();
-  sayHello();// 输出A
+  console.log(lengthOfLongestSubstring("abcabcbbaslfjalsdjfalsjdflasdjflasdjfasdfadsasdf"))
+</script>
+<script>
+  // let arr = [
+  //   [], [], [],
+  //   [], [], [],
+  //   [], [], []
+  // ]
 
-  var B = {
-    name: 'B'
+  function mov(m, n, k) {
+    let visited = new Array(m);
+    let len = visited.length - 1
+    while (len >= 0) visited[len--] = new Array(n)
+    console.log(visited)
+    return dfs(0, 0, m, n, k, visited);
+
+    function dfs(i, j, m, n, k, visited) {
+      if (i < 0 || i >= m || j < 0 || j >= n || (Math.floor(i / 10) + i % 10 + Math.floor(j / 10) + j % 10) > k || visited[i][j]) {
+        return 0;
+      }
+      visited[i][j] = true;
+      return dfs(i + 1, j, m, n, k, visited) + dfs(i - 1, j, m, n, k, visited) +
+        dfs(i, j + 1, m, n, k, visited) + dfs(i, j - 1, m, n, k, visited) + 1;
+    }
   }
-  A.sayHello.call(B)()
-  sayHello.call(B); //还是A
-  sayHello.call(); //还是A
-  sayHello.bind(B)()
+
+  let t = Date.now()
+  // console.log(mov(38, 15, 9), Date.now() - t)
+  let movingCount = function (m, n, k) {
+    let total = 0, sum = 0,
+      visited = new Array(m),
+      len = visited.length - 1
+    while (len >= 0) visited[len--] = new Array(n)
+    console.log(visited)
+    for (let i = 0; i < m && getSingleSum(i) <= k; i++) {
+      sum = 0
+      for (let j = 0; j < n && getSingleSum(j) <= k; j++) {
+        console.log(i, j)
+        sum += search(i, j)
+        if (getSingleSum(i) + getSingleSum(j) <= k) total++
+      }
+      console.log(sum, i)
+      total += sum
+      if (sum === 0) return total
+    }
+    return total
+
+    function iterator(i, j) {
+      let total = search(i, j)
+      console.log(total, i, j)
+      if (total) {
+        total += iterator(i + 1, j)
+      }
+      return total
+    }
+
+    function search(row, col) {
+      return getSingleSum(row) + getSingleSum(col) <= k ? 1 : 0
+    }
+
+    function getSingleSum(n) {
+      let sum = 0
+      while (n / 10 >= 1) {
+        sum += n % 10
+        n = Math.floor(n / 10)
+      }
+      sum += n
+      return sum
+    }
+  }
+
+  // console.log(movingCount(38, 15, 9))
+
   // f()
   // f2()
 
   function f() {
-    let t = Date.now()
+    let t = Date.now(), b = 22222
     for (let i = 0; i < 300000000; i++) {
-
+      Math.floor(b / 1000) % 10
     }
-    console.log(Date.now() - t)
+    console.log(Date.now() - t, 't')
   }
 
   function f2() {
-    let t2 = Date.now()
+    let t2 = Date.now(), b = 22222
     for (let i = 0; i < 300000000; i++) {
-      // let a = obj.a
-      // let b = a.b
-      // let a = obj.a
-      let b = arr[0]
+      ('' + b)[1]
     }
-    console.log(Date.now() - t2)
+    console.log(Date.now() - t2, 't2')
   }
 
 </script>

@@ -1,24 +1,56 @@
 /*******************工具函数库*******************/
-
 /**
  * 斐波那契
- * @param n
+ * @param n >= 1
+ * @returns {number|*}
+ */
+function fibonacci(n) {
+  if (n < 3) return 1
+  let a = b = 1, c
+  while (n-- > 2) {
+    c = BigInt(a + b)
+    a = BigInt(b)
+    b = BigInt(c)
+  }
+  return c
+}
+
+/**
+ * 斐波那契(效率低)
+ * @param n >= 1
  * @returns {number|number}
  */
-export const fibonacci = n => n < 3 ? 1 : fibonacci(n - 1) + fibonacci(n - 2)
+const fibonacci2 = n => n < 3 ? 1 : fibonacci2(n - 1) + fibonacci2(n - 2)
+
+/**
+ * 带回调的二分查找
+ * @param arr 源数据
+ * @param l 左边界
+ * @param r 右边界
+ * @param cb 查找方法，大于0则向右查找，小于0向左查找，等于即找到
+ * @returns {number|number|*|number} 找到的下标
+ */
+function binarySearch(arr, l, r, cb) {
+  if (l > r) return -1
+  let m = Math.floor(l + (r - l) / 2)
+  let res = cb(arr[m])
+  if (res > 0) return binarySearch(arr, m + 1, r, cb) // 向右
+  if (res < 0) return binarySearch(arr, l, m - 1, cb) // 向左
+  return m
+}
 
 /**
  * 生成36位随机数（uuid）
  * @returns {string}
  */
-export const myRandom = () => URL.createObjectURL(new Blob([])).slice(-36)
+const myRandom = () => URL.createObjectURL(new Blob([])).slice(-36)
 
 /**
  * 判断值是否为null或undefined
  * @param v
  * @returns {boolean}
  */
-export const isShallowNull = v => (v ?? false) === false // 空值合并运算符
+const isShallowNull = v => (v ?? false) === false // 空值合并运算符
 
 /**
  * 防抖
@@ -26,7 +58,7 @@ export const isShallowNull = v => (v ?? false) === false // 空值合并运算�
  * @param timeout
  * @returns {(function(): void)|*}
  */
-export function debounce(cb, timeout = 500) {
+function debounce(cb, timeout = 500) {
   let timer
   return function () {
     clearTimeout(timer)
@@ -40,7 +72,7 @@ export function debounce(cb, timeout = 500) {
  * @param timeout
  * @returns {(function(): void)|*}
  */
-export function throttle(cb, timeout = 500) {
+function throttle(cb, timeout = 500) {
   let flag
   return function () {
     if (flag) return
@@ -96,7 +128,7 @@ function type(v) {
  * @param timer 定时器的值
  * @returns {number|void}
  */
-export function afterChange(action, cb, {timeout = 1000, times = 30, errorCb, timer} = {}) {
+function afterChange(action, cb, {timeout = 1000, times = 30, errorCb, timer} = {}) {
   if (times < 0) {
     errorCb && errorCb()
     timer = null
@@ -121,7 +153,7 @@ export function afterChange(action, cb, {timeout = 1000, times = 30, errorCb, ti
  * @param timer
  * @returns {number|void}
  */
-export function afterExist(action, cb, {timeout = 1000, times = 30, errorCb, timer} = {}) {
+function afterExist(action, cb, {timeout = 1000, times = 30, errorCb, timer} = {}) {
   if (times < 0) {
     errorCb && errorCb()
     timer = null
@@ -146,7 +178,7 @@ export function afterExist(action, cb, {timeout = 1000, times = 30, errorCb, tim
  * @param observer
  * @returns {MutationObserver}
  */
-export function elementListener(cb, el, {
+function elementListener(cb, el, {
   timeout = 1000,
   observeOptions = {childList: true},
   autoDisconnect = true,
