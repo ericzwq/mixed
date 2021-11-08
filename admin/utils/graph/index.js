@@ -73,6 +73,7 @@ function buildGraphByMatrix(matrix, directed = true) {
       toNode.out++
       toNode.edges.add(edge)
       toNode.nexts.add(fromNode)
+      graph.edges.add(new Edge({from: toNode, to: fromNode, weight}))
     }
     graph.edges.add(edge)
   })
