@@ -23,46 +23,61 @@ class Edge {
   }
 }
 
-//  1----------->2------------>4
-//  |    (7)          (20)     |
-//  |(4)                   (6) |
-//  3                          5
-let matrix = [
+//  1----------->2------------>4-------------->7
+//  |    (7)          (20)     |      (8)        (50)
+//  |(4)                   (6) |                         8
+//  3     (2)    6     (9)     5    (1000)     9   (1)
+let matrix = [ // 8,9             3,6              1,3
   [7, 1, 2],
   [4, 1, 3],
   [20, 2, 4],
   [6, 4, 5],
-  [100, 3, 2]
+  [100, 3, 2],
+  [2, 3, 6],
+  [9, 6, 5],
+  [8, 4, 7],
+  [50, 7, 8],
+  [1000, 5, 9],
+  [1, 9, 8]
 ]
 
-function buildGraphByMatrix(matrix) {
-  const graph = new Graph()
+/**
+ * 通过数组表示的图转换为graph对象
+ * @param matrix 数组数据源
+ * @param directed 是否构建为有向图，默认是
+ * @returns {Graph}
+ */
+function buildGraphByMatrix(matrix, directed = true) {
+  const graph = new Graph(), nodes = graph.nodes
   matrix.forEach(i => {
     const weight = i[0], from = i[1], to = i[2]
     const edge = new Edge({weight})
-    const fromNode = new Node({value: from})
-    const toNode = new Node({value: to})
+    let fromNode = nodes.get(from)
+    if (!fromNode) {
+      fromNode = new Node({value: from})
+      nodes.set(from, fromNode)
+    }
+    let toNode = nodes.get(to)
+    if (!toNode) {
+      toNode = new Node({value: to})
+      nodes.set(to, toNode)
+    }
     edge.from = fromNode
     edge.to = toNode
     fromNode.out++
     fromNode.nexts.add(toNode)
     fromNode.edges.add(edge)
-    to.enter++
-    if (!graph.nodes.has(from)) graph.nodes.set(from, fromNode)
-    if (!graph.nodes.has(to)) graph.nodes.set(to, toNode)
+    toNode.enter++
+    if (!directed) {
+      fromNode.enter++
+      toNode.out++
+      toNode.edges.add(edge)
+      toNode.nexts.add(fromNode)
+    }
     graph.edges.add(edge)
   })
   return graph
 }
 
-const graph = buildGraphByMatrix(matrix), stack = []
-console.log(graph.nodes)
-const grapher = graph.nodes.entries()
-let {value: [key, value]} = grapher.next(), cur, visited = new Set()
-stack.push(value)
-while (stack.length) {
-  cur = stack.pop()
-
-  cur.nexts.forEach(next => stack.push(next))
-  console.log(stack)
-}
+const directedGraph = buildGraphByMatrix(matrix)
+const undirectedGraph = buildGraphByMatrix(matrix, false)
