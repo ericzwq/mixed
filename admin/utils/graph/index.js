@@ -22,12 +22,12 @@ class Edge {
     this.weight = weight
   }
 }
-
+//      (7)           (20)            (8)
 //  1----------->2------------>4-------------->7
-//  |    (7)          (20)     |      (8)        (50)
-//  |(4)                   (6) |                         8
-//  3     (2)    6     (9)     5    (1000)     9   (1)
-let matrix = [ // 8,9             3,6              1,3
+//  |        /                |                   (50v)
+//  |(v4) / (^100)        (6v)|                         8
+//  3---/(2)>---6---(9)>------5    (1000)     9   (1^)
+let matrix = [
   [7, 1, 2],
   [4, 1, 3],
   [20, 2, 4],
@@ -69,11 +69,12 @@ function buildGraphByMatrix(matrix, directed = true) {
     fromNode.edges.add(edge)
     toNode.enter++
     if (!directed) {
+      const reverseEdge = new Edge({from: toNode, to: fromNode, weight})
       fromNode.enter++
       toNode.out++
-      toNode.edges.add(edge)
+      toNode.edges.add(reverseEdge)
       toNode.nexts.add(fromNode)
-      graph.edges.add(new Edge({from: toNode, to: fromNode, weight}))
+      graph.edges.add(reverseEdge)
     }
     graph.edges.add(edge)
   })

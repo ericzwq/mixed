@@ -46,11 +46,35 @@ v3:<input type="radio" name="sex" value="z" title="中性">
 <script src="../static/assets/vendors/moment.js"></script>
 <script src="../static/assets/vendors/layui-v2.6.8/layui/layui.js"></script>
 <script>
-  document.getElementById('btn2').onclick = function () {
-    let d = document.querySelectorAll('input[name="sex"]')
-    console.log(d)
-    d[Math.floor(Math.random() * 3)].checked = 'checked'
+  //    2
+  // 2   3
+  // 4 5
+  function heapify(heap, index) { // 小根堆
+    let parent, max = heap.length - 1
+    while ((parent = Math.floor((index - 1) / 2)) >= 0 && heap[parent] > heap[index]) {
+      swap(heap, index, parent)
+      index = parent
+    }
+    let left = index * 2 + 1, right = index * 2 + 2, least = heap[left] > heap[right] ? right : left
+    while (right <= max && heap[index] > heap[least]) {
+      swap(heap, least, index)
+      index = least
+      left = index * 2 + 1
+      right = index * 2 + 2
+      least = heap[left] > heap[right] ? right : left
+    }
+    if (left === max - 1 && heap[left] < heap[max]) swap(heap, left, max)
   }
+
+  function swap(arr, i, j) {
+    let t = arr[i]
+    arr[i] = arr[j]
+    arr[j] = t
+  }
+
+  let aa = [5, 2, 3, 4, 2]
+  heapify(aa, 0)
+  console.log(aa)
   // a: (10) [0, 3, 8, 13, 19, 26, 32, 37, 41, 44]
   // b: (4) [1, 4, 6, 7]
   // c: (2) [2, 5]
