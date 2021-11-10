@@ -46,6 +46,13 @@ v3:<input type="radio" name="sex" value="z" title="中性">
 <script src="../static/assets/vendors/moment.js"></script>
 <script src="../static/assets/vendors/layui-v2.6.8/layui/layui.js"></script>
 <script>
+  document.getElementById('btn2').onclick = function () {
+    let a = document.createElement('a')
+    a.href = URL.createObjectURL(new Blob(['adfasdf']))
+    a.download = 'a.txt'
+    document.body.appendChild(a)
+    a.click()
+  }
   //    2
   // 2   3
   // 4 5
