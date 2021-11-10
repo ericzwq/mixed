@@ -9,7 +9,7 @@ function hanoi(n) { // 汉诺塔问题
     // process(2, hel, end, sta)
     // process(1, sta, end, hel)
     process(n - 1, sta, hel, end)
-    console.log(`从 ${sta} 移动 ${n} 到 ${end} `)
+    console.log(`从 ${sta} 移动 ${n} 到 ${end}`)
     process(n - 1, hel, end, sta)
   }
 
@@ -40,17 +40,42 @@ function childCollection(str) { // 字符串所有子集
 
 function fullAarray(str) { // 字符串全排列
   const res = [], len = str.length
+  str = str.split('')
 
-  function process(start, prefix) {
-    if (start === len) {
-      return res.push(prefix)
-    }
-    prefix += str[start]
-    process(start + 1, prefix)
+  function process2(i, j, prefix) { // ab    aa
+    if (prefix.length === len) return res.push(prefix)
+
+    process2(i + 1, i + 2, prefix + str[i])
+    // swap(str, i, i + 1)
+    let t = str[i + 1] // b
+    str[i + 1] = str[i]
+    process2(i, i + 1, prefix + t)
+    str[i + 1] = t
+    // swap(str, i + 1, i)
+  }
+  // debugger
+  process2(0, 1, '')
+
+  function swap(arr, i, j) {
+    let t = arr[i]
+    arr[i] = arr[j]
+    arr[j] = t
   }
 
-  process(0, '')
+  function process(prefix, disables) {
+    if (disables.size === len) return res.push(prefix)
+    for (let i = 0; i < len; i++) {
+      if (disables.has(i)) continue
+      let prefix2 = prefix + str[i]
+      let disables2 = new Set()
+      disables.forEach(i => disables2.add(i))
+      disables2.add(i)
+      process(prefix2, disables2)
+    }
+  }
+
+  // process('', new Set())
   return res
 }
 
-console.log(fullAarray('abc'))
+console.log(fullAarray('ab'))
