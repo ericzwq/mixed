@@ -39,22 +39,20 @@ function childCollection(str) { // 字符串所有子集
 // console.log(childCollection('abcdefghijk'));
 
 function fullAarray(str) { // 字符串全排列
-  const res = [], len = str.length
+  const res = [], max = str.length - 1
   str = str.split('')
 
-  function process2(i, j, prefix) { // ab    aa
-    if (prefix.length === len) return res.push(prefix)
-
-    process2(i + 1, i + 2, prefix + str[i])
-    // swap(str, i, i + 1)
-    let t = str[i + 1] // b
-    str[i + 1] = str[i]
-    process2(i, i + 1, prefix + t)
-    str[i + 1] = t
-    // swap(str, i + 1, i)
+  function process(n, prefix) {
+    if (n >= max) return res.push(prefix + str[n])
+    process(n + 1, prefix + str[n])
+    for (let i = n + 1; i <= max; i++) {
+      swap(str, i, n)
+      process(n + 1, prefix + str[n])
+      swap(str, i, n)
+    }
   }
-  // debugger
-  process2(0, 1, '')
+
+  process(0, '')
 
   function swap(arr, i, j) {
     let t = arr[i]
@@ -62,20 +60,29 @@ function fullAarray(str) { // 字符串全排列
     arr[j] = t
   }
 
-  function process(prefix, disables) {
-    if (disables.size === len) return res.push(prefix)
-    for (let i = 0; i < len; i++) {
-      if (disables.has(i)) continue
-      let prefix2 = prefix + str[i]
-      let disables2 = new Set()
-      disables.forEach(i => disables2.add(i))
-      disables2.add(i)
-      process(prefix2, disables2)
-    }
-  }
-
-  // process('', new Set())
   return res
 }
 
-console.log(fullAarray('ab'))
+// console.log(fullAarray('abcdefghi'))
+
+function queen(n) { // n皇后, 14左右，合理使用
+  let record = [], count = 0,
+    isValid = (x, y, record) => record.length ? record.every((col, row) => Math.abs(y - col) !== Math.abs(x - row) && col !== y && row !== x) : true
+
+  function process(i, record) { // 行
+    for (let j = 0; j < n; j++) { // 列
+      if (isValid(i, j, record)) {
+        let record2 = [...record]
+        record2.push(j)
+        if (record2.length === n) count++
+        else process(i + 1, record2)
+      }
+    }
+  }
+
+  process(0, record)
+  return count
+
+}
+
+console.log(queen(4))

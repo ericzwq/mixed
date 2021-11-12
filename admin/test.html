@@ -46,42 +46,6 @@ v3:<input type="radio" name="sex" value="z" title="中性">
 <script src="../static/assets/vendors/moment.js"></script>
 <script src="../static/assets/vendors/layui-v2.6.8/layui/layui.js"></script>
 <script>
-  document.getElementById('btn2').onclick = function () {
-    let a = document.createElement('a')
-    a.href = URL.createObjectURL(new Blob(['adfasdf']))
-    a.download = 'a.txt'
-    document.body.appendChild(a)
-    a.click()
-  }
-  //    2
-  // 2   3
-  // 4 5
-  function heapify(heap, index) { // 小根堆
-    let parent, max = heap.length - 1
-    while ((parent = Math.floor((index - 1) / 2)) >= 0 && heap[parent] > heap[index]) {
-      swap(heap, index, parent)
-      index = parent
-    }
-    let left = index * 2 + 1, right = index * 2 + 2, least = heap[left] > heap[right] ? right : left
-    while (right <= max && heap[index] > heap[least]) {
-      swap(heap, least, index)
-      index = least
-      left = index * 2 + 1
-      right = index * 2 + 2
-      least = heap[left] > heap[right] ? right : left
-    }
-    if (left === max - 1 && heap[left] < heap[max]) swap(heap, left, max)
-  }
-
-  function swap(arr, i, j) {
-    let t = arr[i]
-    arr[i] = arr[j]
-    arr[j] = t
-  }
-
-  let aa = [5, 2, 3, 4, 2]
-  heapify(aa, 0)
-  console.log(aa)
   // a: (10) [0, 3, 8, 13, 19, 26, 32, 37, 41, 44]
   // b: (4) [1, 4, 6, 7]
   // c: (2) [2, 5]
@@ -114,11 +78,21 @@ v3:<input type="radio" name="sex" value="z" title="中性">
     // arr.sort((a, b) => a - b)
     // console.log(getMaxLen(arr), arr)
     getMaxFromAll(3, 8, arr, 0)
-    // let rr = binarySearch([1, 2, 3, 9], 0, 3, function (v) {
-    //   if (v > 3 && v < 8) return 0
-    //   return 8 - v
-    // })
-    // console.log({rr})
+    let res = []
+    let rr = binarySearch([1, 2, 3, 4, 5, 6, 7], 0, 3, function (v, i, arr) {
+      if (v > 3 && v < 8) {
+        if (arr[i + 1] < 8) {
+          return 1 // 向右有待观察
+        } else if (arr[i + 1] > 8) {
+          res.push(i + 1)
+          return -1
+        } else {
+          return 1
+        }
+      }
+      return 8 - v
+    })
+    console.log({rr, res})
     return getMaxLen(lenList)
 
     function getMaxFromAll(l, r, arr, notIn) { // 从所有数据里获取最大长度  3-8  -> 2-7, 3-7, 4-9
@@ -133,7 +107,7 @@ v3:<input type="radio" name="sex" value="z" title="中性">
     function binarySearch(arr, l, r, cb) {
       if (l > r) return -1
       let m = Math.floor(l + (r - l) / 2)
-      let res = cb(arr[m])
+      let res = cb(arr[m], m, arr)
       if (res > 0) return binarySearch(arr, m + 1, r, cb) // 向右
       if (res < 0) return binarySearch(arr, l, m - 1, cb) // 向左
       return m
