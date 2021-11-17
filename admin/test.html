@@ -21,6 +21,10 @@
   </style>
 </head>
 <body>
+<p>p1</p>
+<p>p2</p>
+<span>span1</span>
+<span>span2</span>
 <div style="width: 500px;height: 300px;background: red;display: flex;flex-direction: row-reverse">
   <div style="width: 100px;height: 100px;background: black;"></div>
 </div>
@@ -46,171 +50,47 @@ v3:<input type="radio" name="sex" value="z" title="中性">
 <script src="../static/assets/vendors/moment.js"></script>
 <script src="../static/assets/vendors/layui-v2.6.8/layui/layui.js"></script>
 <script>
-  // a: (10) [0, 3, 8, 13, 19, 26, 32, 37, 41, 44]
-  // b: (4) [1, 4, 6, 7]
-  // c: (2) [2, 5]
-  // d: (7) [16, 23, 28, 34, 39, 42, 46]
-  // f: (7) [11, 18, 24, 30, 36, 40, 47]
-  // j: (5) [12, 17, 22, 29, 35]
-  // l: (5) [10, 14, 20, 25, 31]
-  // s: (8) [9, 15, 21, 27, 33, 38, 43, 45]
-  var lengthOfLongestSubstring = function (s) { // D b c D e f g h D j
-    let l = s.length, map = {}, repeats = {}, first = true, min, max
-    for (let i = 0; i < l; i++) {
-      let item = s[i]
-      if (map[item]) {
-        if (first) {
-          min = i
-          first = false
-        } else max = i
-        if (repeats[item]) repeats[item].push(i)
-        else repeats[item] = [map[item] - 1, i]
-      } else map[s[i]] = i + 1
-    }
-    let lenList = [min], arr = []
-    for (let k in repeats) {
-      lenList.push(getMaxLen(repeats[k]))
-      arr.push(repeats[k])
-      // arr = arr.concat(repeats[k])
-    }
-    lenList.push(l - 1 - max)
-    console.log(getMaxLen(lenList), lenList, map, repeats, s);
-    // arr.sort((a, b) => a - b)
-    // console.log(getMaxLen(arr), arr)
-    getMaxFromAll(3, 8, arr, 0)
-    let res = []
-    let rr = binarySearch([1, 2, 3, 4, 5, 6, 7], 0, 3, function (v, i, arr) {
-      if (v > 3 && v < 8) {
-        if (arr[i + 1] < 8) {
-          return 1 // 向右有待观察
-        } else if (arr[i + 1] > 8) {
-          res.push(i + 1)
-          return -1
-        } else {
-          return 1
-        }
+  function cuttingRope2(n) {
+    if (n <= 3) return n - 1;
+    let div = Math.floor(n / 3);
+    let rem = n % 3;
+    let result = 1;
+    for (let i = 0; i < div; i++) {
+      result *= i < div - 1 ? 3 : (rem == 2 ? 3 * rem : (3 + rem));
+      if (result >= 1000000007) {
+        result = result % 1000000007;
       }
-      return 8 - v
-    })
-    console.log({rr, res})
-    return getMaxLen(lenList)
-
-    function getMaxFromAll(l, r, arr, notIn) { // 从所有数据里获取最大长度  3-8  -> 2-7, 3-7, 4-9
-      let help = []
-      arr.forEach((repeat, index) => {
-        if (index === notIn) return
-        // help.push([repeat.findIndex(i => i < l), repeat.findIndex(i => i > r)])
-        // repeat.find(i => )
-      })
     }
-
-    function binarySearch(arr, l, r, cb) {
-      if (l > r) return -1
-      let m = Math.floor(l + (r - l) / 2)
-      let res = cb(arr[m], m, arr)
-      if (res > 0) return binarySearch(arr, m + 1, r, cb) // 向右
-      if (res < 0) return binarySearch(arr, l, m - 1, cb) // 向左
-      return m
-    }
-
-    function getMaxLen(arr) { // 获取最大区间长度
-      let max = 0, last = 0
-      arr.forEach(i => {
-        max = i - last > max ? i - last : max
-        last = i
-      })
-      return max + 1
-    }
+    return result;
   }
 
-  console.log(lengthOfLongestSubstring("abcabcbbaslfjalsdjfalsjdflasdjflasdjfasdfadsasdf"))
-</script>
-<script>
-  // let arr = [
-  //   [], [], [],
-  //   [], [], [],
-  //   [], [], []
-  // ]
-
-  function mov(m, n, k) {
-    let visited = new Array(m);
-    let len = visited.length - 1
-    while (len >= 0) visited[len--] = new Array(n)
-    console.log(visited)
-    return dfs(0, 0, m, n, k, visited);
-
-    function dfs(i, j, m, n, k, visited) {
-      if (i < 0 || i >= m || j < 0 || j >= n || (Math.floor(i / 10) + i % 10 + Math.floor(j / 10) + j % 10) > k || visited[i][j]) {
-        return 0;
-      }
-      visited[i][j] = true;
-      return dfs(i + 1, j, m, n, k, visited) + dfs(i - 1, j, m, n, k, visited) +
-        dfs(i, j + 1, m, n, k, visited) + dfs(i, j - 1, m, n, k, visited) + 1;
-    }
+  console.log(cuttingRope2(34));
+  let cuttingRope = function (n) { // 8-> 2,3,3   10->3,3,4
+    if (n === 2) return 1
+    if (n === 3) return 2
+    if (n === 4) return 4
+    if (n === 5) return 6
+    if (n === 6) return 9
+    let count = Math.floor(n / 3)
+    let rest = n % 3
+    return rest > 0 ? 3 ** (count - 1) * (rest + 3) : 3 ** count
   }
-
-  let t = Date.now()
-  // console.log(mov(38, 15, 9), Date.now() - t)
-  let movingCount = function (m, n, k) {
-    let total = 0, sum = 0,
-      visited = new Array(m),
-      len = visited.length - 1
-    while (len >= 0) visited[len--] = new Array(n)
-    console.log(visited)
-    for (let i = 0; i < m && getSingleSum(i) <= k; i++) {
-      sum = 0
-      for (let j = 0; j < n && getSingleSum(j) <= k; j++) {
-        console.log(i, j)
-        sum += search(i, j)
-        if (getSingleSum(i) + getSingleSum(j) <= k) total++
-      }
-      console.log(sum, i)
-      total += sum
-      if (sum === 0) return total
-    }
-    return total
-
-    function iterator(i, j) {
-      let total = search(i, j)
-      console.log(total, i, j)
-      if (total) {
-        total += iterator(i + 1, j)
-      }
-      return total
-    }
-
-    function search(row, col) {
-      return getSingleSum(row) + getSingleSum(col) <= k ? 1 : 0
-    }
-
-    function getSingleSum(n) {
-      let sum = 0
-      while (n / 10 >= 1) {
-        sum += n % 10
-        n = Math.floor(n / 10)
-      }
-      sum += n
-      return sum
-    }
-  }
-
-  // console.log(movingCount(38, 15, 9))
-
+  console.log(cuttingRope(2))
   // f()
   // f2()
 
   function f() {
-    let t = Date.now(), b = 22222
-    for (let i = 0; i < 300000000; i++) {
-      Math.floor(b / 1000) % 10
+    let t = Date.now(), b = new Set()
+    for (let i = 0; i < 30000000; i++) {
+      b.clear()
     }
     console.log(Date.now() - t, 't')
   }
 
   function f2() {
-    let t2 = Date.now(), b = 22222
-    for (let i = 0; i < 300000000; i++) {
-      ('' + b)[1]
+    let t2 = Date.now(), b = new Set()
+    for (let i = 0; i < 30000000; i++) {
+      b = new Set()
     }
     console.log(Date.now() - t2, 't2')
   }
