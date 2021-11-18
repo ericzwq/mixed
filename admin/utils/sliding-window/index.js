@@ -6,7 +6,7 @@ class SlidingWindow { // 窗口只能向右移动，每移动一步返回该窗�
   data
   left = -1
   right = -1
-  twoWayQuene = []
+  twoWayQuene = [] // 双端队列
 
   rightMove() {
     let {twoWayQuene, data} = this

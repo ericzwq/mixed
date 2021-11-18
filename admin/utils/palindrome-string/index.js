@@ -1,4 +1,4 @@
-function getPalindromeRecord(s) { // 获取回文串信息
+function getPalindromeRecord(s) { // 获取回文串信息(manachar算法)
   if (!s) return []
   s = '#' + s.split('').join('#') + '#'
   const record = [1]

@@ -113,11 +113,26 @@ function buildParentMap(node, parent, map) {
   buildParentMap(node.right, node, map)
 }
 
-//       1
+//        1
 //   2         3
 // 4  0       0 7
 //n 1 1 1    1
 // const lowestAncestorNode = buildTreeByList([1, 2, 3, 4, 0, 0, 7, null, 1, 1, 1, 1]), n1 = lowestAncestorNode.left.left,
 //   n2 = lowestAncestorNode.right.right
 // console.log(lowestAncestor(lowestAncestorNode, n1, n2))
+//------------------------------------------------------------------------------------------------------------------
+function getMaxDistance(node) { // 获取二叉树内2点间最大距离，路径不能重复
+
+  function process(node) {
+    if (!node) return {max: 0, height: 0}
+    let leftD = process(node.left), rightD = process(node.right)
+    let height = Math.max(leftD.height, rightD.height) + 1
+    let max = Math.max(leftD.max, rightD.max, leftD.height + rightD.height) + 1
+    return {max, height}
+  }
+
+  return process(node).max
+}
+
+// console.log(getMaxDistance(buildTreeByList([1, 2, 3, 4, 0, 0, 7, null, 1, 1, 1, 1])));
 //------------------------------------------------------------------------------------------------------------------
