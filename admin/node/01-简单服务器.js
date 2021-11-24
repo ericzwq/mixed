@@ -42,6 +42,7 @@ server.on('request', function (req, res) {
   })
   let url = req.url.split('?')[0];
   console.log(req.headers, '\n-------------http-------------');
+  console.log(req.socket.remoteAddress)
   setCORSHeader(res)
   // setHeader(res)
   fs.readFile('./cookie-test.html', (err, data) => {
@@ -59,6 +60,7 @@ httpsServer.on('request', function (req, res) {
   setCORSHeader(res)
   setHeader(res)
   console.log(req.headers, '\n-------------https-------------');
+  console.log(req.headers["x-forwarded-for"])
   res.end('https')
 })
 

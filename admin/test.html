@@ -6,7 +6,6 @@
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
-  <link href="../static/assets/vendors/layui-v2.6.8/layui/css/layui.css" rel="stylesheet">
   <style>
       :root {
           --text-color: red;
@@ -21,103 +20,27 @@
   </style>
 </head>
 <body>
-<p>p1</p>
-<p>p2</p>
-<span>span1</span>
-<span>span2</span>
-<div style="width: 500px;height: 300px;background: red;display: flex;flex-direction: row-reverse">
-  <div style="width: 100px;height: 100px;background: black;"></div>
-</div>
-<button id="btn">切换</button>
-<select id="select">
-  <option value="1">11不显示</option>
-  <option value="2">22显示</option>
-</select>
-<h2 id="h2" style="display: none">hhhhhhhhhhhhhhhh</h2>
-<input type="text" id="url" value="https://www.wanqiang.top:4000">
-<!--  192.168.1.53  localhost -->
-<button onclick="req()">发请求</button>
-<br/>
-<input readonly value="3333" type="text">
-v1:<input type="radio" name="sex" value="nan" title="男">
-v2:<input type="radio" name="sex" value="nv" title="女" checked>
-v3:<input type="radio" name="sex" value="z" title="中性">
-<button id="btn2">按钮--</button>
-<a href="http://localhost/admin/test.html">跳转自身</a>
-<!--<script src="../static/assets/vendors/jq/jquery-1.12.2.js"></script>-->
-<!--<script src="../static/assets/vendors/axios/axios.js"></script>-->
-<script src="../static/assets/vendors/htmlparser.js"></script>
-<script src="../static/assets/vendors/moment.js"></script>
-<script src="../static/assets/vendors/layui-v2.6.8/layui/layui.js"></script>
 <script>
-  var myPow = function (x, n) {
-    // n < 0, n = 0, n > 0
-    // x < 0, x = 0, x > 0
 
-    for (let i = 0; i < n; i++) {
-
-    }
-  }
-
-  function cuttingRope2(n) {
-    if (n <= 3) return n - 1;
-    let div = Math.floor(n / 3);
-    let rem = n % 3;
-    let result = 1;
-    for (let i = 0; i < div; i++) {
-      result *= i < div - 1 ? 3 : (rem == 2 ? 3 * rem : (3 + rem));
-      if (result >= 1000000007) {
-        result = result % 1000000007;
-      }
-    }
-    return result;
-  }
-
-  console.log(cuttingRope2(34));
-  let cuttingRope = function (n) { // 8-> 2,3,3   10->3,3,4
-    if (n === 2) return 1
-    if (n === 3) return 2
-    if (n === 4) return 4
-    if (n === 5) return 6
-    if (n === 6) return 9
-    let count = Math.floor(n / 3)
-    let rest = n % 3
-    return rest > 0 ? 3 ** (count - 1) * (rest + 3) : 3 ** count
-  }
-  console.log(cuttingRope(2))
   // f()
   // f2()
 
   function f() {
     let t = Date.now(), b = new Set()
-    for (let i = 0; i < 30000000; i++) {
-      b.clear()
+    for (let i = 0; i < 30000; i++) {
+      // b.clear()
     }
     console.log(Date.now() - t, 't')
   }
 
   function f2() {
     let t2 = Date.now(), b = new Set()
-    for (let i = 0; i < 30000000; i++) {
-      b = new Set()
+    for (let i = 0; i < 30000; i++) {
+      // b = new Set()
     }
     console.log(Date.now() - t2, 't2')
   }
 
-</script>
-<script>
-  function jsShow(location) {
-    console.log(location)
-  }
-
-  // document.cookie = 'Cookie_1=value; Path=/; Expires=Thu, 29 Sep 2021 03:09:20 GMT;'
-
-</script>
-<script src="https://whois.pconline.com.cn/jsFunction.jsp?callback=jsShow&ip=183.11.69.22"></script>
-<script>
-  Promise.resolve(new Promise(resolve => {
-    // setTimeout(() => resolve(4), 1000)
-  })).then(r => console.log(r))
 </script>
 </body>
 </html>

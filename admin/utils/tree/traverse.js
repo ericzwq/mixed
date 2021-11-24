@@ -86,6 +86,105 @@ function sequence2(node) { // 非递归层序遍历
   }
 }
 
+//             1
+//        2         3
+//       4 5       6 7
+function morrisPre(node) { // morris前序遍历
+  if (!node) return
+  let temp
+  while (node) {
+    if (node.left) {
+      temp = node.left
+      while (temp.right && temp.right !== node) temp = temp.right
+      if (temp.right === node) {
+        temp.right = null
+        node = node.right
+      } else {
+        console.log(node.value) // 只打印第一次遍历的
+        temp.right = node
+        node = node.left
+      }
+    } else {
+      console.log(node.value)
+      node = node.right
+    }
+  }
+}
+
+// morrisPre(buildTreeByList([1, 2, 3, 4, 5, 6, 7]))
+
+function morrisIn(node) { // morris中序遍历
+  if (!node) return
+  let temp
+  while (node) {
+    if (node.left) {
+      temp = node.left
+      while (temp.right && temp.right !== node) temp = temp.right
+      if (temp.right === node) {
+        console.log(node.value) // 有第二次的，只打印第二次遍历的
+        temp.right = null
+        node = node.right
+      } else {
+        temp.right = node
+        node = node.left
+      }
+    } else {
+      console.log(node.value)
+      node = node.right
+    }
+  }
+}
+
+// morrisIn(buildTreeByList([1, 2, 3, 4, 5, 6, 7]))
+
+function morrisPost(node) { // morris后序遍历
+  if (!node) return
+  let temp, head = node
+  while (node) {
+    if (node.left) {
+      temp = node.left
+      while (temp.right && temp.right !== node) temp = temp.right
+      if (temp.right === node) {
+        temp.right = null
+        reversePrint(node.left) // 只逆序打印第二次遍历的左树右边界
+        node = node.right
+      } else {
+        temp.right = node
+        node = node.left
+      }
+    } else {
+      node = node.right
+    }
+  }
+  reversePrint(head) // 逆序打印整树的右边界
+
+  function reversePrint(node) { // 逆序打印右节点
+    node = reverse(node)
+    let temp, last = null
+    while (node) { // 打印并还原
+      console.log(node.value)
+      temp = node.right
+      node.right = last
+      last = node
+      node = temp
+    }
+    return last
+  }
+
+  function reverse(node) { // 逆序
+    let temp, pre = null
+    while (node) {
+      temp = node.right
+      node.right = pre
+      pre = node
+      node = temp
+    }
+    return pre
+  }
+}
+
+// morrisPost(buildTreeByList([1, 2, 3, 4, 5, 6, 7]))
+
 function preOrderSerialize(node) { // 前序遍历序列化二叉树
   return node ? node.value + '_' + preOrderSerialize(node.left) + preOrderSerialize(node.right) : '#_'
 }
