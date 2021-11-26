@@ -21,7 +21,19 @@
 </head>
 <body>
 <script>
-
+  var getKthFromEnd = function (head, k) {
+    let fast = head, slow = head
+    while (fast) {
+      slow = fast.next
+      for (let i = 0; i < k; i++) {
+        fast = fast.next
+        if (!fast) {
+          for (let j = 0; j < k - i; j++) slow = slow.next
+          return slow
+        }
+      }
+    }
+  };
   // f()
   // f2()
 
