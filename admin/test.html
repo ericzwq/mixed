@@ -22,18 +22,30 @@
 <body>
 <script>
   var getKthFromEnd = function (head, k) {
-    let fast = head, slow = head
-    while (fast) {
-      slow = fast.next
-      for (let i = 0; i < k; i++) {
-        fast = fast.next
-        if (!fast) {
-          for (let j = 0; j < k - i; j++) slow = slow.next
-          return slow
-        }
+    if (k === 1) {
+      while (true) {
+        if (!head.next) return head
+        head = head.next
       }
     }
+    let cur = head, pre = head
+    for (let i = 1; i < k; i++) {
+      cur = cur.next
+      if (!cur) return null
+    }
+    while (cur) {
+      let t = cur
+      for (let i = 1; i < k; i++) { // 5  2 4
+        cur = cur.next
+        if (!cur) {
+          for (let j = 1; j < i; j++) pre = pre.next
+          return pre
+        }
+      }
+      pre = t
+    }
   };
+  console.log(getKthFromEnd({v: 1, next: {v: 2, next: {v: 3, next: {v: 4, next: null}}}}, 1));
   // f()
   // f2()
 

@@ -1,10 +1,7 @@
-class BST {
-  value
-  left = null
-  right = null
-
+// 平衡树
+class BST extends Node {
   constructor(value) {
-    this.value = value
+    super(value)
   }
 
   search(value) {

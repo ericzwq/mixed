@@ -57,8 +57,8 @@ class AVL extends BST {
         console.log('ll')
         this.rotateRight(node)
       }
-    } else { // 可能由于第一次的调整导致父节点无需调整
-      console.warn('无需调整', node, child, this, child.left.height, child.right.height)
+    } else {
+      way === 'right' ? this.rotateLeft(node) : this.rotateRight(node)
     }
     return this.updateHeight(node)
   }
@@ -95,7 +95,7 @@ class AVL extends BST {
     return true
   }
 
-  delete(value) { // 返回删除后的根节点
+  delete(value) {
     let node = this, parent = null, way, records = []
     while (node) {
       console.log('add', node.value)
@@ -105,7 +105,7 @@ class AVL extends BST {
       way = node.value > value ? 'left' : 'right'
       node = node[way]
     }
-    if (!node) return this
+    if (!node) return false
     if (node.left && node.right) {
       // let cur, pre = node
       // 哪边高选哪边，默认左
@@ -151,19 +151,29 @@ class AVL extends BST {
       cur === node[way] ? node[way] = cur[way] : pre[otherWay] = cur[way]
       // ---------------------------------------------------------------------------------------------------------------
     } else if (node.left) { // 只有左孩子，孩子将其替换
-      parent[way] = node.left
-      records[records.length - 1] = node.left // 更新平衡检查的元素
+      if (parent) {
+        parent[way] = node.left
+        records[records.length - 1] = node.left // 更新平衡检查的元素
+      } else {
+        Object.assign(node, node.left)
+        records[0] = node
+      }
     } else if (node.right) { // 只有右孩子，孩子将其替换
-      parent[way] = node.right
-      records[records.length - 1] = node.right // 更新平衡检查的元素
+      if (parent) {
+        parent[way] = node.right
+        records[records.length - 1] = node.right
+      } else {
+        Object.assign(node, node.right)
+        records[0] = node
+      }
     } else {
-      if (!parent) return null
+      if (!parent) return false // 只有一个元素时无法删除
       parent[way] = null
     }
     this.updateHeight()
     let i = records.length - 1
     while (i >= 0) this.maintain(records[i--])
-    return this
+    return true
   }
 }
 
