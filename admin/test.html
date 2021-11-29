@@ -21,31 +21,46 @@
 </head>
 <body>
 <script>
-  var getKthFromEnd = function (head, k) {
-    if (k === 1) {
-      while (true) {
-        if (!head.next) return head
-        head = head.next
-      }
+  function fn() {
+    return new Promise( (resolve)=>{
+      setTimeout( ()=>{
+        console.log("hi");
+        resolve("0");
+      },1000);
+    });
+  }
+
+  var obj = {
+    say: async ()=>{
+      const res = await fn();
+      console.log(`res ${res}`);
+    },
+    run: async ()=>{
+      await fn();
+      console.log(`run`);
     }
-    let cur = head, pre = head
-    for (let i = 1; i < k; i++) {
-      cur = cur.next
-      if (!cur) return null
-    }
-    while (cur) {
-      let t = cur
-      for (let i = 1; i < k; i++) { // 5  2 4
-        cur = cur.next
-        if (!cur) {
-          for (let j = 1; j < i; j++) pre = pre.next
-          return pre
-        }
-      }
-      pre = t
-    }
+  }
+
+  ;(async function(){
+    await obj.say();
+
+    await obj.run();
+  })();
+  function TreeNode(val) {
+    this.val = val;
+    this.left = this.right = null;
+  }
+
+  var isSymmetric = function (root) {
+    if (!root) return true
+    // let t = root.left
+    // root.left = root.right
+    // root.right = t
+    if (root.left?.val !== root.right?.val) return false
+    return isSymmetric(root.left) && isSymmetric(root.right)
   };
-  console.log(getKthFromEnd({v: 1, next: {v: 2, next: {v: 3, next: {v: 4, next: null}}}}, 1));
+  console.log(isSymmetric({val: 2, left: {val: 1, left: {val: -1}, right: {val: 11}}, right: {val: 3}}))
+
   // f()
   // f2()
 
