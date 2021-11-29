@@ -63,40 +63,46 @@ class SkipList {
       level--
     }
     return null
+    // if (!nexts.length) {
+    //   // value当前最大
+    //   while (level >= 0 && !nexts[level]) {
+    //     pres[level--] = skipNode
+    //   }
+    // } else {
+    //   while (level >= 0) {
+    //     console.log(level, pres.length, pres)
+    //     // if (level >= pres.length) { // 前一个高度小于新增的，高出的部分和head相连
+    //     if (!pres[level]) { // 前一个高度小于新增的，高出的部分和head相连
+    //       skipNode.nexts[level] = nexts[level] || null
+    //       hNexts[level--] = skipNode
+    //     } else {
+    //       pres[level].nexts[level--] = skipNode
+    //       // skipNode.nexts[level] = pres[level].nexts[level] || null
+    //       // pres[level--] = skipNode
+    //     }
+    //   }
+    // }
   }
 
   insert(value, c) {
     if (this.values.has(value)) return false
     let skipNode = new SkipNode(value, c), hNexts = this.head.nexts, nexts = hNexts, pres = nexts,
-      level = nexts.length - 1
+      level = skipNode.nexts.length - 1, maxLevel = skipNode.nexts.length - 1
+    hNexts.length = Math.max(hNexts.length, level + 1)
+    level = hNexts.length - 1
     while (level >= 0) {
       while (nexts[level]?.value < value) {
         pres = nexts
         nexts = nexts[level].nexts
       }
+      console.error(nexts, pres, nexts?.[0]?.value, pres?.[0]?.value)
+      // if (++i === 2) return
+      let t = pres[level]?.nexts[level] || null
+      if (pres[level]) { // 如果pres后有节点next，则把当前节点skipNode插入pres和next中间
+        pres[level].nexts[level] = skipNode
+      } else pres[level] = skipNode
+      skipNode.nexts[level] = t
       level--
-    }
-    console.error(nexts, pres, nexts?.[0]?.value, pres?.[0]?.value)
-    // if (++i === 2) return
-    level = skipNode.nexts.length - 1
-    hNexts.length = Math.max(hNexts.length, level + 1)
-    if (!nexts.length) { // value当前最大
-      while (level >= 0 && !nexts[level]) {
-        pres[level--] = skipNode
-      }
-    } else {
-      while (level >= 0) {
-        console.log(level, pres.length, pres)
-        // if (level >= pres.length) { // 前一个高度小于新增的，高出的部分和head相连
-        if (!pres[level]) { // 前一个高度小于新增的，高出的部分和head相连
-          skipNode.nexts[level] = nexts[level] || null
-          hNexts[level--] = skipNode
-        } else {
-          pres[level].nexts[level--] = skipNode
-          // skipNode.nexts[level] = pres[level].nexts[level] || null
-          // pres[level--] = skipNode
-        }
-      }
     }
     this.values.add(value)
     return true
@@ -105,10 +111,9 @@ class SkipList {
 
 let arr = [], count = 1000
 // for (let i = 0; i < count; i++) arr.push(Math.floor(Math.random() * count))
-// debugger
-const skipList = new SkipList([{v: 5, c: 1}, {v: 8, c: 2}, {v: 6, c: 3}])
+debugger
+const skipList = new SkipList([{v: 5, c: 1}, {v: 8, c: 2}/*, {v: 6, c: 3}*/])
 // const skipList = new SkipList(arr)
-// debugger
 // skipList.insert(4)
 // skipList.insert(3)
 // skipList.insert(2)
