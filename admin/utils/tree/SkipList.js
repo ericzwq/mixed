@@ -17,8 +17,8 @@ class SkipNode {
     let count = 1
     if (c) count = c
     else while (Math.random() >= 0.5) count++
-    this.nexts = new Array(c)
-    console.log({value, count: c})
+    this.nexts = new Array(count)
+    // console.log({value, count})
   }
 
 }
@@ -27,95 +27,120 @@ let i = 0
 
 class SkipList {
   head
-  values = new Set()
+  values = {} // 测试用
 
   constructor(list) {
     this.head = new SkipNode(null)
     this.head.nexts.length = 0
     list.forEach(i => typeof i === 'object' ? this.insert(i.v, i.c) : this.insert(i))
-    let o = {
-      head: {
-        nexts: [
-          {
-            value: 1,
-            nexts: []
-          },
-          {
-            value: 1,
-            nexts: []
-          }
-        ], value: null
-      }
-    }
   }
 
   search(value) {
-    let nexts = this.head.nexts, level = nexts.length - 1
+    let nexts = this.head.nexts, level = nexts.length - 1, count = 0
     while (level >= 0) {
       while (true) {
+        count++
         if (nexts[level]?.value === value) {
+          // console.log('查询总次数', count, level)
           return nexts[level]
         } else if (nexts[level]?.value < value) {
           nexts = nexts[level].nexts
         } else break
       }
-      console.log(nexts[level])
       level--
     }
+    // console.log('查询总次数', count, level + 1)
     return null
-    // if (!nexts.length) {
-    //   // value当前最大
-    //   while (level >= 0 && !nexts[level]) {
-    //     pres[level--] = skipNode
-    //   }
-    // } else {
-    //   while (level >= 0) {
-    //     console.log(level, pres.length, pres)
-    //     // if (level >= pres.length) { // 前一个高度小于新增的，高出的部分和head相连
-    //     if (!pres[level]) { // 前一个高度小于新增的，高出的部分和head相连
-    //       skipNode.nexts[level] = nexts[level] || null
-    //       hNexts[level--] = skipNode
-    //     } else {
-    //       pres[level].nexts[level--] = skipNode
-    //       // skipNode.nexts[level] = pres[level].nexts[level] || null
-    //       // pres[level--] = skipNode
-    //     }
-    //   }
-    // }
   }
 
-  insert(value, c) {
-    if (this.values.has(value)) return false
-    let skipNode = new SkipNode(value, c), hNexts = this.head.nexts, nexts = hNexts, pres = nexts,
-      level = skipNode.nexts.length - 1, maxLevel = skipNode.nexts.length - 1
-    hNexts.length = Math.max(hNexts.length, level + 1)
+  insert(value, c) { // c指定最高层数（测试用），为空则随机生成
+    if (this.values[value] != null) return false
+    let skipNode = new SkipNode(value, c), hNexts = this.head.nexts, nexts = hNexts, pres = null,
+      level, maxLevel = skipNode.nexts.length - 1
+    hNexts.length = Math.max(hNexts.length, maxLevel + 1)
     level = hNexts.length - 1
     while (level >= 0) {
       while (nexts[level]?.value < value) {
         pres = nexts
         nexts = nexts[level].nexts
       }
-      console.error(nexts, pres, nexts?.[0]?.value, pres?.[0]?.value)
-      // if (++i === 2) return
-      let t = pres[level]?.nexts[level] || null
-      if (pres[level]) { // 如果pres后有节点next，则把当前节点skipNode插入pres和next中间
-        pres[level].nexts[level] = skipNode
-      } else pres[level] = skipNode
-      skipNode.nexts[level] = t
+      if (maxLevel < level) {
+        if (pres) nexts = pres // 回溯
+        level--
+        continue
+      }
+      if (!pres) { // 当前最小，hNext和skipNode相连
+        let t = hNexts[level]
+        hNexts[level] = skipNode
+        if (t) skipNode.nexts[level] = t
+      } else {
+        if (pres[level]) { // 如果pres后有节点next，则把当前节点skipNode插入pres和next中间
+          let t = pres[level].nexts[level]
+          pres[level].nexts[level] = skipNode
+          if (t) skipNode.nexts[level] = t
+        } else pres[level] = skipNode
+      }
+      if (pres) nexts = pres // 回溯
       level--
     }
-    this.values.add(value)
+    this.values[value] = maxLevel
     return true
+  }
+
+  delete(value) {
+    let nexts = this.head.nexts, pres = nexts, level = nexts.length - 1, flag = false
+    while (level >= 0) {
+      while (true) {
+        if (nexts[level]?.value === value) {
+          flag = true
+          break
+        } else if (nexts[level]?.value < value) {
+          pres = nexts
+          nexts = nexts[level].nexts
+        } else break
+      }
+      if (flag) { // 找到后开始更新
+        if (pres[level].value === value) { // pres === hnexts时
+          let t = pres[level].nexts[level]
+          t ? pres[level] = t : delete pres[level]
+        } else {
+          let t = pres[level].nexts[level].nexts[level]
+          t ? pres[level].nexts[level] = t : delete pres[level].nexts[level]
+        }
+      }
+      level--
+      nexts = pres // 回溯
+    }
+    delete this.values[value]
+    return flag
   }
 }
 
-let arr = [], count = 1000
-// for (let i = 0; i < count; i++) arr.push(Math.floor(Math.random() * count))
-debugger
-const skipList = new SkipList([{v: 5, c: 1}, {v: 8, c: 2}/*, {v: 6, c: 3}*/])
+let arr = [], count = 4
+for (let i = 0; i < count; i++) arr.push(Math.floor(Math.random() * count))
+// arr.push(900)
+const skipList = new SkipList([{v: 5, c: 3}, {v: 8, c: 2}, {v: 6, c: 4}, {v: 2, c: 2}])
 // const skipList = new SkipList(arr)
-// skipList.insert(4)
-// skipList.insert(3)
-// skipList.insert(2)
-// console.log(skipList.search(1), skipList.values.has(1))
+// console.log(skipList.search(900), skipList.values[900])
 console.log(skipList)
+
+function test() {
+  for (let j = 0; j < 1000; j++) {
+    let arr = [], count = 1000
+    for (let i = 0; i < count; i++) arr.push(Math.floor(Math.random() * count))
+    const skipList = new SkipList(arr)
+    let key = Math.floor(Math.random() * count)
+    // if (!skipList.search(key) && skipList.values[key] != null) return console.error('搜索异常', skipList.search(key), skipList.values[key], skipList, key) // 测试搜索
+    // console.log(skipList.search(key), skipList.values[key], skipList, key, Object.keys(skipList.values).length)
+    arr.forEach(i => { // 测试删除
+      skipList.delete(i)
+      if (skipList.search(i)) console.error('删除异常', i, skipList)
+    })
+    if (Object.keys(skipList.values).length !== 0) return console.log('删除异常', skipList, Object.keys(skipList.values))
+  }
+  console.log('%csuccess', 'background: green; color: #fff; padding: 5px')
+}
+
+let t = Date.now()
+// test()
+// console.log(Date.now() - t)
