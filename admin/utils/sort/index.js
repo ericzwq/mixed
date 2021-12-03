@@ -362,7 +362,34 @@ function bucketSort(arr, bucketSize = 5) { // 1000000-123
 }
 
 // -----------------------------------------------------------------------------------------
+function binaryInsertSort(arr) { // 基于二分查找的插入排序, 不改变原数组 1000000-48425
+  const data = []
+  for (let i = 0, l = arr.length; i < l; i++) binaryInsert(arr[i])
+  return data
+
+  function binaryInsert(num) {
+    let l = 0, r = data.length - 1, cur, status = 0
+    while (l <= r) {
+      cur = Math.floor(l + (r - l) / 2)
+      if (data[cur] < num) { // 找大的
+        status = 1
+        l = cur + 1
+      } else if (data[cur] > num) { // 找小的
+        status = -1
+        r = cur - 1
+      } else {
+        status = 0
+        break
+      }
+    }
+    if (status === 1) cur++
+    data.splice(cur, 0, num)
+  }
+}
+
+// -----------------------------------------------------------------------------------------
 testSpeed()
+//
 // checkTrue()
 
 function testSpeed() { // 测试速度
@@ -379,7 +406,8 @@ function testSpeed() { // 测试速度
 // newArr = mySort(arr)
 // mergeSort(arr)
 //   heapSort(arr)
-  merge_sort(arr)
+//   merge_sort(arr)
+  arr = binaryInsertSort(arr)
   console.log('耗时', Date.now() - t)
   console.log('结果', newArr, arr)
 }
@@ -387,17 +415,18 @@ function testSpeed() { // 测试速度
 
 function checkTrue() { // 测试正确性
   let flag = true
-  for (let j = 0; j < 100000; j++) {
-    let arr = [], size = 500
+  for (let j = 0; j < 100; j++) {
+    let arr = [], size = 1000
     for (let i = 0; i < size; i++) {
       arr.push(Math.round(Math.random() * size))
     }
     let arr2 = arr.slice(), originArr = arr.slice()
     quick_sort(arr2, 0, arr2.length - 1)
-    mergeSort(arr)
+    arr = binaryInsertSort(arr)
     flag = arr.every((item, i) => {
       if (arr2[i] !== item) {
-        console.log(i, item, arr2[i], arr, arr2, originArr)
+        console.log(arr, arr2)
+        console.log('源数据', originArr)
         return false
       }
       return true
