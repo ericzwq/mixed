@@ -27,17 +27,38 @@
     this.right = right;
   }
 
-  // 0123456789101112131415
-  // 3, 30, 34, 5, 9
-  function test(n) {
-
-    return 1
+  // abcabcbb
+  function test(headA, headB) {
+    if (!headB || !headA) return null
+    let p1 = headA, p2 = headB, c1 = 0, c2 = 0
+    while (p1) {
+      p1 = p1.next
+      c1++
+    }
+    while (p2) {
+      p2 = p2.next
+      c2++
+    }
+    if (c1 > c2) {
+      p1 = headA
+      p2 = headB
+      c1 -= c2
+    } else {
+      p1 = headB
+      p2 = headA
+      c1 = c2 - c1
+    }
+    while (c1--) p1 = p1.next
+    while (p1) {
+      if (p1 === p2) return p1
+      p1 = p1.next
+      p2 = p2.next
+    }
+    return null
   }
 
-  console.log(test(90))
-  //        6
-  //   4        8
-  // 3  5      7 9
+  // 4,1,8  5,0,1,8
+  console.log(test({val: 4, next: {val: 1, next: {val: 8}}}, {val: 5, next: {val: 0, next: {val: 1, next: {val: 8}}}}))
 
   // console.log(serialize({
   //   val: 6,

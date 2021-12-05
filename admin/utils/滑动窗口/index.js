@@ -96,3 +96,44 @@ console.log(minStack.pop());
 console.log(minStack.min());
 console.log(minStack.pop());
 console.log(minStack.min());
+
+// ---------------------------------------------------------------------------------------------------------------------
+// 最大不重复子串
+function lengthOfLongestSubstring(s) {
+  let map = new Map(), max = 0, left = 0, right = 0
+  for (let i = 0, l = s.length; i < l; i++) {
+    if (map.get(s[i]) != null) { // 有重复，窗口left右移至无重复
+      max = Math.max(max, right - left)
+      while (s[left] !== s[i]) map.delete(s[left++]) // left左移时删除重复段之间的记录
+      left++
+    }
+    right++ // 有无重复right都需右移
+    map.set(s[i], i)
+  }
+  return Math.max(max, right - left)
+}
+
+function lengthOfLongestSubstringPro(s) { // 优化版（预处理）
+  let max = 0, map = new Map(), preMax = 0 // preMax代替以每个位置的结尾的最长子串长度结果集，因为结果集只需要依赖前一项
+  for (let i = 0, l = s.length; i < l; i++) {
+    //  之前出现这个字符的索引，        以i-1位置结尾的最长子串的开头索引
+    let index = map.get(s[i]) ?? -1, preStart = i - preMax
+    map.set(s[i], i)
+    if (index < preStart) {
+      // <：abbca-> 考虑i = 4时，s[i-1]最长子串长为2，此时index = 0，preStart = 2
+      preMax = preMax + 1
+    } else {
+      // =：abca-> 考虑i = 3时，s[i-1]最长子串长为3，此时index = 0, preStart = 0
+      // >：abcdb-> 考虑i = 4时，s[i-1]最长子串长为4，此时index = 1，preStart = 0
+      preMax = i - index
+    }
+    max = Math.max(max, preMax)
+  }
+  return max
+}
+
+console.log(test("abcabcbb"))
+console.log(test('abba'))
+console.log(test('1ddcae'))
+console.log(test('auacdef'))
+console.log(test('pwwkewc'))
