@@ -41,7 +41,7 @@ server.on('request', function (req, res) {
     console.log(chunk, chunk.toString())
   })
   let url = req.url.split('?')[0];
-  console.log(req.headers, '\n-------------http-------------');
+  console.log(req.url, '\n-------------http-------------');
   console.log(req.socket.remoteAddress)
   setCORSHeader(res)
   // setHeader(res)

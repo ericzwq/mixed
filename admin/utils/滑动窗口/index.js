@@ -132,8 +132,32 @@ function lengthOfLongestSubstringPro(s) { // 优化版（预处理）
   return max
 }
 
-console.log(test("abcabcbb"))
-console.log(test('abba'))
-console.log(test('1ddcae'))
-console.log(test('auacdef'))
-console.log(test('pwwkewc'))
+// console.log(test("abcabcbb"))
+// console.log(test('abba'))
+// console.log(test('1ddcae'))
+// console.log(test('auacdef'))
+// console.log(test('pwwkewc'))
+// ---------------------------------------------------------------------------------------------------------------------
+// 输入一个正整数 target ，输出所有和为 target 的连续正整数序列（至少含有两个数）。
+// 序列内的数字由小到大排列，不同序列按照首个数字从小到大排列。
+// https://leetcode-cn.com/problems/he-wei-sde-lian-xu-zheng-shu-xu-lie-lcof/
+function findContinuousSequence(target) {
+  let r = Math.ceil(target / 2), res = [], temp = [1, 2], i = 1, j = 2, sum = 3, validLeft = 0
+  while (i < j && j <= r) {
+    if (sum < target) {
+      temp.push(++j)
+      sum += j
+    } else if (sum > target) {
+      validLeft++
+      sum -= i
+      i++
+    } else {
+      res.push(temp.slice(validLeft))
+      sum -= i
+      i++
+      validLeft++
+    }
+  }
+  return res
+};
+// ---------------------------------------------------------------------------------------------------------------------

@@ -22,7 +22,9 @@
 </head>
 <body>
 <div id="div">div</div>
-<div style="text-align: center;height: 200px;background: red" id="p1"><div style="width: 200px;height: 100px"></div></div>
+<div style="text-align: center;height: 200px;background: red" id="p1">
+  <div style="width: 200px;height: 100px"></div>
+</div>
 <div style="width: 300px;height: 300px;background: blue;position: relative;top: 0">
   <span>123</span>
   <span style="display:inline-block;width: 100px;height: 100px;background: yellow;margin-top: 100px"></span>
@@ -34,7 +36,29 @@
 <script src="../static/assets/vendors/vue/vue-2.6.11.js"></script>
 <!-- <script src="test.js"></script> -->
 <script>
-  let arr = [1,2,3]
+  //      6
+  //  3        5
+  // 1 2      4
+  let records = [-Infinity, 9, -4, -7, -8]
+
+  function shiftDown() {
+    let cur = 0, l = 2 * cur + 1, next, len = records.length
+    while (l + 1 < len && records[next = records[l] > records[l + 1] ? l : l + 1] > records[cur]) {
+      swap(cur, next)
+      cur = next
+      l = cur * 2 + 1
+    }
+    if (l + 1 === len - 1 && records[l] > records[cur]) swap(cur, l)
+  }
+
+  function swap(i, j) {
+    let t = records[i]
+    records[i] = records[j]
+    records[j] = t
+  }
+
+  shiftDown()
+  console.log(records)
 
 
   function theCityThatAlwaysSleeps() {

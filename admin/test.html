@@ -19,52 +19,54 @@
 
   </style>
 </head>
+<!--<iframe id="inlineFrameExample"-->
+<!--        title="Inline Frame Example"-->
+<!--        width="300"-->
+<!--        height="200"-->
+<!--        src="https://www.openstreetmap.org/export/embed.html?bbox=-0.004017949104309083%2C51.47612752641776%2C0.00030577182769775396%2C51.478569861898606&layer=mapnik">-->
+<!--</iframe>-->
 <body>
 <script>
+
   function Node(val, left, right) {
     this.val = val;
     this.left = left;
     this.right = right;
   }
 
-  // abcabcbb
-  function test(headA, headB) {
-    if (!headB || !headA) return null
-    let p1 = headA, p2 = headB, c1 = 0, c2 = 0
-    while (p1) {
-      p1 = p1.next
-      c1++
+  //     6
+  //  4     8
+  // 2 5   7 9
+  function test(root, p, q) {
+    if (!root) return
+    if (f(p, q)) return p // 以p为头找q
+    let records = []
+    searchRecords(root, p, q)
+    console.log(records)
+
+    function searchRecords(root, target1, target2) {
+      records.push(root)
+      if (!root) return
+      if (root.val === target.val) return true
+      if (searchRecords(root.left, target1, target2)) return true
+      records.pop()
+      if (searchRecords(root.right, target1, target2)) return true
+      records.pop()
     }
-    while (p2) {
-      p2 = p2.next
-      c2++
+
+    function f(root, target, stop) {
+      if (!root || root.val === stop?.val) return
+      if (root.val === target.val) return true
     }
-    if (c1 > c2) {
-      p1 = headA
-      p2 = headB
-      c1 -= c2
-    } else {
-      p1 = headB
-      p2 = headA
-      c1 = c2 - c1
-    }
-    while (c1--) p1 = p1.next
-    while (p1) {
-      if (p1 === p2) return p1
-      p1 = p1.next
-      p2 = p2.next
-    }
-    return null
   }
 
-  // 4,1,8  5,0,1,8
-  console.log(test({val: 4, next: {val: 1, next: {val: 8}}}, {val: 5, next: {val: 0, next: {val: 1, next: {val: 8}}}}))
 
-  // console.log(serialize({
-  //   val: 6,
-  //   left: {val: 4, left: {val: 3}, right: {val: 5}},
-  //   right: {val: 8, left: {val: 7}, right: {val: 9}}
-  // }))
+  console.log(test({
+    val: 6,
+    left: {val: 4, left: {val: 2}, right: {val: 5}},
+    right: {val: 8, left: {val: 7}, right: {val: 9}}
+  }, {val: 2}, {val: 8}))
+  // console.log(test({val: 3, left: {val: 1, right: {val: 2}}, right: {val: 4}}, 1))
   // console.log(pathSum({
   //   val: 1,
   //   left: {val: 2, left: {val: 4}, right: {val: 3, left: {val: 1}}},
@@ -78,8 +80,8 @@
   function f() {
     let t = Date.now(), b = [1]
     for (let i = 0; i < 3000000; i++) {
-      // b.clear()
-      b.length = 0
+      b = [1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5]
+      b.pop()
     }
     console.log(Date.now() - t, 't')
   }
@@ -87,8 +89,8 @@
   function f2() {
     let t2 = Date.now(), b = [1]
     for (let i = 0; i < 3000000; i++) {
-      // b = new Set()
-      b = []
+      b = [1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5]
+      b.shift()
     }
     console.log(Date.now() - t2, 't2')
   }
