@@ -27,45 +27,58 @@
 <!--</iframe>-->
 <body>
 <script>
-
-  function Node(val, left, right) {
-    this.val = val;
-    this.left = left;
-    this.right = right;
+  function Node(val, next) {
+    this.val = val
+    this.next = next
   }
 
-  //     6
-  //  4     8
-  // 2 5   7 9
-  function test(root, p, q) {
-    if (!root) return
-    if (f(p, q)) return p // 以p为头找q
-    let records = []
-    searchRecords(root, p, q)
-    console.log(records)
+  // 有效的算符包括+、-、*、/。每个运算对象可以是整数，也可以是另一个逆波兰表达式。
 
-    function searchRecords(root, target1, target2) {
-      records.push(root)
-      if (!root) return
-      if (root.val === target.val) return true
-      if (searchRecords(root.left, target1, target2)) return true
-      records.pop()
-      if (searchRecords(root.right, target1, target2)) return true
-      records.pop()
-    }
+  // 1、首先构造一个运算符栈，此运算符在栈内遵循越往栈顶优先级越高的原则。
+  // 2、读入一个用中缀表示的简单算术表达式，为方便起见，设该简单算术表达式的右端多加上了优先级最低的特殊符号“#”。
+  // 3、从左至右扫描该算术表达式，从第一个字符开始判断，如果该字符是数字，则分析到该数字串的结束并将该数字串直接输出。
+  // 4、如果不是数字，该字符则是运算符，此时需比较优先关系。
+  // 具体做法是：将该字符与运算符栈顶的运算符的优先关系相比较。如果该字符优先关系高于此运算符栈顶的运算符，则将该运算符入栈。若不是的话，则将栈顶的运算符从栈中弹出，直到栈项运算符的优先级低于当前运算符，将该字符入栈。
+  // 5、重复步骤1～2，直至扫描完整个简单算术表达式，确定所有字符都得到正确处理，便可以将中缀式表示的简单算术表达式转化为逆波兰表示的简单算术表达式。
 
-    function f(root, target, stop) {
-      if (!root || root.val === stop?.val) return
-      if (root.val === target.val) return true
+  // 输入：tokens = ["2","1","+","3","*"]  ((2 + 1) * 3) = 9
+  // 输入：tokens = ["4","13","5","/","+"] (4 + (13 / 5)) = 6
+
+  // 4 13 5
+  // 如果当前字符为变量或者为数字，则压栈，如果是运算符，则将栈顶两个元素弹出作相应运算，结果再入栈，最后当表达式扫描完后，栈里的就是结果。
+
+  // a + b - c    a,b,c,-,+
+  function test(tokens) {
+    const stack = [], map = new Map([
+      ['+', (a, b) => a + b],
+      ['-', (a, b) => b - a], // 后弹出的在前面
+      ['*', (a, b) => a * b],
+      ['/', (a, b) => (a = b / a) > 0 ? Math.floor(a) : Math.ceil(a)] // 后弹出的在前面
+    ])
+    for (let i = 0; i < tokens.length; i++) {
+      if (!isNaN(tokens[i])) stack.push(tokens[i])
+      else stack.push(map.get(tokens[i])(+stack.pop(), +stack.pop()))
     }
+    return stack[0]
   }
 
+  // console.log(test(["2", "1", "/", "3", "*"]))
+  // 17 5
+  // console.log(test(["10", "6", "9", "3", "+", "-11", "*", "/", "*", "17", "+", "5", "+"]))
+  // console.log(test(["4", "13", "5", "/", "+"]))
+  console.log(test(["4", "13", "5", "/", "+"]))
 
-  console.log(test({
-    val: 6,
-    left: {val: 4, left: {val: 2}, right: {val: 5}},
-    right: {val: 8, left: {val: 7}, right: {val: 9}}
-  }, {val: 2}, {val: 8}))
+  let node0 = new Node(0), node1 = new Node(1), node2 = new Node(2), node3 = new Node(3), node4 = new Node(4),
+    node5 = new Node(5), node6 = new Node(6), node7 = new Node(7), node8 = new Node(8)
+
+  // console.log(test({val: 1, next: {val: 2, next: {val: 2, next: {val: 2}}}}))
+  // console.log(test({val: 1}))
+
+  // console.log(test({
+  //   val: 6,
+  //   left: {val: 4, left: {val: 2}, right: {val: 5}},
+  //   right: {val: 8, left: {val: 7}, right: {val: 9}}
+  // }, {val: 2}, {val: 8}))
   // console.log(test({val: 3, left: {val: 1, right: {val: 2}}, right: {val: 4}}, 1))
   // console.log(pathSum({
   //   val: 1,

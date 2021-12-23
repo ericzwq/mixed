@@ -19,25 +19,34 @@ function minus(m, n) {
 //    110
 // = 1001
 function multiply(m, n) {
-  let res = 0
+  let isMinus = (m < 0 && n > 0) || (m > 0 && n < 0), res = 0
+  m = Math.abs(m)
+  n = Math.abs(n)
   while (n) {
     if (n & 1) res = add(res, m)
-    m = m << 1
+    m = m << 1 >>> 0 // 1073741824 >> 1 === -2147483648
     n = n >> 1
   }
-  return res
+  return isMinus ? -res : res
 }
 
+
 function divide(m, n) { // C语言中的除，无小数
-  let i = 1, res = 0
-  while (m && m > n) {
-    i = 1
-    for (; i <= 32; i = add(i, 1)) {
-      if ((m >> i) < n) break
+  let isMinus = (m < 0 && n > 0) || (m > 0 && n < 0), res = 0
+  m = Math.abs(m)
+  n = Math.abs(n)
+  let cur = m, t = n
+  while (cur >= n) {
+    let pow = 1
+    while (true) {
+      if (n << 1 >>> 0 > cur || n << 1 === 0) break // 防溢出
+      n = n << 1 >>> 0 // 1073741824 >> 1 === -2147483648
+      pow = multiply(pow, 2)
     }
-    i = minus(i, 1)
-    res = add(res, 1 << i)
-    m = minus(m, multiply(1 << i, n))
+    res += pow
+    cur -= n
+    n = t
   }
-  return res
+  res = isMinus ? -res : res
+  return res > 2147483647 ? 2147483647 : res
 }
