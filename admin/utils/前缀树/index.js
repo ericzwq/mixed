@@ -77,6 +77,22 @@ class Trie {
   }
 }
 
+class Trie2 { // 另一种设计
+  constructor() {
+    this.head = new Map()
+  }
+
+  insert(str) {
+    let node = this.head
+    for (let s of str) {
+      if (!node.get(s)) node.set(s, new Map())
+      node = node.get(s)
+      node.pass = (node.pass || 0) + 1
+    }
+    node.end = (node.end || 0) + 1
+  }
+}
+
 let strs = ['abc', 'abd', 'ab', '', 'bcddsdf']
 
 let trie = Trie.buildTrie(strs)

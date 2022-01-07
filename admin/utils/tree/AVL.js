@@ -12,6 +12,32 @@ class AVL extends BST {
     return avl
   }
 
+  ceilSearch(target) {
+    let s = null, node = this
+    while (node) {
+      if (node.value > target) {
+        s = node
+        node = node.left
+      } else if (node.value < target) {
+        node = node.right
+      } else return target
+    }
+    return s?.value ?? null
+  }
+
+  floorSearch(target) {
+    let s = null, node = this
+    while (node) {
+      if (node.value > target) {
+        node = node.left
+      } else if (node.value < target) {
+        s = node
+        node = node.right
+      } else return target
+    }
+    return s?.value ?? null
+  }
+
   updateHeight(node = this) {
     return node ? node.height = Math.max(this.updateHeight(node.left), this.updateHeight(node.right)) + 1 : 0
   }

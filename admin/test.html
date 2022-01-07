@@ -25,89 +25,117 @@
 <!--        height="200"-->
 <!--        src="https://www.openstreetmap.org/export/embed.html?bbox=-0.004017949104309083%2C51.47612752641776%2C0.00030577182769775396%2C51.478569861898606&layer=mapnik">-->
 <!--</iframe>-->
-<body>
 <script>
   function Node(val, next) {
     this.val = val
     this.next = next
   }
 
-  // 有效的算符包括+、-、*、/。每个运算对象可以是整数，也可以是另一个逆波兰表达式。
+  /**
+   * @param {number[]} nums
+   * @return {number}
+   */
+  var findMaximumXOR = function (nums) {
+    // 从第32位（最高位）开始，看有没有可能为1
 
-  // 1、首先构造一个运算符栈，此运算符在栈内遵循越往栈顶优先级越高的原则。
-  // 2、读入一个用中缀表示的简单算术表达式，为方便起见，设该简单算术表达式的右端多加上了优先级最低的特殊符号“#”。
-  // 3、从左至右扫描该算术表达式，从第一个字符开始判断，如果该字符是数字，则分析到该数字串的结束并将该数字串直接输出。
-  // 4、如果不是数字，该字符则是运算符，此时需比较优先关系。
-  // 具体做法是：将该字符与运算符栈顶的运算符的优先关系相比较。如果该字符优先关系高于此运算符栈顶的运算符，则将该运算符入栈。若不是的话，则将栈顶的运算符从栈中弹出，直到栈项运算符的优先级低于当前运算符，将该字符入栈。
-  // 5、重复步骤1～2，直至扫描完整个简单算术表达式，确定所有字符都得到正确处理，便可以将中缀式表示的简单算术表达式转化为逆波兰表示的简单算术表达式。
+    let res = 1,
+      bitNow = 31
 
-  // 输入：tokens = ["2","1","+","3","*"]  ((2 + 1) * 3) = 9
-  // 输入：tokens = ["4","13","5","/","+"] (4 + (13 / 5)) = 6
+    for (; bitNow >= 0; bitNow--) {
+      let set = new Set(),
+        flag = true
+      for (let i = 0; i < nums.length; i++) {
+        // 这里利用了异或的3数可交换律
+        if (set.has(res ^ (nums[i] >>> bitNow))) {
+          if (bitNow !== 0) {
+            res = (res << 1) + 1
+          }
 
-  // 4 13 5
-  // 如果当前字符为变量或者为数字，则压栈，如果是运算符，则将栈顶两个元素弹出作相应运算，结果再入栈，最后当表达式扫描完后，栈里的就是结果。
+          flag = false
+          break
+        }
 
-  // a + b - c    a,b,c,-,+
-  function test(tokens) {
-    const stack = [], map = new Map([
-      ['+', (a, b) => a + b],
-      ['-', (a, b) => b - a], // 后弹出的在前面
-      ['*', (a, b) => a * b],
-      ['/', (a, b) => (a = b / a) > 0 ? Math.floor(a) : Math.ceil(a)] // 后弹出的在前面
-    ])
-    for (let i = 0; i < tokens.length; i++) {
-      if (!isNaN(tokens[i])) stack.push(tokens[i])
-      else stack.push(map.get(tokens[i])(+stack.pop(), +stack.pop()))
+        set.add(nums[i] >>> bitNow)
+      }
+
+      if (flag && bitNow != 0) res = ((res - 1) << 1) + 1
+      if (flag && bitNow === 0) res = res - 1
     }
-    return stack[0]
+    return res
   }
 
-  // console.log(test(["2", "1", "/", "3", "*"]))
-  // 17 5
-  // console.log(test(["10", "6", "9", "3", "+", "-11", "*", "/", "*", "17", "+", "5", "+"]))
-  // console.log(test(["4", "13", "5", "/", "+"]))
-  console.log(test(["4", "13", "5", "/", "+"]))
+  function test(nums) {
+    let h = [], max = 0
+    for (let num of nums) { // 存字典
+      let cur = h, b = 2147483648
+      for (let i = 0; i < 32; i++) {
+        let k = ((b & num) === b) + 0
+        if (!cur[k]) cur[k] = []
+        cur = cur[k]
+        b = b >>> 1
+      }
+    }
+    for (let num of nums) { // 比对结果
+      let cur = h, b = 2147483648, t = 0
+      for (let i = 0; i < 32; i++) {
+        let k = !((b & num) === b) + 0
+        if (cur[k]) {
+          t += b
+          cur = cur[k]
+        } else {
+          cur = cur[!k + 0]
+        }
+        b = b >>> 1
+      }
+      max = Math.max(t, max)
+    }
+    return max
+  }
+
+  // 0011
+  // 1010
+  // 0101
+  //11001
+  // 1000
+  console.log(test([3, 10, 5, 25, 2, 8, 2 ** 31 - 1, 0])) // 5, 25
+
+  //                   8
+  //          6                   10
+  //     5         7          9         11
+  // console.log(test({
+  //   val: 8,
+  //   left: {val: 6, left: {val: 5}, right: {val: 7.5}},
+  //   right: {val: 10, left: {val: 9}, right: {val: 11}}
+  // }, 12))
+
 
   let node0 = new Node(0), node1 = new Node(1), node2 = new Node(2), node3 = new Node(3), node4 = new Node(4),
     node5 = new Node(5), node6 = new Node(6), node7 = new Node(7), node8 = new Node(8)
 
-  // console.log(test({val: 1, next: {val: 2, next: {val: 2, next: {val: 2}}}}))
-  // console.log(test({val: 1}))
-
-  // console.log(test({
-  //   val: 6,
-  //   left: {val: 4, left: {val: 2}, right: {val: 5}},
-  //   right: {val: 8, left: {val: 7}, right: {val: 9}}
-  // }, {val: 2}, {val: 8}))
-  // console.log(test({val: 3, left: {val: 1, right: {val: 2}}, right: {val: 4}}, 1))
-  // console.log(pathSum({
-  //   val: 1,
-  //   left: {val: 2, left: {val: 4}, right: {val: 3, left: {val: 1}}},
-  //   right: {val: 6}
-  // }, 7))
-  // console.log(pathSum({val: 1, left: {val: 2}}, 4))
 
   // f()
   // f2()
+  function getRan(s = 0, e = 10) {
+    return Math.floor(Math.random() * e) + s
+  }
 
   function f() {
-    let t = Date.now(), b = [1]
+    let t = Date.now(), cur = 3, max = 10
     for (let i = 0; i < 3000000; i++) {
-      b = [1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5]
-      b.pop()
+      Math.random()
     }
     console.log(Date.now() - t, 't')
   }
 
   function f2() {
-    let t2 = Date.now(), b = [1]
+    let t2 = Date.now(), cur = 3, max = 10
     for (let i = 0; i < 3000000; i++) {
-      b = [1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5]
-      b.shift()
+      Date.now()
     }
     console.log(Date.now() - t2, 't2')
   }
 
 </script>
+<body>
 </body>
 </html>

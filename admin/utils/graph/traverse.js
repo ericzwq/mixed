@@ -25,16 +25,16 @@ function dfs(graph) { // 深度优先遍历
 // dfs(directedGraph)
 
 function bfs(graph) { // 广度优先遍历
-  const quene = [], noder = graph.nodes.entries(), visited = new Set()
+  const queue = [], noder = graph.nodes.entries(), visited = new Set()
   let {value: [, value]} = noder.next(), cur
-  quene.push(value)
+  queue.push(value)
   visited.add(value)
-  while (quene.length) {
-    cur = quene.shift()
+  while (queue.length) {
+    cur = queue.shift()
     console.log({cur}, cur.value) // 操作时机
     for (let v of cur.nexts) {
       if (!visited.has(v)) {
-        quene.push(v)
+        queue.push(v)
         visited.add(v)
       }
     }

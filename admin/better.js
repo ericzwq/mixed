@@ -17,3 +17,5 @@ for (let i = 0; i < l; i++) {
 console.timeEnd('arr2')
 
 // arr[arr.length] = i 比 arr.push(i) 稍快
+
+/*函数嵌套会影响性能*/

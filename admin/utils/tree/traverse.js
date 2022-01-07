@@ -26,13 +26,13 @@ function sequence(node) { // 递归层序遍历
 }
 
 function sequenceProcess(nodes) {
-  let quene = []
+  let queue = []
   nodes.forEach(node => {
     console.log(node.value)
-    if (node.left) quene.push(node.left)
-    if (node.right) quene.push(node.right)
+    if (node.left) queue.push(node.left)
+    if (node.right) queue.push(node.right)
   })
-  if (quene.length) sequenceProcess(quene)
+  if (queue.length) sequenceProcess(queue)
 }
 
 function preOrder2(node) { // 非递归先序遍历
@@ -76,19 +76,23 @@ function postOrder2(node) { // 非递归后序遍历
 }
 
 function sequence2(node) { // 非递归层序遍历
-  let quene = [], curNode
-  quene.push(node)
-  while (quene.length) {
-    curNode = quene.shift()
+  let queue = [], curNode
+  queue.push(node)
+  while (queue.length) {
+    curNode = queue.shift()
     console.log(curNode.value)
-    if (curNode.left) quene.push(curNode.left)
-    if (curNode.right) quene.push(curNode.right)
+    if (curNode.left) queue.push(curNode.left)
+    if (curNode.right) queue.push(curNode.right)
   }
 }
 
 //             1
 //        2         3
 //       4 5       6 7
+// 如果cur无左孩子，cur向右移动（cur=cur.right）
+// 如果cur有左孩子，找到cur左子树上最右的节点，记为mostright
+// 如果mostright的right指针指向空，让其指向cur，cur向左移动（cur=cur.left）
+// 如果mostright的right指针指向cur，让其指向空，cur向右移动（cur=cur.right）
 function morrisPre(node) { // morris前序遍历
   if (!node) return
   let temp

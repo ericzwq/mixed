@@ -74,15 +74,15 @@ function isSBTProcess(node) {
 // console.log(isSBT(buildTreeByList([2, 1, 3, 0, null, null, null, -1, 1])))
 //------------------------------------------------------------------------------------------------------------------
 function isCBT(node) { // 是否为完全二叉树
-  let quene = [], notComplete = false
-  quene.push(node)
-  while (quene.length) {
-    let {left, right} = quene.shift()
+  let queue = [], notComplete = false
+  queue.push(node)
+  while (queue.length) {
+    let {left, right} = queue.shift()
     if (right && !left) return false // 有右无左直接false
     if (notComplete && (left || right)) return false // 发现叶节点不全后又出现叶节点不全
     if (left && !right) notComplete = true // 首次叶节点不全
-    if (left) quene.push(left)
-    if (right) quene.push(right)
+    if (left) queue.push(left)
+    if (right) queue.push(right)
   }
   return true
 }
