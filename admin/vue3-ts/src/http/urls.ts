@@ -1,0 +1,12 @@
+export const LOGIN_URL = '/shop/login'; // 登录
+export const GET_AUTH_URL = '/shop/getAuthUrl'; // 获取授权平台url
+export const AUTHORIZATION_URL = '/shopee1/shop/authorization'; // 保存授权信息
+export const REFRESH_TOKEN_URL = '/shop/user/refreshToken'; // 刷新登录token
+export const GET_SHOP_INFO_URL = '/shopee1/shop/getShopInfo'; // 获取店铺信息
+export const GET_ITEM_INFO_URL = '/shopee1/shop/itemList'; // 获取店铺下的商品
+export const GET_TOKEN_URL = '/shopee1/shop/getToken'; // 获取店铺token
+export const REFRESH_SHOPEE_TOKEN_URL = '/shopee1/shop/refreshShopeeToken'; // 刷新shopee店铺token
+export const SYNC_ITEM_DATA_URL = '/shopee1/shop/syncItemData'; // 同步全部产品
+export const LIMIT_PRICEING_URL = '/shopee1/shop/limitPricing'; // 限量调价
+export const CANCEL_PRICEING_URL = '/shopee1/shop/cancelPricing'; // 取消调价
+export const GET_ORDER_LIST_URL = '/shopee1/shop/getOrderList'; // 获取调价销售记录

@@ -1,0 +1,274 @@
+<template>
+  <div class="app-container">
+    <header v-show="!HIDE_SLIDER_AND_HEADER_SET.has($route.path)">
+      <span class="title">海鹰数据</span>
+      <el-menu v-show="!HIDE_SLIDER_AND_HEADER_SET.has($route.path)"
+               mode="horizontal"
+               text-color="#ffffff"
+               active-text-color="#ffffff"
+               background-color="#198EDE"
+               :default-active="activeMenu" class="menu-box-hr" router
+               @open="handleOpen" @close="handleClose">
+        <el-menu-item :index="AUTHORIZE_PATH">
+          <!--          <i class="el-icon-setting"></i>-->
+          <template #title>
+            <span>授权</span>
+          </template>
+        </el-menu-item>
+        <el-menu-item :index="PRICE_PATH">
+          <!--          <i class="el-icon-setting"></i>-->
+          <template #title>
+            <span>调价</span>
+          </template>
+        </el-menu-item>
+      </el-menu>
+<!--      <el-dropdown class="dropdown" v-if="isLogin" @command="handleCommand">-->
+<!--        <span class="el-dropdown-link info">-->
+<!--          <el-avatar icon="el-icon-user-solid" class="hy-mr-10"></el-avatar>-->
+<!--          你好<i class="el-icon-arrow-down el-icon&#45;&#45;right"></i>-->
+<!--        </span>-->
+<!--        <template #dropdown>-->
+<!--          <el-dropdown-menu>-->
+<!--            <el-dropdown-item command="logout">退出登录</el-dropdown-item>-->
+<!--          </el-dropdown-menu>-->
+<!--        </template>-->
+<!--      </el-dropdown>-->
+<!--      <div class="btn-login" v-else>-->
+<!--        <router-link :to="LOGIN_PATH">-->
+<!--          <el-button type="text">登录</el-button>-->
+<!--        </router-link>-->
+<!--      </div>-->
+    </header>
+    <!--    <el-menu v-show="!HIDE_SLIDER_AND_HEADER_SET.has($route.path)"-->
+    <!--             :default-active="activeMenu" class="menu-box-vt" router-->
+    <!--             style="width: 200px" @open="handleOpen" @close="handleClose">-->
+    <!--      &lt;!&ndash;          <el-menu-item :index="AUTHORIZE_PATH">&ndash;&gt;-->
+    <!--      &lt;!&ndash;            <i class="el-icon-setting"></i>&ndash;&gt;-->
+    <!--      &lt;!&ndash;            <span slot="title">授权</span>&ndash;&gt;-->
+    <!--      &lt;!&ndash;          </el-menu-item>&ndash;&gt;-->
+    <!--      &lt;!&ndash;          <el-submenu index="2">&ndash;&gt;-->
+    <!--      &lt;!&ndash;            <template slot="title">&ndash;&gt;-->
+    <!--      &lt;!&ndash;              <i class="el-icon-menu"></i>&ndash;&gt;-->
+    <!--      &lt;!&ndash;              <span slot="title">调价</span>&ndash;&gt;-->
+    <!--      &lt;!&ndash;            </template>&ndash;&gt;-->
+    <!--      &lt;!&ndash;            <el-menu-item-group>&ndash;&gt;-->
+    <!--      <el-menu-item :index="PRICE_PATH">限量调价</el-menu-item>-->
+    <!--      &lt;!&ndash;              <el-menu-item index="2-2">自动调价</el-menu-item>&ndash;&gt;-->
+    <!--      &lt;!&ndash;            </el-menu-item-group>&ndash;&gt;-->
+    <!--      &lt;!&ndash;          </el-submenu>&ndash;&gt;-->
+    <!--    </el-menu>-->
+    <router-view v-if="finishedToken" class="content"/>
+  </div>
+</template>
+
+<script lang="ts">
+import {
+  AUTHORIZE_PATH,
+  HIDE_SLIDER_AND_HEADER_SET,
+  LOGIN_PATH,
+  PRICE_PATH,
+  SAVE_PATH
+} from '@/router';
+import {mapState, useStore} from 'vuex';
+import {REFRESH_TOKEN_KEY, TOKEN_KEY} from '@/common/consts';
+import {REFRESH_TOKEN_URL} from '@/http/urls';
+import {onMounted, ref, watch} from "vue";
+import {useRoute, useRouter} from "vue-router";
+import http from "@/http";
+
+export default {
+  setup: function () {
+    const isCollapse = ref(true),
+        activeMenu = ref(AUTHORIZE_PATH),
+        finishedToken = ref(false),
+        {isLogin} = mapState('user', ['isLogin']),
+        store = useStore(),
+        setLogin = (payload: boolean) => store.commit('user/setLogin', payload),
+        route = useRoute(),
+        router = useRouter()
+
+    // 登出，方法名与command一致
+    function logout() {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+      http.defaults.headers.common[TOKEN_KEY] = '';
+      router.push(LOGIN_PATH);
+    }
+
+    // 点击右上角下拉选项
+    type commandT = 'logout'
+
+    function handleCommand(command: commandT) {
+      const map = {
+        logout
+      }
+      map[command]()
+    }
+
+    // 刷新token
+    function refreshToken() {
+      http.post(REFRESH_TOKEN_URL, {}, {
+        headers: {
+          [REFRESH_TOKEN_KEY]: localStorage.getItem(REFRESH_TOKEN_KEY) as string
+        }
+      }).then((r: any) => {
+        http.defaults.headers.common[TOKEN_KEY] = r[TOKEN_KEY];
+        localStorage.setItem(TOKEN_KEY, r[TOKEN_KEY]);
+        finishedToken.value = true;
+      });
+    }
+
+    // 校验登录
+    function checkLogin() {
+      let token = localStorage.getItem(TOKEN_KEY);
+      setLogin(!!token);
+      if (token) {
+        if (!location.pathname.includes(SAVE_PATH)) {
+          refreshToken();
+          setInterval(refreshToken, 3000000); // 50分钟一次
+        } else {
+          finishedToken.value = true;
+        }
+      } else {
+        finishedToken.value = true;
+      }
+    }
+
+    // 处理菜单
+    function handleMenu() {
+      let {path} = route;
+      if (path === '/') path = AUTHORIZE_PATH;
+      activeMenu.value = path;
+    }
+
+    function handleOpen(key: any, keyPath: any) {
+      console.log(key, keyPath);
+    }
+
+    function handleClose(key: any, keyPath: any) {
+      console.log(key, keyPath);
+    }
+
+    watch(route, handleMenu)
+    onMounted(() => {
+      checkLogin()
+      handleMenu()
+    })
+    return {
+      isLogin,
+      isCollapse,
+      activeMenu,
+      HIDE_SLIDER_AND_HEADER_SET,
+      LOGIN_PATH,
+      AUTHORIZE_PATH,
+      PRICE_PATH,
+      finishedToken, // 是否token刷新完毕
+      handleOpen,
+      handleClose,
+      handleCommand,
+    }
+  }
+};
+</script>
+
+<style lang="scss" scoped>
+@import "assets/css/public";
+
+.app-container {
+  height: 100%;
+
+  header {
+    height: 60px;
+    background: $hyBlue;
+    padding: 0 20px;
+    margin-bottom: 20px;
+    position: relative;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .title {
+      width: 180px;
+      display: inline-block;
+      margin-right: 20px;
+      font-weight: bold;
+      font-size: 24px;
+      line-height: 1;
+      //position: absolute;
+      //left: 20px;
+      //top: 50%;
+      //transform: translateY(-50%);
+    }
+
+    .dropdown, .btn-login {
+      width: 100px;
+      display: inline-block;
+      //position: absolute;
+      //top: 50%;
+      //transform: translateY(-50%);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .dropdown {
+      //right: 20px;
+
+      .info {
+        display: flex;
+        align-items: center;
+        height: 40px;
+        line-height: 40px;
+      }
+    }
+
+    .btn-login {
+      //right: 20px;
+
+      .el-button {
+        color: #fff;
+        font-size: 16px;
+      }
+    }
+  }
+
+  .menu-box-hr {
+    background: $hyBlue;
+    color: #fff;
+    display: inline-block;
+    //height: calc(100% - 60px);
+    //float: left;
+    li {
+      //background-color: red;
+      &:hover {
+        //background: none;
+      }
+    }
+  }
+
+  .content {
+    overflow: hidden;
+    margin-right: 20px;
+    //border: 1px solid #ccc;
+    border-radius: 3px;
+  }
+
+  .menu-box-hr:not(.el-menu--collapse) {
+    flex-grow: 1;
+  }
+
+  .menu-box-vt {
+    //height: calc(100% - 100px);
+    float: left;
+    //border: 1px solid #ccc;
+    border-radius: 3px;
+    box-shadow: 0 0 5px #ccc;
+    margin: 0 20px;
+  }
+
+  .menu-box-vt:not(.el-menu--collapse) {
+    width: 200px;
+    //min-height: 400px;
+  }
+}
+</style>
