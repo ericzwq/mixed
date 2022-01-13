@@ -22,22 +22,23 @@
           </template>
         </el-menu-item>
       </el-menu>
-<!--      <el-dropdown class="dropdown" v-if="isLogin" @command="handleCommand">-->
-<!--        <span class="el-dropdown-link info">-->
-<!--          <el-avatar icon="el-icon-user-solid" class="hy-mr-10"></el-avatar>-->
-<!--          你好<i class="el-icon-arrow-down el-icon&#45;&#45;right"></i>-->
-<!--        </span>-->
-<!--        <template #dropdown>-->
-<!--          <el-dropdown-menu>-->
-<!--            <el-dropdown-item command="logout">退出登录</el-dropdown-item>-->
-<!--          </el-dropdown-menu>-->
-<!--        </template>-->
-<!--      </el-dropdown>-->
-<!--      <div class="btn-login" v-else>-->
-<!--        <router-link :to="LOGIN_PATH">-->
-<!--          <el-button type="text">登录</el-button>-->
-<!--        </router-link>-->
-<!--      </div>-->
+      <el-dropdown class="dropdown" v-if="isLogin" @command="handleCommand">
+        <span class="el-dropdown-link info">
+          <el-avatar :size="40" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"
+                     class="hy-mr-10"></el-avatar>
+          你好<el-icon :size="15"><arrow-down/></el-icon>
+        </span>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+      <div class="btn-login" v-else>
+        <router-link :to="LOGIN_PATH">
+          <el-button type="text">登录</el-button>
+        </router-link>
+      </div>
     </header>
     <!--    <el-menu v-show="!HIDE_SLIDER_AND_HEADER_SET.has($route.path)"-->
     <!--             :default-active="activeMenu" class="menu-box-vt" router-->
@@ -62,113 +63,119 @@
 </template>
 
 <script lang="ts">
-import {
-  AUTHORIZE_PATH,
-  HIDE_SLIDER_AND_HEADER_SET,
-  LOGIN_PATH,
-  PRICE_PATH,
-  SAVE_PATH
-} from '@/router';
-import {mapState, useStore} from 'vuex';
-import {REFRESH_TOKEN_KEY, TOKEN_KEY} from '@/common/consts';
-import {REFRESH_TOKEN_URL} from '@/http/urls';
-import {onMounted, ref, watch} from "vue";
-import {useRoute, useRouter} from "vue-router";
-import http from "@/http";
+  import {
+    AUTHORIZE_PATH,
+    HIDE_SLIDER_AND_HEADER_SET,
+    LOGIN_PATH,
+    PRICE_PATH,
+    SAVE_PATH
+  } from '@/router';
+  import {mapState, useStore} from 'vuex';
+  import {REFRESH_TOKEN_KEY, TOKEN_KEY} from '@/common/consts';
+  import {REFRESH_TOKEN_URL} from '@/http/urls';
+  import {defineComponent, onMounted, ref, watch} from "vue";
+  import {useRoute, useRouter} from "vue-router";
+  import http from "@/http/http";
+  import {LooseObject, SuccessResponse} from "@/types";
 
-export default {
-  setup: function () {
-    const isCollapse = ref(true),
-        activeMenu = ref(AUTHORIZE_PATH),
-        finishedToken = ref(false),
-        {isLogin} = mapState('user', ['isLogin']),
-        store = useStore(),
-        setLogin = (payload: boolean) => store.commit('user/setLogin', payload),
-        route = useRoute(),
-        router = useRouter()
+  export default defineComponent({
+    setup() {
+      const activeMenu = ref(AUTHORIZE_PATH)
+      const finishedToken = ref(false)
+      const {isLogin} = mapState('user', ['isLogin'])
+      const store = useStore()
+      const setLogin = (payload: boolean) => store.commit('user/setLogin', payload)
+      const route = useRoute()
+      const router = useRouter()
 
-    // 登出，方法名与command一致
-    function logout() {
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(REFRESH_TOKEN_KEY);
-      http.defaults.headers.common[TOKEN_KEY] = '';
-      router.push(LOGIN_PATH);
-    }
-
-    // 点击右上角下拉选项
-    type commandT = 'logout'
-
-    function handleCommand(command: commandT) {
-      const map = {
-        logout
+      // 登出，方法名与command一致
+      function logout() {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(REFRESH_TOKEN_KEY);
+        http.defaults.headers.common[TOKEN_KEY] = '';
+        router.push(LOGIN_PATH);
       }
-      map[command]()
-    }
 
-    // 刷新token
-    function refreshToken() {
-      http.post(REFRESH_TOKEN_URL, {}, {
-        headers: {
-          [REFRESH_TOKEN_KEY]: localStorage.getItem(REFRESH_TOKEN_KEY) as string
+      // 点击右上角下拉选项
+      type commandT = 'logout'
+
+      function handleCommand(command: commandT) {
+        const map = {
+          logout
         }
-      }).then((r: any) => {
-        http.defaults.headers.common[TOKEN_KEY] = r[TOKEN_KEY];
-        localStorage.setItem(TOKEN_KEY, r[TOKEN_KEY]);
-        finishedToken.value = true;
-      });
-    }
+        map[command]()
+      }
 
-    // 校验登录
-    function checkLogin() {
-      let token = localStorage.getItem(TOKEN_KEY);
-      setLogin(!!token);
-      if (token) {
-        if (!location.pathname.includes(SAVE_PATH)) {
-          refreshToken();
-          setInterval(refreshToken, 3000000); // 50分钟一次
+      // 刷新token
+      function refreshToken() {
+        http.post<never, SuccessResponse>(REFRESH_TOKEN_URL, {}, {
+          headers: {
+            [REFRESH_TOKEN_KEY]: localStorage.getItem(REFRESH_TOKEN_KEY) as string
+          }
+        }).then((r: LooseObject) => {
+          http.defaults.headers.common[TOKEN_KEY] = r[TOKEN_KEY];
+          localStorage.setItem(TOKEN_KEY, r[TOKEN_KEY]);
+          finishedToken.value = true;
+        });
+      }
+
+      // 校验登录
+      function checkLogin() {
+        let token = localStorage.getItem(TOKEN_KEY);
+        setLogin(!!token);
+        if (token) {
+          if (!location.pathname.includes(SAVE_PATH)) {
+            refreshToken();
+            setInterval(refreshToken, 3000000); // 50分钟一次
+          } else {
+            finishedToken.value = true;
+          }
         } else {
           finishedToken.value = true;
         }
-      } else {
-        finishedToken.value = true;
+      }
+
+      // 处理菜单
+      function handleMenu() {
+        let {path} = route;
+        if (path === '/') path = AUTHORIZE_PATH;
+        activeMenu.value = path;
+      }
+
+      function handleOpen(key: string, keyPath: Array<any>) {
+        console.log(key, keyPath);
+      }
+
+      function handleClose(key: string, keyPath: Array<any>) {
+        console.log(key, keyPath);
+      }
+
+      watch(route, handleMenu)
+
+      onMounted(() => {
+        checkLogin()
+        handleMenu()
+      })
+
+      return {
+        AUTHORIZE_PATH,
+        HIDE_SLIDER_AND_HEADER_SET,
+        LOGIN_PATH,
+        PRICE_PATH,
+        SAVE_PATH,
+        activeMenu,
+        finishedToken,
+        isLogin,
+        store,
+
+        setLogin,
+        logout,
+        handleCommand,
+        handleOpen,
+        handleClose
       }
     }
-
-    // 处理菜单
-    function handleMenu() {
-      let {path} = route;
-      if (path === '/') path = AUTHORIZE_PATH;
-      activeMenu.value = path;
-    }
-
-    function handleOpen(key: any, keyPath: any) {
-      console.log(key, keyPath);
-    }
-
-    function handleClose(key: any, keyPath: any) {
-      console.log(key, keyPath);
-    }
-
-    watch(route, handleMenu)
-    onMounted(() => {
-      checkLogin()
-      handleMenu()
-    })
-    return {
-      isLogin,
-      isCollapse,
-      activeMenu,
-      HIDE_SLIDER_AND_HEADER_SET,
-      LOGIN_PATH,
-      AUTHORIZE_PATH,
-      PRICE_PATH,
-      finishedToken, // 是否token刷新完毕
-      handleOpen,
-      handleClose,
-      handleCommand,
-    }
-  }
-};
+  })
 </script>
 
 <style lang="scss" scoped>

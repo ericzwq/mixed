@@ -4,7 +4,6 @@ import crypto from 'crypto';
 import {APP_BASE_PATH} from '@/common/consts';
 import {LOGIN_PATH} from '@/router';
 import {ElLoading} from 'element-plus';
-import {LoadingReturnValue} from "@/types/ext-types";
 
 export function codeaes(data: string): string {
   const iv = '',
@@ -23,15 +22,40 @@ export function toLoginPage(): void { // 去登录页
   location.href = location.origin + APP_BASE_PATH + LOGIN_PATH;
 }
 
-export function getLoading(MANUAL = false): LoadingReturnValue { // 是否手动关闭loading，默认否
-  const service: LoadingReturnValue = ElLoading.service({
-    text: '加载中',
-    lock: true,
-    spinner: 'el-icon-loading',
-    background: 'rgba(0, 0, 0, .4)'
-  })
-  service.MANUAL = MANUAL
-  return service
+export const Loading = {
+  MANUAL: false, // 是否手动关闭，默认否
+  vm: {} as LoadingInstance,
+  open(MANUAL = false) {
+    this.vm = ElLoading.service({
+      text: '加载中',
+      lock: true,
+      // spinner: 'Loading',
+      background: 'rgba(0, 0, 0, .4)'
+    })
+    this.MANUAL = MANUAL
+  },
+  close() {
+    this.vm.close()
+    this.MANUAL = false
+  }
+}
+
+export function getLoading(_MANUAL = false) { // 是否手动关闭loading，默认否
+  // loadingVM = ElLoading.service({
+  //   text: '加载中',
+  //   lock: true,
+  //   spinner: 'Loading',
+  // background: 'rgba(0, 0, 0, .4)'
+  // })
+  // o.MANUAL = _MANUAL
+  // const service: LoadingReturnValue = ElLoading.service({
+  //   text: '加载中',
+  //   lock: true,
+  // spinner: 'Loading',
+  // background: 'rgba(0, 0, 0, .4)'
+  // })
+  // service.MANUAL = _MANUAL
+  // return service
 }
 
 export function formatDate(time: number): string {

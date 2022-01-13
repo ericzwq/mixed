@@ -17,16 +17,17 @@
 
 <script lang="ts">
 import {defineComponent, reactive, ref} from "vue";
-import {mapMutations, useStore} from 'vuex';
+import {useStore} from 'vuex';
 import {useRouter} from 'vue-router';
-import {ElForm, ElMessage} from "element-plus";
+import {ElMessage} from "element-plus";
 import {codeaes} from '@/common/utils';
 import {LOGIN_URL} from '@/http/urls';
 import {REFRESH_TOKEN_KEY, TOKEN_KEY} from '@/common/consts';
-import http from '@/http';
+import http from '@/http/http';
+import {SuccessResponse} from "@/types";
 
 export default defineComponent({
-  name: 'Login',
+  // name: 'Login',
   setup() {
     const formRef = ref()
     const formData = reactive({
@@ -72,15 +73,20 @@ export default defineComponent({
           username: codeaes(formData.username),
           password: codeaes(formData.password)
         };
-        http.get(LOGIN_URL, {params})
-            .then((r: any) => {
-              if (![3, 1].includes(r.code)) return ElMessage.error(r.msg);
-              localStorage.setItem(TOKEN_KEY, r.data[TOKEN_KEY]);
-              localStorage.setItem(REFRESH_TOKEN_KEY, r.data[REFRESH_TOKEN_KEY]);
-              http.defaults.headers.common[TOKEN_KEY] = r.data[TOKEN_KEY];
-              setLogin(true);
-              setTimeout(() => router.push('/'));
-            });
+
+        interface LoginData {
+          [REFRESH_TOKEN_KEY]: string,
+          [TOKEN_KEY]: string
+        }
+
+        http.get<never, SuccessResponse<LoginData>>(LOGIN_URL, {params}).then((r) => {
+          if (![3, 1].includes(r.code)) return ElMessage.error(r.msg);
+          localStorage.setItem(TOKEN_KEY, r.data[TOKEN_KEY]);
+          localStorage.setItem(REFRESH_TOKEN_KEY, r.data[REFRESH_TOKEN_KEY]);
+          http.defaults.headers.common[TOKEN_KEY] = r.data[TOKEN_KEY];
+          setLogin(true);
+          setTimeout(() => router.push('/'));
+        });
       });
     }
 

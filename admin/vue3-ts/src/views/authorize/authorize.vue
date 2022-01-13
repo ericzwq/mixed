@@ -2,14 +2,15 @@
   <div class="authorize-container">
     <el-tabs class="head-tabs" style="overflow:hidden;" v-model="activeName" type="border-card">
       <el-tab-pane label="Shopee" name="shopee">
-        <el-button type="primary" size="small" @click="dialogVisible = true">添加授权</el-button>
+        <el-button type="primary" @click="dialogVisible = true">添加授权</el-button>
         <el-tabs class="head-tabs hy-mt-20" style="overflow:hidden;" v-model="activeShopName"
                  type="border-card">
           <el-tab-pane label="普通店铺" name="normal">
             <el-table
-              :data="tableData"
-              size="small"
-              style="width: 100%">
+                :data="tableData"
+                empty-text="暂无数据"
+                size="small"
+                style="width: 100%">
               <el-table-column align="center" prop="shopName" label="店铺名称"
                                min-width="100"></el-table-column>
               <el-table-column align="center" prop="region" label="站点"
@@ -33,8 +34,10 @@
           </el-tab-pane>
           <el-tab-pane label="全球店铺" name="global">
             <el-table
-              :data="tableData2"
-              style="width: 100%">
+                :data="tableData2"
+                empty-text="暂无数据"
+                size="small"
+                style="width: 100%">
               <el-table-column align="center" label="全球店铺名称" min-width="100">
 
               </el-table-column>
@@ -56,10 +59,9 @@
           </el-tab-pane>
         </el-tabs>
         <el-dialog
-          title="添加授权"
-          class="dialog"
-          :visible.sync="dialogVisible"
-          width="800px">
+            title="添加授权"
+            v-model="dialogVisible"
+            width="800px">
           <el-form class="dialog-form" label-position="right" label-width="80px"
                    :model="form">
             <el-form-item label="授权类型">
@@ -71,56 +73,47 @@
                 <span>子母账号形式授权，授权时候输入母账号，可刊登全球产品，一次支持授权多个站点</span>
               </div>
             </el-form-item>
-            <!--            <el-form-item label="店铺名称">-->
-            <!--              <el-input size="mini" v-model="form.shopName"></el-input>-->
-            <!--            </el-form-item>-->
           </el-form>
-          <span slot="footer" class="dialog-footer">
+          <template #footer>
+            <span class="dialog-footer">
             <el-button size="small" @click="dialogVisible = false">取 消</el-button>
             <el-button size="small" type="primary" @click="handleConfirm">确 定</el-button>
           </span>
+          </template>
         </el-dialog>
       </el-tab-pane>
       <el-tab-pane label="Lazada" name="lazada"></el-tab-pane>
     </el-tabs>
+    <!--    <lazy-component><div class="dd0">div</div></lazy-component>-->
   </div>
 </template>
 
-<script>
-import { GET_AUTH_URL, GET_SHOP_INFO_URL } from '@/http/urls';
+<script lang="ts" setup>
+  import {GET_AUTH_URL, GET_SHOP_INFO_URL} from '@/http/urls';
+  import {onMounted, reactive, ref} from 'vue';
+  import http from "@/http/http";
 
-export default {
-  name: 'index',
-  data() {
-    return {
-      dialogVisible: false,
-      activeName: 'shopee',
-      activeShopName: 'normal',
-      form: {
-        type: '1',
-        shopName: ''
-      },
-      tableData: [],
-      tableData2: [],
-    };
-  },
-  created() {
-    this.$http.get(GET_SHOP_INFO_URL)
-      .then(r => {
-        this.tableData = r.data;
-      });
-  },
-  methods: {
-    // 点击确定
-    async handleConfirm() {
-      const res = await this.$http(GET_AUTH_URL);
-      window.open(res.url, '_blank', 'width=1200, height=700');
-      this.dialogVisible = false;
-    },
+  const dialogVisible = ref(false)
+  const activeName = ref('shopee')
+  const activeShopName = ref('normal')
+  const form = reactive({
+    type: '1',
+    shopName: ''
+  })
+  const tableData = ref([])
+  const tableData2 = ref([])
+
+  // 点击确定
+  async function handleConfirm() {
+    const res = await http.get<never, { url: string }>(GET_AUTH_URL);
+    window.open(res.url, '_blank', 'width=1200, height=700');
+    dialogVisible.value = false;
   }
-};
+
+
+  onMounted(() => {
+    http.get(GET_SHOP_INFO_URL).then(r => {
+      tableData.value = r.data;
+    })
+  })
 </script>
-
-<style scoped>
-
-</style>

@@ -1,14 +1,11 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
+import { createStore } from 'vuex';
 import user from './modules/user';
-
-Vue.use(Vuex);
-
-export default new Vuex.Store({
-  modules: {
-    user: {
-      namespaced: true,
-      ...user
+export default createStore({
+    modules: {
+        user: {
+            namespaced: true,
+            ...user
+        }
     }
-  }
 });
+//# sourceMappingURL=index.js.map

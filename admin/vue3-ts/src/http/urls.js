@@ -10,3 +10,4 @@ export const SYNC_ITEM_DATA_URL = '/shopeeerp/shop/syncItemData'; // 同步全�
 export const LIMIT_PRICEING_URL = '/shopeeerp/shop/limitPricing'; // 限量调价
 export const CANCEL_PRICEING_URL = '/shopeeerp/shop/cancelPricing'; // 取消调价
 export const GET_ORDER_LIST_URL = '/shopeeerp/shop/getOrderList'; // 获取调价销售记录
+//# sourceMappingURL=urls.js.map

@@ -17,7 +17,7 @@ const isProduction = process.env.NODE_ENV === 'production',
   autoImport = AutoImport({resolvers: [ElementPlusResolver()]}),
   components = Components({resolvers: [ElementPlusResolver()]})
 module.exports = {
-  publicPath: '/price-adjustment',
+  publicPath: '/price-adjustment2',
   assetsDir: 'static',
   filenameHashing: true,
   devServer: {

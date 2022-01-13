@@ -3,9 +3,10 @@ export interface LooseObject {
   [key: string]: any
 }
 
-// 请求响应
-export interface Response {
+// 成功响应的结构
+export interface SuccessResponse<T = any> {
   code: number,
   msg: string,
-  data: any
+  data: T,
+  total: number
 }

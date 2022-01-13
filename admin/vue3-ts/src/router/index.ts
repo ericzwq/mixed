@@ -14,7 +14,7 @@ const routes: Array<RouteRecordRaw> = [
   }, {
     path: SAVE_PATH,
     name: 'Save',
-    component: () => import('@/views/save/index.vue')
+    component: () => import('@/views/save/save.vue')
   }, {
     path: LOGIN_PATH,
     name: 'Login',
@@ -22,16 +22,16 @@ const routes: Array<RouteRecordRaw> = [
   }, {
     path: PRICE_PATH,
     name: 'Price',
-    component: () => import('@/views/price/index.vue')
+    component: () => import('@/views/price/price.vue')
   }, {
     path: AUTHORIZE_PATH,
     name: 'Authorize',
-    component: () => import('@/views/authorize/index.vue')
-  }, {
+    component: () => import('@/views/authorize/authorize.vue')
+  }, /*{
     path: EDIT_LIMIT_PRICE_PATH,
     name: 'EditLimitPrice',
     component: () => import('@/views/price/EditLimitPrice.vue')
-  }
+  }*/
 ]
 
 const router = createRouter({

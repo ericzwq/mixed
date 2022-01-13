@@ -94,3 +94,40 @@ $hyBlue: #198EDE;
 .bd-bm-so-c {
   border-bottom: 1px solid #ccc;
 }
+
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.jst-tent-center {
+  justify-content: center;
+}
+
+.jst-tent-around {
+  justify-content: space-around;
+}
+
+.jst-tent-between {
+  justify-content: space-between;
+}
+
+.jst-tent-evenly {
+  justify-content: space-evenly;
+}
+
+// el开头表示针对element-plus（ui）的元素
+.el-btn-ft-12 {
+  span {
+    font-size: 12px;
+  }
+}
+
+.el-btn-ft-13 {
+  span {
+    font-size: 13px;
+  }
+}
