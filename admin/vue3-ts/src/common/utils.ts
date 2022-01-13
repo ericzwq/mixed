@@ -22,40 +22,29 @@ export function toLoginPage(): void { // 去登录页
   location.href = location.origin + APP_BASE_PATH + LOGIN_PATH;
 }
 
+const getLoading = () => ElLoading.service({
+  text: '加载中',
+  lock: true,
+  // spinner: 'Loading',
+  background: 'rgba(0, 0, 0, .4)'
+})
+const vm = getLoading()
+vm.close()
+
 export const Loading = {
   MANUAL: false, // 是否手动关闭，默认否
-  vm: {} as LoadingInstance,
-  open(MANUAL = false) {
-    this.vm = ElLoading.service({
-      text: '加载中',
-      lock: true,
-      // spinner: 'Loading',
-      background: 'rgba(0, 0, 0, .4)'
-    })
+  vm,
+  closed: true,
+  open(MANUAL = false): void {
+    this.vm = getLoading()
+    this.closed = false
     this.MANUAL = MANUAL
   },
-  close() {
+  close(): void {
     this.vm.close()
+    this.closed = true
     this.MANUAL = false
   }
-}
-
-export function getLoading(_MANUAL = false) { // 是否手动关闭loading，默认否
-  // loadingVM = ElLoading.service({
-  //   text: '加载中',
-  //   lock: true,
-  //   spinner: 'Loading',
-  // background: 'rgba(0, 0, 0, .4)'
-  // })
-  // o.MANUAL = _MANUAL
-  // const service: LoadingReturnValue = ElLoading.service({
-  //   text: '加载中',
-  //   lock: true,
-  // spinner: 'Loading',
-  // background: 'rgba(0, 0, 0, .4)'
-  // })
-  // service.MANUAL = _MANUAL
-  // return service
 }
 
 export function formatDate(time: number): string {

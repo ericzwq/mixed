@@ -1,6 +1,5 @@
 // 扩展type
 import {AxiosRequestConfig} from "axios";
-import {ElLoading} from "element-plus";
 
 // const service = ElLoading.service()
 // export type LoadingReturnValue = typeof service & { MANUAL?: boolean }

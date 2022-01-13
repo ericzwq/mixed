@@ -17,18 +17,15 @@ if (!token && !location.pathname.includes(LOGIN_PATH)) toLoginPage()
 
 http.interceptors.request.use((config: ExtAxiosRequestConfig) => {
   total++
-  // if (!config.noLoading) loadingVM = getLoading(o.MANUAL);
-  if (!config.noLoading) Loading.open()
+  if (!config.noLoading && Loading.closed) Loading.open()
   return config
 })
 http.interceptors.response.use(res => {
-  // if (--total === 0 && !loadingVM['MANUAL']) loadingVM.close(); // manual：是否手动关闭loading（请使用全局搜索）
-  if (--total === 0 && !Loading['MANUAL']) Loading.close(); // manual：是否手动关闭loading（请使用全局搜索）
+  if (--total === 0 && !Loading.MANUAL) Loading.close()
   if (res.data.code === 401 && !location.pathname.includes(LOGIN_PATH)) toLoginPage()
   return res.data
 }, err => {
   ElMessage.error('网络异常')
-  // if (--total === 0) loadingVM.close(); // 网络原因应该关闭loading
   if (--total === 0) Loading.close() // 网络原因应该关闭loading
   return Promise.reject(err)
 })

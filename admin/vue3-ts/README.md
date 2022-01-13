@@ -1,4 +1,5 @@
 # vue3-ts
+#若依赖安装失败，请使用14.17.0稳定版node
 
 ## Project setup
 ```

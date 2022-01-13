@@ -240,258 +240,246 @@
 </template>
 
 <script lang="ts" setup>
-  import {
-    CANCEL_PRICEING_URL,
-    GET_ITEM_INFO_URL,
-    GET_SHOP_INFO_URL, LIMIT_PRICEING_URL,
-    SYNC_ITEM_DATA_URL
-  } from '@/http/urls';
-  import {getLoading, Loading} from '@/common/utils';
-  import {onMounted, reactive, ref} from "vue";
-  import {ElLoading, ElMessage, ElMessageBox} from "element-plus";
-  import http from "@/http/http";
-  import {LoadingReturnValue} from "@/types/ext-types";
-  import {LooseObject, SuccessResponse} from '@/types';
-  import {ItemRow, LimitPriceRow, Shops, SkuRow} from '../authorize/index-types';
+import {
+  CANCEL_PRICEING_URL,
+  GET_ITEM_INFO_URL,
+  GET_SHOP_INFO_URL, LIMIT_PRICEING_URL,
+  SYNC_ITEM_DATA_URL
+} from '@/http/urls';
+import {Loading} from '@/common/utils';
+import {onMounted, reactive, ref} from "vue";
+import {ElMessage, ElMessageBox} from "element-plus";
+import http from "@/http/http";
+import {LooseObject, SuccessResponse} from '@/types';
+import {ItemRow, LimitPriceRow, Shops, SkuRow} from '../authorize/index-types';
 
-  const activeName = ref('shopee')
-  const dialogVisible = ref(false)
-  const dialogVisible2 = ref(false)
-  const form = reactive({
-    discountName: '',
-    startTime: '',
-    endTime: '',
-  })
-  const dialogTableData = ref([{}, {}, {}, {}, {}] as LimitPriceRow[])
-  const dialogTableData2 = reactive([{}, {}, {}, {}, {}, {}, {}, {}, {}, {}])
-  const tableData = ref([] as ItemRow[])
-  const total = ref(0)
-  const showStatus = ref('') // 展示sku状态，''全部，1只展示调价中的sku
-  const searchParams = reactive({
-    shopId: -1,
-    pageSize: 20,
-    index: 1,
-    itemStatus: 1,
-    pricingType: -1,
-  })
-  const curRow = reactive({} as ItemRow) // 当前操作的产品
-  const curSku = reactive({} as SkuRow) // 当前操作产品的sku
-  const shops = ref([] as Shops[])
-  const DEFAULT_SKU_SHOW_COUNT = 5 // 默认展示单个产品sku最多数量
-  const skuStatusMap = {
-    0: '未调价',
-    1: '自动调价',
-    2: '限量调价'
-  }
-  const spreads = {
-    more: false,
-    less: true
-  }
-  const showTexts = {
-    more: '展开',
-    less: '收起'
-  }
-  const showIcons = {
-    more: 'el-icon-arrow-down',
-    less: 'el-icon-arrow-up'
-  }
-  const DEFAULT_ORDER_SHOW_COUNT = 2 // 默认展示单个产品sku最多销售记录
-  const autoAdjustForm = reactive({
-    price: '',
-    gap: ''
-  })
-  const rules = {
-    price: [
-      {required: true, message: '请填写最低价', trigger: 'blur'}
-    ],
-    gap: [
-      {required: true, message: '请填写变动价格', trigger: 'blur'}
-    ]
-  }
-  const autoAdjustFormRef = ref()
-  // let loadingVM = {} as LoadingReturnValue
+const activeName = ref('shopee')
+const dialogVisible = ref(false)
+const dialogVisible2 = ref(false)
+const dialogTableData = ref([{}, {}, {}, {}, {}] as LimitPriceRow[])
+const dialogTableData2 = reactive([{}, {}, {}, {}, {}, {}, {}, {}, {}, {}])
+const tableData = ref([] as ItemRow[])
+const total = ref(0)
+const showStatus = ref('') // 展示sku状态，''全部，1只展示调价中的sku
+const searchParams = reactive({
+  shopId: -1,
+  pageSize: 20,
+  index: 1,
+  itemStatus: 1,
+  pricingType: -1,
+})
+const curRow = reactive({} as ItemRow) // 当前操作的产品
+const curSku = reactive({} as SkuRow) // 当前操作产品的sku
+const shops = ref([] as Shops[])
+const DEFAULT_SKU_SHOW_COUNT = 5 // 默认展示单个产品sku最多数量
+const skuStatusMap = {
+  0: '未调价',
+  1: '自动调价',
+  2: '限量调价'
+}
+const spreads = {
+  more: false,
+  less: true
+}
+const showTexts = {
+  more: '展开',
+  less: '收起'
+}
+const showIcons = {
+  more: 'el-icon-arrow-down',
+  less: 'el-icon-arrow-up'
+}
+const DEFAULT_ORDER_SHOW_COUNT = 2 // 默认展示单个产品sku最多销售记录
+const autoAdjustForm = reactive({
+  price: '',
+  gap: ''
+})
+const rules = {
+  price: [
+    {required: true, message: '请填写最低价', trigger: 'blur'}
+  ],
+  gap: [
+    {required: true, message: '请填写变动价格', trigger: 'blur'}
+  ]
+}
+const autoAdjustFormRef = ref()
 
-  // 自动调价确定
-  function autoAdjustConfirm() {
-    autoAdjustFormRef.value.validate((valid: boolean) => {
-      if (!valid) return;
+// 自动调价确定
+function autoAdjustConfirm() {
+  autoAdjustFormRef.value.validate((valid: boolean) => {
+    if (!valid) return;
 
-    });
+  });
+}
+
+// 设置销售记录
+function setOrderList(data: LooseObject, row: LooseObject, item: LooseObject) {
+  if (data.content?.length || data.title?.length) {
+    item.orderList = data.content || [];
+    item.orderTitle = data.title || [];
+    item.key = item.modelId;
   }
+}
 
-  // 设置销售记录
-  function setOrderList(data: LooseObject, row: LooseObject, item: LooseObject) {
-    if (data.content?.length || data.title?.length) {
-      item.orderList = data.content || [];
-      item.orderTitle = data.title || [];
-      item.key = item.modelId;
-      // this.$set(row.modelList, skuIndex, item);
+// 限量调价确定
+function limitAdjustConfirm() {
+  console.log('limit')
+  // const {curRow: {shopId, itemId}, curSku: {modelId}} = this,
+  const {shopId, itemId} = curRow.value, {modelId} = curSku.value,
+      modelList = dialogTableData.value.filter((i: LooseObject) => i.model_promotion_price && i.model_promotion_stock), // 过滤不完整数据
+      params = {
+        shopId,
+        itemId,
+        type: 2,
+        modelList
+      };
+  if (!modelList.length) return ElMessage.error('请至少有效填写一行数据');
+  if (modelList.some((i: LooseObject) => !(/^\d[\d,.]*/).test(i.model_promotion_price) || !(/^\d+$/).test(i.model_promotion_stock))) return ElMessage.error('请正确填写输入的值');
+  modelList.forEach((i: LooseObject) => i.model_id = modelId);
+  http.post(LIMIT_PRICEING_URL, params).then((r: LooseObject) => {
+    if (r.code === 1) {
+      ElMessage.success(r.msg);
+      dialogVisible.value = false;
+      getTableData();
+    } else {
+      ElMessage.error(r.msg);
     }
+  });
+}
+
+// 同步全部产品
+function syncAllItem() {
+  Loading.open(true)
+  http.post<never, number>(SYNC_ITEM_DATA_URL, {
+    shopId: searchParams.shopId
+  }).then(r => {
+    let total = r * 2, i = 1, timer = setInterval(() => {
+      Loading.vm.setText(`加载中，时间可能较长，请耐心等待（${(i / total * 100).toFixed(0)}%）`)
+      if (++i === total) {
+        getTableData();
+        clearInterval(timer);
+      }
+    }, 500);
+  });
+}
+
+// sku展开或收起
+function showMoreOrLess(row: LooseObject) {
+  const key = row.showText === showTexts.more ? 'less' : 'more';
+  row.showText = showTexts[key];
+  row.spread = spreads[key];
+  row.icon = showIcons[key];
+  // this.$set(this.tableData, index, row);
+}
+
+function getTableData(params = {}) { // 参数覆盖，同步更新记录中的searchParams
+  if (searchParams.shopId === 0) return;
+  http.post(GET_ITEM_INFO_URL, Object.assign(searchParams, params)).then((r: LooseObject) => {
+    Loading.close()
+    tableData.value = r.data;
+    total.value = r.total;
+    tableData.value.forEach((i: LooseObject) => {
+      i.maxPricingIndex = i.modelList.length - 1;
+      i.showText = showTexts.more;
+      i.icon = showIcons.more;
+      let count = 0;
+      i.modelList.forEach((model: LooseObject, idx: number) => {
+        if (model.pricingType !== 0 && ++count === DEFAULT_SKU_SHOW_COUNT) i.maxPricingIndex = idx; // 设置只展示调价的sku时最大显示的索引
+        model.orderList = [];
+        model.orderTitle = [];
+        model.key = Math.random();
+      });
+      i.totalPricing = count; // 单个产品调价中的sku总数
+    });
+  });
+}
+
+// 切换状态
+function statusChange(pricingType: number) {
+  resetSearch();
+  getTableData({pricingType});
+}
+
+// 重置搜索条件
+function resetSearch() {
+  searchParams.pageSize = 20;
+  searchParams.index = 1;
+}
+
+// 切换店铺
+function shopChange(shopId: number | string) { // ''表示全部店铺
+  resetSearch();
+  getTableData({shopId});
+}
+
+// 获取店铺信息
+function getShopData() {
+  interface ShopInfo {
+    shopName: string,
+    shopId: number
   }
 
-  // 限量调价确定
-  function limitAdjustConfirm() {
-    console.log('limit')
-    // const {curRow: {shopId, itemId}, curSku: {modelId}} = this,
-    const {shopId, itemId} = curRow.value, {modelId} = curSku.value,
-        modelList = dialogTableData.value.filter((i: LooseObject) => i.model_promotion_price && i.model_promotion_stock), // 过滤不完整数据
-        params = {
-          shopId,
-          itemId,
-          type: 2,
-          modelList
-        };
-    if (!modelList.length) return ElMessage.error('请至少有效填写一行数据');
-    if (modelList.some((i: LooseObject) => !(/^\d[\d,.]*/).test(i.model_promotion_price) || !(/^\d+$/).test(i.model_promotion_stock))) return ElMessage.error('请正确填写输入的值');
-    modelList.forEach((i: LooseObject) => i.model_id = modelId);
-    http.post(LIMIT_PRICEING_URL, params).then((r: LooseObject) => {
+  http.post<never, SuccessResponse<ShopInfo[]>>(GET_SHOP_INFO_URL).then(r => {
+    shops.value = r.data.map(i => ({
+      name: i.shopName,
+      id: i.shopId
+    }))
+    searchParams.shopId = shops.value.length ? (shops.value[0]).id : -1; // 默认选第一个店铺
+    getTableData()
+  })
+}
+
+// 更新当前行操作的对象
+function setCurRow(row: ItemRow, sku: SkuRow) {
+  curRow.value = row; // todo
+  curSku.value = sku;
+}
+
+// 点击限量调价
+function limitAdjust(row: ItemRow, sku: SkuRow) {
+  setCurRow(row, sku);
+  dialogVisible.value = true;
+  dialogTableData.value.forEach(i => {
+    i.current_price = sku.originalPrice;
+  });
+}
+
+// 点击自动调价
+function autoAdjust(row: ItemRow, sku: SkuRow) {
+  setCurRow(row, sku);
+  dialogVisible2.value = true;
+}
+
+// 取消调价
+function cancelAdjust(row: ItemRow, sku: SkuRow) {
+  setCurRow(row, sku);
+  ElMessageBox.confirm('确定取消调价?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    http.post<never, SuccessResponse>(CANCEL_PRICEING_URL, {
+      shopId: curRow.value.shopId,
+      modelId: curSku.value.modelId
+    }).then(r => {
       if (r.code === 1) {
         ElMessage.success(r.msg);
-        dialogVisible.value = false;
-        getTableData();
       } else {
         ElMessage.error(r.msg);
       }
+      getTableData();
     });
-  }
+  });
+}
 
-  // 同步全部产品
-  function syncAllItem() {
-    // loadingVM = getLoading(true);
-    Loading.open(true)
-    http.post<never, number>(SYNC_ITEM_DATA_URL, {
-      shopId: searchParams.shopId
-    }).then(r => {
-      let total = r * 2, i = 1, timer = setInterval(() => {
-        // loadingVM.setText(`加载中，时间可能较长，请耐心等待（${(i / total * 100).toFixed(0)}%）`)
-        Loading.vm.setText(`加载中，时间可能较长，请耐心等待（${(i / total * 100).toFixed(0)}%）`)
-        if (++i === total) {
-          getTableData();
-          clearInterval(timer);
-        }
-      }, 500);
-    });
-  }
+function handleClick() {
+  console.log('handle click')
+}
 
-  // sku展开或收起
-  function showMoreOrLess(row: LooseObject) {
-    const key = row.showText === showTexts.more ? 'less' : 'more';
-    row.showText = showTexts[key];
-    row.spread = spreads[key];
-    row.icon = showIcons[key];
-    // this.$set(this.tableData, index, row);
-  }
-
-  function getTableData(params = {}) { // 参数覆盖，同步更新记录中的searchParams
-    if (searchParams.shopId === 0) return;
-    http.post(GET_ITEM_INFO_URL, Object.assign(searchParams, params)).then((r: LooseObject) => {
-      // loadingVM.close();
-      Loading.close()
-      tableData.value = r.data;
-      total.value = r.total;
-      tableData.value.forEach((i: LooseObject) => {
-        i.maxPricingIndex = i.modelList.length - 1;
-        i.showText = showTexts.more;
-        i.icon = showIcons.more;
-        let count = 0;
-        i.modelList.forEach((model: LooseObject, idx: number) => {
-          if (model.pricingType !== 0 && ++count === DEFAULT_SKU_SHOW_COUNT) i.maxPricingIndex = idx; // 设置只展示调价的sku时最大显示的索引
-          model.orderList = [];
-          model.orderTitle = [];
-          model.key = Math.random();
-        });
-        i.totalPricing = count; // 单个产品调价中的sku总数
-      });
-    });
-  }
-
-  // 切换状态
-  function statusChange(pricingType: number) {
-    resetSearch();
-    getTableData({pricingType});
-  }
-
-  // 重置搜索条件
-  function resetSearch() {
-    searchParams.pageSize = 20;
-    searchParams.index = 1;
-  }
-
-  // 切换店铺
-  function shopChange(shopId: number | string) { // ''表示全部店铺
-    resetSearch();
-    getTableData({shopId});
-  }
-
-  // 获取店铺信息
-  function getShopData() {
-    interface ShopInfo {
-      shopName: string,
-      shopId: number
-    }
-
-    http.post<never, SuccessResponse<ShopInfo[]>>(GET_SHOP_INFO_URL).then(r => {
-      shops.value = r.data.map(i => ({
-        name: i.shopName,
-        id: i.shopId
-      }))
-      searchParams.shopId = shops.value.length ? (shops.value[0]).id : -1; // 默认选第一个店铺
-      getTableData()
-    })
-  }
-
-  // 更新当前行操作的对象
-  function setCurRow(row: ItemRow, sku: SkuRow) {
-    curRow.value = row; // todo
-    curSku.value = sku;
-  }
-
-  // 点击限量调价
-  function limitAdjust(row: ItemRow, sku: SkuRow) {
-    setCurRow(row, sku);
-    dialogVisible.value = true;
-    dialogTableData.value.forEach(i => {
-      i.current_price = sku.originalPrice;
-    });
-  }
-
-  // 点击自动调价
-  function autoAdjust(row: ItemRow, sku: SkuRow) {
-    setCurRow(row, sku);
-    dialogVisible2.value = true;
-  }
-
-  // 取消调价
-  function cancelAdjust(row: ItemRow, sku: SkuRow) {
-    setCurRow(row, sku);
-    ElMessageBox.confirm('确定取消调价?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(() => {
-      http.post<never, SuccessResponse>(CANCEL_PRICEING_URL, {
-        shopId: curRow.value.shopId,
-        modelId: curSku.value.modelId
-      }).then(r => {
-        if (r.code === 1) {
-          ElMessage.success(r.msg);
-        } else {
-          ElMessage.error(r.msg);
-        }
-        getTableData();
-      });
-    });
-  }
-
-  function handleClick() {
-    console.log('handle click')
-  }
-
-  onMounted(() => {
-    // loadingVM = getLoading(true);
-    Loading.open(true)
-    getShopData();
-  })
+onMounted(() => {
+  Loading.open(true)
+  getShopData();
+})
 </script>
 
 <style lang="scss" scoped>
@@ -509,7 +497,7 @@
     }
 
     .search-val {
-      ::v-deep(.el-radio-button__inner) {
+      :deep(.el-radio-button__inner) {
         font-size: 12px;
       }
     }
@@ -519,7 +507,7 @@
     border: none;
     height: 100%;
 
-    ::v-deep .el-tabs__content {
+    :deep(.el-tabs__content) {
       padding-left: 20px;
     }
   }
