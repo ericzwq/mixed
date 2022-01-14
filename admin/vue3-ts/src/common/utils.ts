@@ -2,7 +2,7 @@
 // @ts-ignore
 import crypto from 'crypto';
 import {APP_BASE_PATH} from '@/common/consts';
-import {LOGIN_PATH} from '@/router';
+import {LOGIN_PATH} from '@/router/router';
 import {ElLoading} from 'element-plus';
 
 export function codeaes(data: string): string {

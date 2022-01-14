@@ -24,7 +24,7 @@ import {codeaes} from '@/common/utils';
 import {LOGIN_URL} from '@/http/urls';
 import {REFRESH_TOKEN_KEY, TOKEN_KEY} from '@/common/consts';
 import http from '@/http/http';
-import {SuccessResponse} from "@/types";
+import {SuccessResponse} from "@/types/types";
 
 const formRef = ref()
 const formData = reactive({

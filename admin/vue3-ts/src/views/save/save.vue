@@ -8,7 +8,7 @@ import {onMounted} from "vue";
 import {useRoute} from "vue-router";
 import http from "@/http/http";
 import {ElMessage} from "element-plus";
-import {SuccessResponse} from "@/types";
+import {SuccessResponse} from "@/types/types";
 
 const route = useRoute()
 onMounted(() => { // code=c51afefd4e4ce89d065c9e132092bf60&shop_id=118976595

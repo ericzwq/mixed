@@ -10,7 +10,7 @@
         <div class="search-item">
           <span class="search-label">店铺：</span>
           <el-radio-group v-model="searchParams.shopId" @change="shopChange" class="search-val">
-            <el-radio-button label="">全部</el-radio-button>
+            <el-radio-button :label="-1">全部</el-radio-button>
             <el-radio-button v-for="shop in shops" :key="shop.id" :label="shop.id">{{ shop.name }}</el-radio-button>
           </el-radio-group>
         </div>
@@ -30,6 +30,24 @@
             <el-radio-button label="1">只展示调价中的SKU</el-radio-button>
           </el-radio-group>
         </div>
+        <div class="hy-mt-10" style="border-bottom: 1px solid #eee"/>
+        <div class="hy-mt-10">
+          <div class="inline-block">
+            <span class="fs-12">产品ID：</span>
+            <el-input v-model="searchParams.itemId" style="width: 200px" clearable></el-input>
+          </div>
+          <div class="inline-block hy-ml-30">
+            <span class="fs-12">价格：</span>
+            <el-input v-model="searchParams.priceStart" class="db-search-input" clearable></el-input>
+            <span class="db-search-break">-</span>
+            <el-input v-model="searchParams.priceEnd" class="db-search-input" clearable></el-input>
+          </div>
+        </div>
+        <div class="tx-al-r">
+          <el-button class="el-btn-ft-12" type="primary" @click="getTableData">查询</el-button>
+          <el-button class="el-btn-ft-12" @click="reset">重置</el-button>
+        </div>
+        <div class="hy-mt-10" style="border-bottom: 1px solid #eee"/>
         <el-table
             :data="tableData"
             empty-text="暂无数据"
@@ -82,32 +100,25 @@
                 <div class="item-normal l5">
                   <div>
                     <!-- 懒加载获取销售记录 -->
-                    <!--                    <lazy-component :key="item.key">-->
-                    <!--                      <Records :item="item" :row="row" :skuIndex="idx" :setOrderList="setOrderList"/>-->
-                    <!--                    </lazy-component>-->
+                    <lazy-component :key="item.key">
+                      <Records :item="item" :row="row" :skuIndex="idx" :setOrderList="setOrderList"/>
+                    </lazy-component>
                     <div v-if="item.pricingType === 2 && item.orderTitle.length" class="bd-bm-da-d">
                       限量调价：
                       <span v-for="(title, i) in item.orderTitle" :key="i">价格:{{
                           title.modelPromotionPrice
                         }}，{{ title.modelPromotionStock }}件；</span>
                     </div>
-                    <!--                    <div v-if="item.pricingType === 1">-->
-                    <!--                      <p class="bd-bm-da-d">自动调价：<span>最低价:40；</span><span>变动:0.01元</span>-->
-                    <!--                      </p>-->
-                    <!--                      <span class="color-hy-blue">链接1:20；</span><span-->
-                    <!--                      class="color-hy-blue">链接2:80；</span>-->
-                    <!--                    </div>-->
+                    <div v-if="item.pricingType === 1">
+                      <p class="bd-bm-da-d">自动调价：<span>最低价:{{ item.lowestPrice }}；</span><span>变动:{{ item.wavePrice }}元</span></p>
+                      <a v-for="(v,i2) in item.list" :href="v.url" target="_blank" class="color-hy-blue" :key="i2">{{ v.name }}；</a>
+                    </div>
                     <div v-if="!item.orderTitle.length">--</div>
-                    <div>
-                      <span
-                          v-for="(order, idx2) in item.orderList.slice(0,DEFAULT_ORDER_SHOW_COUNT)"
-                          :key="order.orderSn">
+                    <div v-if="item.orderList.length">
+                      <span v-for="(order, idx2) in item.orderList.slice(0,DEFAULT_ORDER_SHOW_COUNT)" :key="order.orderSn">
                         <br v-if="idx2 !== 0"/>
-                        <span>{{ order.createTime }} {{
-                            order.modelQuantityPurchased
-                          }}件  价格:{{ order.modelDiscountedPrice }}；</span>
+                        <span>{{ order.createTime }} {{ order.modelQuantityPurchased }}件  价格:{{ order.modelDiscountedPrice }}；</span>
                       </span>
-                      <!--                      <span>2020-01-25 12:36:15   8件   价格:30；</span>-->
                       <el-popover
                           placement="bottom"
                           title="销售记录"
@@ -121,7 +132,7 @@
                       </span>
                         <template #reference>
                           <el-button v-show="item.orderList.length > DEFAULT_ORDER_SHOW_COUNT" class="hy-ml-10"
-                                     icon="el-icon-arrow-down" type="text" size="small">
+                                     :icon="ArrowDown" type="text" size="small">
                             更多
                           </el-button>
                         </template>
@@ -152,9 +163,10 @@
             class="fright hy-mt-15"
             background
             :current-page="searchParams.index"
-            :page-count="searchParams.pageSize"
+            :pager-count="7"
+            :page-size="searchParams.pageSize"
             @size-change="(pageSize)=> getTableData({pageSize})"
-            @current-change="(index) => getTableData({price})"
+            @current-change="(index) => getTableData({index})"
             layout="sizes, prev, pager, next, total"
             :page-sizes="[20, 50, 100]"
             :total="total">
@@ -173,12 +185,12 @@
         <el-table-column prop="current_price" align="center" label="价格"></el-table-column>
         <el-table-column align="center" label="调后价格" min-width="100">
           <template v-slot="{ row }">
-            <el-input v-model.trim.number="row.model_promotion_price"></el-input>
+            <el-input v-model.trim.number="row.model_promotion_price" clearable></el-input>
           </template>
         </el-table-column>
         <el-table-column align="center" label="件数" min-width="100">
           <template v-slot="{ row }">
-            <el-input v-model.trim.number="row.model_promotion_stock"></el-input>
+            <el-input v-model.trim.number="row.model_promotion_stock" clearable></el-input>
           </template>
         </el-table-column>
       </el-table>
@@ -192,40 +204,31 @@
     <el-dialog
         title="自动调价"
         custom-class="adjust-dialog2"
-        top="6vh"
+        top="10vh"
         v-model="dialogVisible2"
-        width="50%">
-      <!--          <div style="display: flex; justify-content: space-evenly; align-items: center">-->
-      <!--            <span class="hy-mr-20" style="flex: 50px 1">价格：{{ curSku.currentPrice }}</span>-->
+        width="80%">
       <el-form inline :model="autoAdjustForm" :rules="rules" ref="autoAdjustFormRef">
         <el-form-item label="价格：">
           <span class="hy-mr-40">{{ curSku.originalPrice }}</span>
         </el-form-item>
-        <el-form-item label="最低价：" prop="price">
-          <el-input v-model.trim="autoAdjustForm.price"></el-input>
+        <el-form-item label="最低价：" prop="lowestPrice">
+          <el-input v-model.trim="autoAdjustForm.lowestPrice" clearable></el-input>
         </el-form-item>
-        <el-form-item label="变动：" prop="gap">
-          <el-input v-model.trim="autoAdjustForm.gap"></el-input>
+        <el-form-item label="变动：" prop="wavePrice">
+          <el-input v-model.trim="autoAdjustForm.wavePrice" clearable></el-input>
         </el-form-item>
       </el-form>
-      <!--            <span style="flex: 100px 3">-->
-      <!--              最低价：<el-input size="small" style="width: 80%"></el-input>-->
-      <!--            </span>-->
-      <!--            <span class="hy-ml-10" style="flex: 100px 3">-->
-      <!--              变动：<el-input size="small" style="width: 80%;"></el-input>-->
-      <!--            </span>-->
-      <!--          </div>-->
       <el-table
           :data="dialogTableData2"
           style="width: 100%">
         <el-table-column prop="name" align="center" label="名称" min-width="50">
-          <template v-slot>
-            <el-input></el-input>
+          <template v-slot="{ row }">
+            <el-input v-model.trim="row.name" clearable></el-input>
           </template>
         </el-table-column>
         <el-table-column prop="url" align="center" label="链接" min-width="100">
-          <template v-slot>
-            <el-input></el-input>
+          <template v-slot="{ row }">
+            <el-input v-model.trim="row.url" clearable></el-input>
           </template>
         </el-table-column>
       </el-table>
@@ -241,34 +244,42 @@
 
 <script lang="ts" setup>
 import {
+  AUTO_LIMIT_PRICE_URL,
   CANCEL_PRICEING_URL,
   GET_ITEM_INFO_URL,
   GET_SHOP_INFO_URL, LIMIT_PRICEING_URL,
   SYNC_ITEM_DATA_URL
 } from '@/http/urls';
 import {Loading} from '@/common/utils';
-import {onMounted, reactive, ref} from "vue";
+import {markRaw, onMounted, reactive, ref} from "vue";
 import {ElMessage, ElMessageBox} from "element-plus";
 import http from "@/http/http";
-import {LooseObject, SuccessResponse} from '@/types';
-import {ItemRow, LimitPriceRow, Shops, SkuRow} from '../authorize/index-types';
+import {LooseObject, SuccessResponse} from '@/types/types';
+import {AutoPriceFrom, AutoPriceRow, ItemRow, LimitPriceRow, ShopInfo, Shops, SkuRow} from './price-types';
+import {SHOPEES, SHOPEES2, SHOPEE_SHOP_REGION_COUNTRY_MAP} from "@/common/consts";
+import {ArrowDown, ArrowUp} from "@element-plus/icons-vue";
+import Records from './Records.vue';
 
 const activeName = ref('shopee')
 const dialogVisible = ref(false)
 const dialogVisible2 = ref(false)
 const dialogTableData = ref([{}, {}, {}, {}, {}] as LimitPriceRow[])
-const dialogTableData2 = reactive([{}, {}, {}, {}, {}, {}, {}, {}, {}, {}])
+const dialogTableData2 = ref([{}, {}, {}, {}, {}, {}, {}, {}, {}, {}] as AutoPriceRow[])
 const tableData = ref([] as ItemRow[])
 const total = ref(0)
 const showStatus = ref('') // 展示sku状态，''全部，1只展示调价中的sku
 const searchParams = reactive({
   shopId: -1,
-  pageSize: 20,
+  pageSize: 2,
   index: 1,
   itemStatus: 1,
   pricingType: -1,
+  itemId: '',
+  priceStart: '',
+  priceEnd: ''
 })
-const curRow = reactive({} as ItemRow) // 当前操作的产品
+const searchParamsStr = JSON.stringify(searchParams)
+const curRow: ItemRow = reactive({} as ItemRow) // 当前操作的产品
 const curSku = reactive({} as SkuRow) // 当前操作产品的sku
 const shops = ref([] as Shops[])
 const DEFAULT_SKU_SHOW_COUNT = 5 // 默认展示单个产品sku最多数量
@@ -286,29 +297,63 @@ const showTexts = {
   less: '收起'
 }
 const showIcons = {
-  more: 'el-icon-arrow-down',
-  less: 'el-icon-arrow-up'
+  more: markRaw(ArrowDown),
+  less: markRaw(ArrowUp)
 }
 const DEFAULT_ORDER_SHOW_COUNT = 2 // 默认展示单个产品sku最多销售记录
-const autoAdjustForm = reactive({
-  price: '',
-  gap: ''
+const autoAdjustForm: AutoPriceFrom = reactive({
+  lowestPrice: '',
+  wavePrice: ''
 })
 const rules = {
-  price: [
-    {required: true, message: '请填写最低价', trigger: 'blur'}
+  lowestPrice: [
+    {required: true, message: '请填写最低价', trigger: 'blur'},
+    {pattern: /^\d+(\.\d{1,2})?$/, message: '请输入有效价格且最多输入2位小数', trigger: 'change'}
   ],
-  gap: [
-    {required: true, message: '请填写变动价格', trigger: 'blur'}
+  wavePrice: [
+    {required: true, message: '请填写变动价格', trigger: 'blur'},
+    {pattern: /^\d+(\.\d{1,2})?$/, message: '请输入有效价格且最多输入2位小数', trigger: 'change'}
   ]
 }
 const autoAdjustFormRef = ref()
 
+const SHOP_ID_REGION_MAP: LooseObject = {}
+
 // 自动调价确定
 function autoAdjustConfirm() {
   autoAdjustFormRef.value.validate((valid: boolean) => {
-    if (!valid) return;
-
+    if (!valid) return
+    let urlList = dialogTableData2.value.filter(v => v.url && v.url.startsWith('http')).map(v => {
+      return {name: v.name, url: v.url}
+    })
+    if (!urlList.length) return ElMessage.error('请至少有效填写一行数据');
+    const {shopId, itemId} = curRow, {modelId} = curSku,
+        country = SHOPEE_SHOP_REGION_COUNTRY_MAP[SHOP_ID_REGION_MAP[shopId]]
+    // let url = urlList[0].url.match(/https?:\/\/([\w.]+)\//)[1]
+    let nameIndex = 1
+    urlList = urlList.filter(v => {
+      let flag = v.url.includes(SHOPEES[country - 1]) || v.url.includes(SHOPEES2[country - 1])
+      if (flag && !v.name) v.name = '链接' + nameIndex++
+      return flag
+    })
+    if (!urlList.length) return ElMessage.error('请填写与当前店铺相同国家的链接');
+    let form: LooseObject = {}
+    for (let k in autoAdjustForm) form[k] = +autoAdjustForm[k as keyof AutoPriceFrom]
+    const params = {
+      country,
+      ...form,
+      shopId,
+      itemId,
+      modelId,
+      pricingType: 1,
+      urlList
+    };
+    http.post<never, SuccessResponse>(AUTO_LIMIT_PRICE_URL, params).then(r => {
+      if (r.code === 1) ElMessage.success(r.msg)
+      else ElMessage.error(r.msg)
+      dialogVisible2.value = false
+      getTableData()
+    })
   });
 }
 
@@ -336,7 +381,7 @@ function limitAdjustConfirm() {
   if (!modelList.length) return ElMessage.error('请至少有效填写一行数据');
   if (modelList.some((i: LooseObject) => !(/^\d[\d,.]*/).test(i.model_promotion_price) || !(/^\d+$/).test(i.model_promotion_stock))) return ElMessage.error('请正确填写输入的值');
   modelList.forEach((i: LooseObject) => i.model_id = modelId);
-  http.post(LIMIT_PRICEING_URL, params).then((r: LooseObject) => {
+  http.post<never, SuccessResponse>(LIMIT_PRICEING_URL, params).then(r => {
     if (r.code === 1) {
       ElMessage.success(r.msg);
       dialogVisible.value = false;
@@ -364,17 +409,15 @@ function syncAllItem() {
 }
 
 // sku展开或收起
-function showMoreOrLess(row: LooseObject) {
+function showMoreOrLess(row: ItemRow) {
   const key = row.showText === showTexts.more ? 'less' : 'more';
   row.showText = showTexts[key];
   row.spread = spreads[key];
   row.icon = showIcons[key];
-  // this.$set(this.tableData, index, row);
 }
 
 function getTableData(params = {}) { // 参数覆盖，同步更新记录中的searchParams
-  if (searchParams.shopId === 0) return;
-  http.post(GET_ITEM_INFO_URL, Object.assign(searchParams, params)).then((r: LooseObject) => {
+  http.post<never, SuccessResponse<ItemRow[]>>(GET_ITEM_INFO_URL, Object.assign(searchParams, params)).then(r => {
     Loading.close()
     tableData.value = r.data;
     total.value = r.total;
@@ -400,30 +443,37 @@ function statusChange(pricingType: number) {
   getTableData({pricingType});
 }
 
-// 重置搜索条件
+// 重置表格上方搜索条件
+function reset() {
+  const params = JSON.parse(searchParamsStr)
+  params.pageSize = searchParams.pageSize
+  params.index = searchParams.index
+  params.shopId = searchParams.shopId
+  Object.assign(searchParams, params)
+}
+
+// 重置分页相关搜索条件
 function resetSearch() {
-  searchParams.pageSize = 20;
-  searchParams.index = 1;
+  searchParams.pageSize = 20
+  searchParams.index = 1
 }
 
 // 切换店铺
-function shopChange(shopId: number | string) { // ''表示全部店铺
+function shopChange(shopId: number) {
   resetSearch();
   getTableData({shopId});
 }
 
 // 获取店铺信息
 function getShopData() {
-  interface ShopInfo {
-    shopName: string,
-    shopId: number
-  }
-
   http.post<never, SuccessResponse<ShopInfo[]>>(GET_SHOP_INFO_URL).then(r => {
-    shops.value = r.data.map(i => ({
-      name: i.shopName,
-      id: i.shopId
-    }))
+    shops.value = r.data.map(i => {
+      SHOP_ID_REGION_MAP[i.shopId] = i.region
+      return {
+        name: i.shopName,
+        id: i.shopId
+      }
+    })
     searchParams.shopId = shops.value.length ? (shops.value[0]).id : -1; // 默认选第一个店铺
     getTableData()
   })
@@ -582,9 +632,7 @@ onMounted(() => {
 }
 
 .adjust-dialog, .adjust-dialog2 {
-  > div {
-    min-width: 750px;
-  }
+  min-width: 750px;
 }
 
 .pic-large {

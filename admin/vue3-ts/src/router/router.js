@@ -37,4 +37,4 @@ const router = createRouter({
     routes
 });
 export default router;
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=router.js.map

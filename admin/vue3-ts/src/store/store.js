@@ -8,4 +8,4 @@ export default createStore({
         }
     }
 });
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=store.js.map

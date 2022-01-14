@@ -2,7 +2,7 @@ import axios from 'axios'
 import {ElMessage} from 'element-plus'
 import {isProduction} from '@/common/env'
 import {TOKEN_KEY} from '@/common/consts'
-import {LOGIN_PATH} from '@/router'
+import {LOGIN_PATH} from '@/router/router'
 import {Loading, toLoginPage} from '@/common/utils'
 import {ExtAxiosRequestConfig} from "@/types/ext-types"
 
