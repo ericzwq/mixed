@@ -31,74 +31,79 @@
     this.next = next
   }
 
-  /**
-   * @param {number[]} nums
-   * @return {number}
-   */
-  var findMaximumXOR = function (nums) {
-    // 从第32位（最高位）开始，看有没有可能为1
+  const records = new Map(), set = new Set()
 
-    let res = 1,
-      bitNow = 31
-
-    for (; bitNow >= 0; bitNow--) {
-      let set = new Set(),
-        flag = true
-      for (let i = 0; i < nums.length; i++) {
-        // 这里利用了异或的3数可交换律
-        if (set.has(res ^ (nums[i] >>> bitNow))) {
-          if (bitNow !== 0) {
-            res = (res << 1) + 1
-          }
-
-          flag = false
-          break
-        }
-
-        set.add(nums[i] >>> bitNow)
+  function addRecords(el) {
+    // const el = vm.$el
+    if (set.has(el)) return
+    set.add(el)
+    let parent = el.parentElement
+    // if (parent) {
+    //   let els = records.get(parent) || []
+    //   els.push(el)
+    //   records.set(parent, els)
+    //   parent = parent.parentElement
+    //   while (parent) {
+    //     // if (set.has(parent)) break
+    //     const curEls = records.get(parent) || []
+    //     curEls.push(els)
+    //     records.set(parent, curEls)
+    //     els = curEls
+    //     parent = parent.parentElement
+    //   }
+    // }
+    let lastEls = el, curEls, flag
+    while (parent) {
+      console.log(1)
+      curEls = records.get(parent)
+      if (curEls) flag = true
+      else {
+        curEls = []
+        flag = false
       }
-
-      if (flag && bitNow != 0) res = ((res - 1) << 1) + 1
-      if (flag && bitNow === 0) res = res - 1
+      curEls.push(lastEls)
+      records.set(parent, curEls)
+      if (flag) break
+      lastEls = curEls
+      parent = parent.parentElement
     }
-    return res
+    for (let [k, v] of records) console.log(k, v)
   }
 
-  function test(nums) {
-    let h = [], max = 0
-    for (let num of nums) { // 存字典
-      let cur = h, b = 2147483648
-      for (let i = 0; i < 32; i++) {
-        let k = ((b & num) === b) + 0
-        if (!cur[k]) cur[k] = []
-        cur = cur[k]
-        b = b >>> 1
+  const vm = {
+    v: 2,
+    parentElement: {
+      v: 1,
+      parentElement: {
+        v: 0
       }
     }
-    for (let num of nums) { // 比对结果
-      let cur = h, b = 2147483648, t = 0
-      for (let i = 0; i < 32; i++) {
-        let k = !((b & num) === b) + 0
-        if (cur[k]) {
-          t += b
-          cur = cur[k]
-        } else {
-          cur = cur[!k + 0]
-        }
-        b = b >>> 1
-      }
-      max = Math.max(t, max)
-    }
-    return max
   }
-
-  // 0011
-  // 1010
-  // 0101
-  //11001
-  // 1000
-  console.log(test([3, 10, 5, 25, 2, 8, 2 ** 31 - 1, 0])) // 5, 25
-
+  const vm1 = {
+    v: 13,
+    parentElement: {
+      v: 12,
+      parentElement: {
+        v: 11,
+        parentElement: vm
+      }
+    }
+  }
+  const vm2 = {
+    v: 23,
+    parentElement: {
+      v: 22,
+      parentElement: {
+        v: 21,
+        parentElement: vm
+      }
+    }
+  }
+  addRecords(vm1)
+  addRecords(vm1)
+  addRecords(vm2)
+  console.log(set)
+  console.log(records)
   //                   8
   //          6                   10
   //     5         7          9         11
@@ -113,7 +118,7 @@
     node5 = new Node(5), node6 = new Node(6), node7 = new Node(7), node8 = new Node(8)
 
 
-  // f()
+  f()
   // f2()
   function getRan(s = 0, e = 10) {
     return Math.floor(Math.random() * e) + s

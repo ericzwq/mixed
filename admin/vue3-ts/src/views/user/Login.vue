@@ -53,21 +53,24 @@ const setLogin = (payload: boolean) => store.commit('user/setLogin', payload)
 
 function login() {
   formRef.value.validate((valid: boolean) => {
-    if (!valid) return;
+    if (!valid) return
     const params = {
       username: codeaes(formData.username),
       password: codeaes(formData.password)
     };
 
-    http.get<never, SuccessResponse>(LOGIN_URL, {params}).then((r) => {
-      if (![3, 1].includes(r.code)) return ElMessage.error(r.msg);
-      localStorage.setItem(TOKEN_KEY, r.data[TOKEN_KEY]);
-      localStorage.setItem(REFRESH_TOKEN_KEY, r.data[REFRESH_TOKEN_KEY]);
-      http.defaults.headers.common[TOKEN_KEY] = r.data[TOKEN_KEY];
-      setLogin(true);
-      setTimeout(() => router.push('/'));
-    });
-  });
+    http.get<never, SuccessResponse<{
+      [REFRESH_TOKEN_KEY]: string
+      [TOKEN_KEY]: string
+    }>>(LOGIN_URL, {params}).then((r) => {
+      if (![3, 1].includes(r.code)) return ElMessage.error(r.msg)
+      localStorage.setItem(TOKEN_KEY, r.data[TOKEN_KEY])
+      localStorage.setItem(REFRESH_TOKEN_KEY, r.data[REFRESH_TOKEN_KEY])
+      http.defaults.headers.common[TOKEN_KEY] = r.data[TOKEN_KEY]
+      setLogin(true)
+      setTimeout(() => router.push('/'))
+    })
+  })
 }
 </script>
 

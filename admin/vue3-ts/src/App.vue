@@ -76,7 +76,6 @@ import {REFRESH_TOKEN_URL} from '@/http/urls';
 import {defineComponent, onMounted, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import http from "@/http/http";
-import {LooseObject, SuccessResponse} from "@/types/types";
 import zhCn from 'element-plus/es/locale/lang/zh-cn';
 
 export default defineComponent({
@@ -92,9 +91,9 @@ export default defineComponent({
     // 登出，方法名与command一致
     function logout() {
       localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(REFRESH_TOKEN_KEY);
-      http.defaults.headers.common[TOKEN_KEY] = '';
-      router.push(LOGIN_PATH);
+      localStorage.removeItem(REFRESH_TOKEN_KEY)
+      http.defaults.headers.common[TOKEN_KEY] = ''
+      router.push(LOGIN_PATH)
     }
 
     // 点击右上角下拉选项
@@ -109,53 +108,57 @@ export default defineComponent({
 
     // 刷新token
     function refreshToken() {
-      http.post<never, SuccessResponse>(REFRESH_TOKEN_URL, {}, {
+      http.post<never, {
+        [REFRESH_TOKEN_KEY]: string
+        [TOKEN_KEY]: string
+      }>(REFRESH_TOKEN_URL, {}, {
         headers: {
           [REFRESH_TOKEN_KEY]: localStorage.getItem(REFRESH_TOKEN_KEY) as string
         }
-      }).then((r: LooseObject) => {
-        http.defaults.headers.common[TOKEN_KEY] = r[TOKEN_KEY];
-        localStorage.setItem(TOKEN_KEY, r[TOKEN_KEY]);
-        finishedToken.value = true;
-      });
+      }).then(r => {
+        http.defaults.headers.common[TOKEN_KEY] = r[TOKEN_KEY]
+        localStorage.setItem(TOKEN_KEY, r[TOKEN_KEY])
+        finishedToken.value = true
+      }, () => finishedToken.value = true)
     }
 
     // 校验登录
     function checkLogin() {
-      let token = localStorage.getItem(TOKEN_KEY);
-      setLogin(!!token);
+      let token = localStorage.getItem(TOKEN_KEY)
+      setLogin(!!token)
       if (token) {
         if (!location.pathname.includes(SAVE_PATH)) {
-          refreshToken();
-          setInterval(refreshToken, 3000000); // 50分钟一次
+          refreshToken()
+          setInterval(refreshToken, 3000000) // 50分钟一次
         } else {
-          finishedToken.value = true;
+          finishedToken.value = true
         }
       } else {
-        finishedToken.value = true;
+        finishedToken.value = true
       }
     }
 
     // 处理菜单
     function handleMenu() {
-      let {path} = route;
-      if (path === '/') path = AUTHORIZE_PATH;
-      activeMenu.value = path;
+      let {path} = route
+      if (path === '/') path = AUTHORIZE_PATH
+      activeMenu.value = path
     }
 
     function handleOpen(key: string, keyPath: Array<any>) {
-      console.log(key, keyPath);
+      console.log(key, keyPath)
     }
 
     function handleClose(key: string, keyPath: Array<any>) {
-      console.log(key, keyPath);
+      console.log(key, keyPath)
     }
 
     watch(route, handleMenu)
 
     onMounted(() => {
-      checkLogin()
-      handleMenu()
+      finishedToken.value = true
+      // checkLogin()
+      // handleMenu()
     })
 
     return {

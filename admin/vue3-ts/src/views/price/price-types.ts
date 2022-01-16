@@ -34,6 +34,17 @@ export interface SkuRow extends Ref {
   pricingType: number
   startTime: string
   promotionPrice: number
+  orderList: Array<{
+    orderSn: string
+    createTime: string
+    modelQuantityPurchased: number
+    modelDiscountedPrice: number
+  }>
+  limitOrderTitle: Array<{
+    modelPromotionPrice: number
+    modelPromotionStock: number
+  }>
+  key: number | string
 }
 
 // 表格行数据
@@ -47,10 +58,13 @@ export interface ItemRow extends Ref {
   showText: string
   spread: boolean
   icon: Component
+  maxPricingIndex: number
+  totalPricing: number
 }
 
 // 限量调价填写的表格数据
 export interface LimitPriceRow extends Ref {
+  model_id: number
   current_price: number
   model_promotion_price: number
   model_promotion_stock: number

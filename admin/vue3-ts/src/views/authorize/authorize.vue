@@ -66,25 +66,24 @@
                    :model="form">
             <el-form-item label="授权类型">
               <div>
-                <el-radio v-model="form.type" label="1" border size="small">普通店铺</el-radio>
+                <el-radio v-model="form.type" label="1" border>普通店铺</el-radio>
                 <span>按照站点店铺授权，支持普通店铺和SIP店铺，SIP店铺将同时授权SIP子店铺</span>
                 <br/>
-                <el-radio v-model="form.type" label="2" border size="small">全球店铺</el-radio>
+                <el-radio v-model="form.type" label="2" border>全球店铺</el-radio>
                 <span>子母账号形式授权，授权时候输入母账号，可刊登全球产品，一次支持授权多个站点</span>
               </div>
             </el-form-item>
           </el-form>
           <template #footer>
             <span class="dialog-footer">
-            <el-button size="small" @click="dialogVisible = false">取 消</el-button>
-            <el-button size="small" type="primary" @click="handleConfirm">确 定</el-button>
+            <el-button @click="dialogVisible = false">取 消</el-button>
+            <el-button type="primary" @click="handleConfirm">确 定</el-button>
           </span>
           </template>
         </el-dialog>
       </el-tab-pane>
       <el-tab-pane label="Lazada" name="lazada"></el-tab-pane>
     </el-tabs>
-    <!--    <lazy-component><div class="dd0">div</div></lazy-component>-->
   </div>
 </template>
 

@@ -103,21 +103,27 @@
                     <lazy-component :key="item.key">
                       <Records :item="item" :row="row" :skuIndex="idx" :setOrderList="setOrderList"/>
                     </lazy-component>
-                    <div v-if="item.pricingType === 2 && item.orderTitle.length" class="bd-bm-da-d">
+                    <div v-if="item.pricingType === 2 && item.limitOrderTitle.length" class="bd-bm-da-d">
                       限量调价：
-                      <span v-for="(title, i) in item.orderTitle" :key="i">价格:{{
+                      <span v-for="(title, i) in item.limitOrderTitle" :key="i">价格:{{
                           title.modelPromotionPrice
                         }}，{{ title.modelPromotionStock }}件；</span>
                     </div>
                     <div v-if="item.pricingType === 1">
-                      <p class="bd-bm-da-d">自动调价：<span>最低价:{{ item.lowestPrice }}；</span><span>变动:{{ item.wavePrice }}元</span></p>
-                      <a v-for="(v,i2) in item.list" :href="v.url" target="_blank" class="color-hy-blue" :key="i2">{{ v.name }}；</a>
+                      <p class="bd-bm-da-d">自动调价：<span>最低价:{{ item.lowestPrice }}；</span><span>变动:{{
+                          item.wavePrice
+                        }}元</span></p>
+                      <a v-for="(v,i2) in item.list" :href="v.url" target="_blank" class="color-hy-blue"
+                         :key="i2">{{ v.name }}；</a>
                     </div>
-                    <div v-if="!item.orderTitle.length">--</div>
+                    <div v-if="!item.limitOrderTitle.length">--</div>
                     <div v-if="item.orderList.length">
-                      <span v-for="(order, idx2) in item.orderList.slice(0,DEFAULT_ORDER_SHOW_COUNT)" :key="order.orderSn">
+                      <span v-for="(order, idx2) in item.orderList.slice(0,DEFAULT_ORDER_SHOW_COUNT)"
+                            :key="order.orderSn">
                         <br v-if="idx2 !== 0"/>
-                        <span>{{ order.createTime }} {{ order.modelQuantityPurchased }}件  价格:{{ order.modelDiscountedPrice }}；</span>
+                        <span>{{ order.createTime }} {{
+                            order.modelQuantityPurchased
+                          }}件  价格:{{ order.modelDiscountedPrice }}；</span>
                       </span>
                       <el-popover
                           placement="bottom"
@@ -337,8 +343,8 @@ function autoAdjustConfirm() {
       return flag
     })
     if (!urlList.length) return ElMessage.error('请填写与当前店铺相同国家的链接');
-    let form: LooseObject = {}
-    for (let k in autoAdjustForm) form[k] = +autoAdjustForm[k as keyof AutoPriceFrom]
+    const form = {} as Record<keyof AutoPriceFrom, number>
+    for (let k in autoAdjustForm) form[k as keyof AutoPriceFrom] = +autoAdjustForm[k as keyof AutoPriceFrom]
     const params = {
       country,
       ...form,
@@ -347,7 +353,7 @@ function autoAdjustConfirm() {
       modelId,
       pricingType: 1,
       urlList
-    };
+    }
     http.post<never, SuccessResponse>(AUTO_LIMIT_PRICE_URL, params).then(r => {
       if (r.code === 1) ElMessage.success(r.msg)
       else ElMessage.error(r.msg)
@@ -371,16 +377,17 @@ function limitAdjustConfirm() {
   console.log('limit')
   // const {curRow: {shopId, itemId}, curSku: {modelId}} = this,
   const {shopId, itemId} = curRow.value, {modelId} = curSku.value,
-      modelList = dialogTableData.value.filter((i: LooseObject) => i.model_promotion_price && i.model_promotion_stock), // 过滤不完整数据
+      modelList = dialogTableData.value.filter(i => i.model_promotion_price && i.model_promotion_stock), // 过滤不完整数据
       params = {
         shopId,
         itemId,
         type: 2,
         modelList
       };
-  if (!modelList.length) return ElMessage.error('请至少有效填写一行数据');
-  if (modelList.some((i: LooseObject) => !(/^\d[\d,.]*/).test(i.model_promotion_price) || !(/^\d+$/).test(i.model_promotion_stock))) return ElMessage.error('请正确填写输入的值');
-  modelList.forEach((i: LooseObject) => i.model_id = modelId);
+  if (!modelList.length) return ElMessage.error('请至少有效填写一行数据')
+  if (modelList.some(i => !(/^\d[\d,.]*/).test(i.model_promotion_price + '') || !(/^\d+$/).test(i.model_promotion_stock + '')))
+    return ElMessage.error('请正确填写输入的值')
+  modelList.forEach(i => i.model_id = modelId)
   http.post<never, SuccessResponse>(LIMIT_PRICEING_URL, params).then(r => {
     if (r.code === 1) {
       ElMessage.success(r.msg);
@@ -419,22 +426,22 @@ function showMoreOrLess(row: ItemRow) {
 function getTableData(params = {}) { // 参数覆盖，同步更新记录中的searchParams
   http.post<never, SuccessResponse<ItemRow[]>>(GET_ITEM_INFO_URL, Object.assign(searchParams, params)).then(r => {
     Loading.close()
-    tableData.value = r.data;
-    total.value = r.total;
-    tableData.value.forEach((i: LooseObject) => {
-      i.maxPricingIndex = i.modelList.length - 1;
-      i.showText = showTexts.more;
-      i.icon = showIcons.more;
-      let count = 0;
-      i.modelList.forEach((model: LooseObject, idx: number) => {
-        if (model.pricingType !== 0 && ++count === DEFAULT_SKU_SHOW_COUNT) i.maxPricingIndex = idx; // 设置只展示调价的sku时最大显示的索引
-        model.orderList = [];
-        model.orderTitle = [];
-        model.key = Math.random();
+    tableData.value = r.data
+    total.value = r.total
+    tableData.value.forEach(i => {
+      i.maxPricingIndex = i.modelList.length - 1
+      i.showText = showTexts.more
+      i.icon = showIcons.more
+      let count = 0
+      i.modelList.forEach((model, idx) => {
+        if (model.pricingType !== 0 && ++count === DEFAULT_SKU_SHOW_COUNT) i.maxPricingIndex = idx // 设置只展示调价的sku时最大显示的索引
+        model.orderList = []
+        model.limitOrderTitle = []
+        model.key = Math.random()
       });
-      i.totalPricing = count; // 单个产品调价中的sku总数
-    });
-  });
+      i.totalPricing = count // 单个产品调价中的sku总数
+    })
+  })
 }
 
 // 切换状态
