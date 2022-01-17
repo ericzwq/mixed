@@ -12,3 +12,4 @@ export const CANCEL_PRICEING_URL = '/shopeeerp/shop/cancelPricing'; // 取消调
 export const GET_ORDER_LIST_URL = '/shopeeerp/shop/getOrderList'; // 获取限量调价销售记录
 export const GET_AUTO_PRICE_DETAIL_URL = '/shopeeerp/shop/getAutoPriceDetail'; // 获取自动调价销售记录
 export const AUTO_LIMIT_PRICE_URL = '/shopeeerp/shop/autoLimitPrice'; // 获取调价销售记录
+export const CHECK_SHOPEE_URL = '/shopeeerp/shop/checkShopeeUrl'; // 校验shopee链接

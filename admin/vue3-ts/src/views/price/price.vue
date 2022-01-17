@@ -84,10 +84,10 @@
                 <span class="item-normal l6">操作</span>
               </div>
             </template>
-            <template v-slot="{ row }">
+            <template v-slot="{ row, $index }">
               <div class="bd-bm-da-d item-box" v-for="(item, idx) in row.modelList"
                    :key="item.modelId"
-                   v-show="(showStatus === '' && (row.spread || idx < DEFAULT_SKU_SHOW_COUNT)) || (showStatus !== '' && item.pricingType !== 0 && (row.spread || idx <= row.maxPricingIndex))">
+                   v-show="(showStatus === '' && (row.spread || idx < DEFAULT_SKU_SHOW_COUNT)) || (showStatus !== '' && item.pricingType !== PricingType.noPrice && (row.spread || idx <= row.maxPricingIndex))">
                 <p class="item-title">
                   {{ item.modelSku }}
                   <br/>
@@ -100,16 +100,16 @@
                 <div class="item-normal l5">
                   <div>
                     <!-- 懒加载获取销售记录 -->
-                    <lazy-component :key="item.key">
-                      <Records :item="item" :row="row" :skuIndex="idx" :setOrderList="setOrderList"/>
+                    <lazy-component>
+                      <Records :skuRow="item" :skuIndex="idx" :itemIndex="$index" :setOrderList="setOrderList"/>
                     </lazy-component>
-                    <div v-if="item.pricingType === 2 && item.limitOrderTitle.length" class="bd-bm-da-d">
+                    <div v-if="item.pricingType === PricingType.limitPrice && item.limitOrderTitle.length" class="bd-bm-da-d">
                       限量调价：
                       <span v-for="(title, i) in item.limitOrderTitle" :key="i">价格:{{
                           title.modelPromotionPrice
                         }}，{{ title.modelPromotionStock }}件；</span>
                     </div>
-                    <div v-if="item.pricingType === 1">
+                    <div v-if="item.pricingType === PricingType.autoPrice">
                       <p class="bd-bm-da-d">自动调价：<span>最低价:{{ item.lowestPrice }}；</span><span>变动:{{
                           item.wavePrice
                         }}元</span></p>
@@ -151,7 +151,7 @@
                   <br/>
                   <el-button type="text" size="small" @click="() => autoAdjust(row, item)">自动调价</el-button>
                   <br/>
-                  <el-button :disabled="item.pricingType === 0" type="text" size="small"
+                  <el-button :disabled="item.pricingType === PricingType.noPrice" type="text" size="small"
                              @click="() => cancelAdjust(row, item)">取消调价
                   </el-button>
                 </p>
@@ -249,20 +249,14 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  AUTO_LIMIT_PRICE_URL,
-  CANCEL_PRICEING_URL,
-  GET_ITEM_INFO_URL,
-  GET_SHOP_INFO_URL, LIMIT_PRICEING_URL,
-  SYNC_ITEM_DATA_URL
-} from '@/http/urls';
+import {AUTO_LIMIT_PRICE_URL, CANCEL_PRICEING_URL, GET_ITEM_INFO_URL, GET_SHOP_INFO_URL, LIMIT_PRICEING_URL, SYNC_ITEM_DATA_URL} from '@/http/urls';
 import {Loading} from '@/common/utils';
 import {markRaw, onMounted, reactive, ref} from "vue";
 import {ElMessage, ElMessageBox} from "element-plus";
 import http from "@/http/http";
 import {LooseObject, SuccessResponse} from '@/types/types';
-import {AutoPriceFrom, AutoPriceRow, ItemRow, LimitPriceRow, ShopInfo, Shops, SkuRow} from './price-types';
-import {SHOPEES, SHOPEES2, SHOPEE_SHOP_REGION_COUNTRY_MAP} from "@/common/consts";
+import {AutoPriceFrom, AutoPriceRow, ItemRow, LimitPriceRow, PricingType, ShopInfo, Shops, SkuRow} from './price-types';
+import {SHOPEE_SHOP_REGION_COUNTRY_MAP, SHOPEES, SHOPEES2} from "@/common/consts";
 import {ArrowDown, ArrowUp} from "@element-plus/icons-vue";
 import Records from './Records.vue';
 
@@ -279,7 +273,7 @@ const searchParams = reactive({
   pageSize: 2,
   index: 1,
   itemStatus: 1,
-  pricingType: -1,
+  pricingType: PricingType.all,
   itemId: '',
   priceStart: '',
   priceEnd: ''
@@ -351,7 +345,7 @@ function autoAdjustConfirm() {
       shopId,
       itemId,
       modelId,
-      pricingType: 1,
+      pricingType: PricingType.autoPrice,
       urlList
     }
     http.post<never, SuccessResponse>(AUTO_LIMIT_PRICE_URL, params).then(r => {
@@ -364,11 +358,12 @@ function autoAdjustConfirm() {
 }
 
 // 设置销售记录
-function setOrderList(data: LooseObject, row: LooseObject, item: LooseObject) {
+function setOrderList(data: LooseObject, itemIndex: number, skuIndex: number) {
+  const skuRow = tableData.value[itemIndex].modelList[skuIndex]
+  skuRow.getOrder = true
   if (data.content?.length || data.title?.length) {
-    item.orderList = data.content || [];
-    item.orderTitle = data.title || [];
-    item.key = item.modelId;
+    skuRow.orderList = data.content || []
+    skuRow.limitOrderTitle = data.title || []
   }
 }
 
@@ -434,10 +429,11 @@ function getTableData(params = {}) { // 参数覆盖，同步更新记录中的s
       i.icon = showIcons.more
       let count = 0
       i.modelList.forEach((model, idx) => {
-        if (model.pricingType !== 0 && ++count === DEFAULT_SKU_SHOW_COUNT) i.maxPricingIndex = idx // 设置只展示调价的sku时最大显示的索引
+        if (model.pricingType !== PricingType.noPrice && ++count === DEFAULT_SKU_SHOW_COUNT) i.maxPricingIndex = idx // 设置只展示调价的sku时最大显示的索引
         model.orderList = []
         model.limitOrderTitle = []
         model.key = Math.random()
+        model.getOrder = false
       });
       i.totalPricing = count // 单个产品调价中的sku总数
     })
@@ -445,7 +441,7 @@ function getTableData(params = {}) { // 参数覆盖，同步更新记录中的s
 }
 
 // 切换状态
-function statusChange(pricingType: number) {
+function statusChange(pricingType: PricingType) {
   resetSearch();
   getTableData({pricingType});
 }

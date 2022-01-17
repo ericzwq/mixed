@@ -8,12 +8,12 @@
       <el-table-column prop="state" label="State" width="120"/>
       <el-table-column prop="city" sortable label="City" width="420"/>
       <el-table-column prop="address" label="Address" width="400"/>
-<!--      <el-table-column prop="img" label="Address" width="100">-->
-<!--        <template v-slot>-->
-<!--          <span>span</span>-->
-<!--&lt;!&ndash;          <img v-lazy="1"/>&ndash;&gt;-->
-<!--        </template>-->
-<!--      </el-table-column>-->
+      <!--      <el-table-column prop="img" label="Address" width="100">-->
+      <!--        <template v-slot>-->
+      <!--          <span>span</span>-->
+      <!--&lt;!&ndash;          <img v-lazy="1"/>&ndash;&gt;-->
+      <!--        </template>-->
+      <!--      </el-table-column>-->
       <el-table-column label="Operations" width="120">
         <template v-slot="{ $index }">
           <lazy-component :key="Math.random()" out="2">
@@ -26,18 +26,19 @@
       </el-table-column>
     </el-table>
     <div style="height: 100px;background: red" @click="click">1</div>
-<!--    <el-table :data="tableData" style="width: 100%" max-height="400" size="large">-->
-<!--      <el-table-column fixed prop="date" label="Date" width="150"/>-->
-<!--      <el-table-column prop="name" label="Name" width="120"/>-->
-<!--      <el-table-column prop="state" label="State" width="120"/>-->
-<!--      <el-table-column prop="city" label="City" width="120"/>-->
-<!--      <el-table-column prop="address" label="Address" width="500"/>-->
-<!--      <el-table-column label="Operations" width="120">-->
-<!--        <template v-slot="{ $index }">-->
-<!--          <lazy-component :lazy-key="1" :key="Math.random()" :index="$index + 13">Lazy</lazy-component>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
-<!--    </el-table>-->
+<!--    <div style="height: 700px"></div>-->
+    <el-table :data="tableData" style="width: 100%" max-height="400" size="large">
+      <el-table-column fixed prop="date" label="Date" width="150"/>
+      <el-table-column prop="name" label="Name" width="120"/>
+      <el-table-column prop="state" label="State" width="120"/>
+      <el-table-column prop="city" label="City" width="120"/>
+      <el-table-column prop="address" label="Address" width="500"/>
+      <el-table-column label="Operations" width="120">
+        <template v-slot="{ $index }">
+          <lazy-component :lazy-key="1" :key="Math.random()" :index="$index + 13">Lazy</lazy-component>
+        </template>
+      </el-table-column>
+    </el-table>
   </div>
 </template>
 
@@ -66,6 +67,7 @@ const tableData = ref([
     img: 'dd'
   }
 ])
+
 Array.from({length: 5}).forEach(() => tableData.value.push(...tableData.value))
 
 function click() {
@@ -73,7 +75,7 @@ function click() {
   listener()
 }
 
-onUpdated(()=> console.error('updated'))
+onUpdated(() => console.error('updated'))
 
 onMounted(() => {
   // console.log(getCurrentInstance())

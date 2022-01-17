@@ -22,6 +22,13 @@ export interface ShopInfo {
   region: string
 }
 
+export enum PricingType {
+  all = -1,
+  noPrice = 0,
+  autoPrice = 1,
+  limitPrice = 2
+}
+
 // sku数据
 export interface SkuRow extends Ref {
   modelId: string,
@@ -31,7 +38,7 @@ export interface SkuRow extends Ref {
   originalPrice: number
   currentStock: number
   normalStock: number
-  pricingType: number
+  pricingType: PricingType
   startTime: string
   promotionPrice: number
   orderList: Array<{
@@ -45,6 +52,7 @@ export interface SkuRow extends Ref {
     modelPromotionStock: number
   }>
   key: number | string
+  getOrder: boolean
 }
 
 // 表格行数据

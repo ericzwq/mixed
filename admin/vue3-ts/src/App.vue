@@ -156,9 +156,8 @@ export default defineComponent({
     watch(route, handleMenu)
 
     onMounted(() => {
-      finishedToken.value = true
-      // checkLogin()
-      // handleMenu()
+      checkLogin()
+      handleMenu()
     })
 
     return {

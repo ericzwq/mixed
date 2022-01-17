@@ -17,22 +17,22 @@ export const listener = throttle((targetVmSet,
   // console.log({targetVmSet, top, right, bottom, left, y, x})
   lazyHandler(targetVmSet, top !== undefined ?
     (el) => inView(el, top, right as number, bottom as number, left as number, y as number, x as number) : inViewPort)
-  console.log(lazyVmMap)
+  // console.log(lazyVmMap)
 })
 window.addEventListener('scroll', listener)
 
 // 是否在浏览器视口内
 function inViewPort(el: HTMLElement) {
   const {left, right, top, bottom} = el.getBoundingClientRect()
-  return top <= window.innerHeight && bottom >= window.scrollY && left <= window.innerWidth && right >= window.scrollX
+  return top <= window.innerHeight && bottom > 0 && left <= window.innerWidth && right > 0
 }
 
 // 是否在父元素视口内
 function inView(el: HTMLElement, pTop: number, pRight: number, pBottom: number, pLeft: number, y: number, x: number) {
   const {left, right, top, bottom} = el.getBoundingClientRect()
   // console.log({left, right, top, bottom}, el.classList)
-  return top <= pBottom + y * config.preLoad && bottom >= pTop - y * config.preLoad
-    && left <= pRight + x * config.preLoad && right >= pLeft - x * config.preLoad
+  return top <= pBottom + y && bottom >= pTop - y
+    && left <= pRight + x && right >= pLeft - x
 }
 
 // 无序，全部检查
@@ -64,23 +64,19 @@ function addRecords(vm: ComponentPublicInstance) {
     el.addEventListener('scroll', listener)
     el = el.parentElement as HTMLElement
   }
-  let cur = 0
-  for (const [, lazyEls] of lazyVmMap) cur += lazyEls.size
-  if (cur === total) {
-    // console.log('所有元素加载完毕，开始监听', total)
-    listener()
-  }
+  let count = 0
+  for (const [, lazyEls] of lazyVmMap) count += lazyEls.size
+  if (count === total) listener()
 }
 
 
 export default defineComponent({
   render() {
-    console.log(this.loaded)
     if (!this.loaded) {
       nextTick().then(() => addRecords(this))
       return this.$slots.loading ? h('div', this.$slots.loading()) : <div {...this.$attrs}/>
     } else {
-      return this.$slots.default ? h(this.$slots.default) : <div {...this.$attrs}/>
+      return this.$slots.default ? h('div', this.$slots.default()) : <div {...this.$attrs}/>
     }
   },
   props: ['lazyKey'],
@@ -106,25 +102,26 @@ export const config = {
 
 function throttle(cb: (set: Set<ComponentPublicInstance>, top?: number, right?: number, bottom?: number,
                        left?: number, y?: number, x?: number) => void) {
-  let flag = false, lastScrollLeft = 0, lastScrollTop = 0, timer
+  let flag = false, lastScrollLeft = 0, lastScrollTop = 0, timer: number
+  const handler = (event?: Event) => {
+    if (event && ![window, document].includes(event.target as Document)) {
+      const targetElSet: Set<ComponentPublicInstance> = findElSet(event.target as HTMLElement) || new Set()
+      const {left, right, top, bottom} = ((event.target as HTMLElement).getBoundingClientRect())
+      const {scrollLeft, scrollTop} = (event.target as HTMLElement)
+      cb(targetElSet, top, right, bottom, left, Math.abs(scrollTop - lastScrollTop) * config.preLoad, Math.abs(scrollLeft - lastScrollLeft) * config.preLoad) // 大于0向上滚动
+      lastScrollLeft = scrollLeft
+      lastScrollTop = scrollTop
+    } else {
+      for (const [, set] of lazyVmMap) cb(set)
+    }
+    flag = false
+  }
   return (event?: Event) => {
     clearTimeout(timer)
-    timer = setTimeout()
+    timer = setTimeout(() => handler(event), config.timeout + 50) // 防抖
     if (flag) return
     flag = true
-    setTimeout(() => {
-      if (event && ![window, document].includes(event.target as Document)) {
-        const targetElSet: Set<ComponentPublicInstance> = findElSet(event.target as HTMLElement) || new Set()
-        const {left, right, top, bottom} = ((event.target as HTMLElement).getBoundingClientRect())
-        const {scrollLeft, scrollTop} = (event.target as HTMLElement)
-        cb(targetElSet, top, right, bottom, left, Math.abs(scrollTop - lastScrollTop), Math.abs(scrollLeft - lastScrollLeft)) // 大于0向上滚动
-        lastScrollLeft = scrollLeft
-        lastScrollTop = scrollTop
-      } else {
-        for (const [, set] of lazyVmMap) cb(set)
-      }
-      flag = false
-    }, config.timeout)
+    setTimeout(() => handler(event), config.timeout) // 节流
   }
 }
 
