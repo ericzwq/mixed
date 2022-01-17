@@ -26,11 +26,12 @@ const routes = [
         path: AUTHORIZE_PATH,
         name: 'Authorize',
         component: () => import('@/views/authorize/authorize.vue')
-    }, /*{
-      path: EDIT_LIMIT_PRICE_PATH,
-      name: 'EditLimitPrice',
-      component: () => import('@/views/price/EditLimitPrice.vue')
-    }*/
+    },
+    {
+        path: '/test',
+        name: 'Test',
+        component: () => import('@/views/test.vue')
+    }
 ];
 const router = createRouter({
     history: createWebHistory(APP_BASE_PATH),

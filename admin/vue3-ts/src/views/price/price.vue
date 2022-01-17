@@ -85,40 +85,41 @@
               </div>
             </template>
             <template v-slot="{ row, $index }">
-              <div class="bd-bm-da-d item-box" v-for="(item, idx) in row.modelList"
-                   :key="item.modelId"
-                   v-show="(showStatus === '' && (row.spread || idx < DEFAULT_SKU_SHOW_COUNT)) || (showStatus !== '' && item.pricingType !== PricingType.noPrice && (row.spread || idx <= row.maxPricingIndex))">
+              <div class="bd-bm-da-d item-box" v-for="(skuRow, idx) in row.modelList"
+                   :key="skuRow.modelId"
+                   v-show="(showStatus === '' && (row.spread || idx < DEFAULT_SKU_SHOW_COUNT)) || (showStatus !== '' && skuRow.pricingType !== PricingType.noPrice && (row.spread || idx <= row.maxPricingIndex))">
                 <p class="item-title">
-                  {{ item.modelSku }}
+                  {{ skuRow.modelSku }}
                   <br/>
-                  <span class="color-hy-blue">{{ item.modelId }}</span>
+                  <span class="color-hy-blue">{{ skuRow.modelId }}</span>
                 </p>
-                <p class="item-normal l1">{{ item.originalPrice }}</p>
-                <p class="item-normal">{{ skuStatusMap[item.pricingType] }}</p>
-                <p class="item-normal">{{ item.pricingType ? item.currentPrice : '--' }}</p>
-                <p class="item-normal l4 fs-12">{{ item.startTime || '--' }}</p>
+                <p class="item-normal l1">{{ skuRow.originalPrice }}</p>
+                <p class="item-normal">{{ skuStatusMap[skuRow.pricingType] }}</p>
+                <p class="item-normal">{{ skuRow.pricingType ? skuRow.currentPrice : '--' }}</p>
+                <p class="item-normal l4 fs-12">{{ skuRow.startTime || '--' }}</p>
                 <div class="item-normal l5">
                   <div>
                     <!-- 懒加载获取销售记录 -->
-                    <lazy-component>
-                      <Records :skuRow="item" :skuIndex="idx" :itemIndex="$index" :setOrderList="setOrderList"/>
+                    <lazy-component :key="skuRow.modelId + times">
+                      <Records :skuRow="skuRow" :skuIndex="idx" :itemIndex="$index" :setOrderList="setOrderList"/>
                     </lazy-component>
-                    <div v-if="item.pricingType === PricingType.limitPrice && item.limitOrderTitle.length" class="bd-bm-da-d">
+                    <div v-if="skuRow.pricingType === PricingType.limitPrice && skuRow.limitOrderTitle.length"
+                         class="bd-bm-da-d">
                       限量调价：
-                      <span v-for="(title, i) in item.limitOrderTitle" :key="i">价格:{{
+                      <span v-for="(title, i) in skuRow.limitOrderTitle" :key="i">价格:{{
                           title.modelPromotionPrice
                         }}，{{ title.modelPromotionStock }}件；</span>
                     </div>
-                    <div v-if="item.pricingType === PricingType.autoPrice">
-                      <p class="bd-bm-da-d">自动调价：<span>最低价:{{ item.lowestPrice }}；</span><span>变动:{{
-                          item.wavePrice
+                    <div v-if="skuRow.pricingType === PricingType.autoPrice">
+                      <p class="bd-bm-da-d">自动调价：<span>最低价:{{ skuRow.lowestPrice }}；</span><span>变动:{{
+                          skuRow.wavePrice
                         }}元</span></p>
-                      <a v-for="(v,i2) in item.list" :href="v.url" target="_blank" class="color-hy-blue"
+                      <a v-for="(v,i2) in skuRow.list" :href="v.url" target="_blank" class="color-hy-blue"
                          :key="i2">{{ v.name }}；</a>
                     </div>
-                    <div v-if="!item.limitOrderTitle.length">--</div>
-                    <div v-if="item.orderList.length">
-                      <span v-for="(order, idx2) in item.orderList.slice(0,DEFAULT_ORDER_SHOW_COUNT)"
+                    <div v-if="!skuRow.limitOrderTitle.length">--</div>
+                    <div v-if="skuRow.orderList.length">
+                      <span v-for="(order, idx2) in skuRow.orderList.slice(0,DEFAULT_ORDER_SHOW_COUNT)"
                             :key="order.orderSn">
                         <br v-if="idx2 !== 0"/>
                         <span>{{ order.createTime }} {{
@@ -130,14 +131,14 @@
                           title="销售记录"
                           width="300"
                           trigger="click">
-                        <span v-for="(order, idx2) in item.orderList" :key="order.orderSn">
+                        <span v-for="(order, idx2) in skuRow.orderList" :key="order.orderSn">
                         <br v-if="idx2 !== 0"/>
                         <p>{{ order.createTime }} {{ order.modelQuantityPurchased }}件 价格:{{
                             order.modelDiscountedPrice
                           }}；</p>
                       </span>
                         <template #reference>
-                          <el-button v-show="item.orderList.length > DEFAULT_ORDER_SHOW_COUNT" class="hy-ml-10"
+                          <el-button v-show="skuRow.orderList.length > DEFAULT_ORDER_SHOW_COUNT" class="hy-ml-10"
                                      :icon="ArrowDown" type="text" size="small">
                             更多
                           </el-button>
@@ -147,12 +148,12 @@
                   </div>
                 </div>
                 <p class="item-normal l6">
-                  <el-button type="text" size="small" @click="() => limitAdjust(row, item)">限量调价</el-button>
+                  <el-button type="text" size="small" @click="() => limitAdjust(row, skuRow)">限量调价</el-button>
                   <br/>
-                  <el-button type="text" size="small" @click="() => autoAdjust(row, item)">自动调价</el-button>
+                  <el-button type="text" size="small" @click="() => autoAdjust(row, skuRow)">自动调价</el-button>
                   <br/>
-                  <el-button :disabled="item.pricingType === PricingType.noPrice" type="text" size="small"
-                             @click="() => cancelAdjust(row, item)">取消调价
+                  <el-button :disabled="skuRow.pricingType === PricingType.noPrice" type="text" size="small"
+                             @click="() => cancelAdjust(row, skuRow)">取消调价
                   </el-button>
                 </p>
               </div>
@@ -249,7 +250,14 @@
 </template>
 
 <script lang="ts" setup>
-import {AUTO_LIMIT_PRICE_URL, CANCEL_PRICEING_URL, GET_ITEM_INFO_URL, GET_SHOP_INFO_URL, LIMIT_PRICEING_URL, SYNC_ITEM_DATA_URL} from '@/http/urls';
+import {
+  AUTO_LIMIT_PRICE_URL,
+  CANCEL_PRICEING_URL,
+  GET_ITEM_INFO_URL,
+  GET_SHOP_INFO_URL,
+  LIMIT_PRICEING_URL,
+  SYNC_ITEM_DATA_URL
+} from '@/http/urls';
 import {Loading} from '@/common/utils';
 import {markRaw, onMounted, reactive, ref} from "vue";
 import {ElMessage, ElMessageBox} from "element-plus";
@@ -316,8 +324,8 @@ const rules = {
   ]
 }
 const autoAdjustFormRef = ref()
-
 const SHOP_ID_REGION_MAP: LooseObject = {}
+const times = ref(0)
 
 // 自动调价确定
 function autoAdjustConfirm() {
@@ -420,7 +428,6 @@ function showMoreOrLess(row: ItemRow) {
 
 function getTableData(params = {}) { // 参数覆盖，同步更新记录中的searchParams
   http.post<never, SuccessResponse<ItemRow[]>>(GET_ITEM_INFO_URL, Object.assign(searchParams, params)).then(r => {
-    Loading.close()
     tableData.value = r.data
     total.value = r.total
     tableData.value.forEach(i => {
@@ -432,11 +439,12 @@ function getTableData(params = {}) { // 参数覆盖，同步更新记录中的s
         if (model.pricingType !== PricingType.noPrice && ++count === DEFAULT_SKU_SHOW_COUNT) i.maxPricingIndex = idx // 设置只展示调价的sku时最大显示的索引
         model.orderList = []
         model.limitOrderTitle = []
-        model.key = Math.random()
         model.getOrder = false
       });
       i.totalPricing = count // 单个产品调价中的sku总数
     })
+    times.value++ // 每次查询强制更新懒加载组件
+    Loading.close()
   })
 }
 

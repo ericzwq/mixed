@@ -22,7 +22,7 @@ export interface ShopInfo {
   region: string
 }
 
-export enum PricingType {
+export const enum PricingType {
   all = -1,
   noPrice = 0,
   autoPrice = 1,
@@ -51,7 +51,6 @@ export interface SkuRow extends Ref {
     modelPromotionPrice: number
     modelPromotionStock: number
   }>
-  key: number | string
   getOrder: boolean
 }
 

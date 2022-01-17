@@ -6,17 +6,16 @@
       <el-table-column prop="date" label="Date" width="150"/>
       <el-table-column prop="name" label="Name" width="120"/>
       <el-table-column prop="state" label="State" width="120"/>
-      <el-table-column prop="city" sortable label="City" width="420"/>
+<!--      <el-table-column prop="city" sortable label="City" width="420"/>-->
       <el-table-column prop="address" label="Address" width="400"/>
-      <!--      <el-table-column prop="img" label="Address" width="100">-->
-      <!--        <template v-slot>-->
-      <!--          <span>span</span>-->
-      <!--&lt;!&ndash;          <img v-lazy="1"/>&ndash;&gt;-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
+      <el-table-column prop="img" label="Address" width="100">
+        <template v-slot="{ row }">
+          <img v-lazy="row.img" style="display: block;height: 40px;width: 40px"/>
+        </template>
+      </el-table-column>
       <el-table-column label="Operations" width="120">
         <template v-slot="{ $index }">
-          <lazy-component :key="Math.random()" out="2">
+          <lazy-component  out="2">
             <View2 :d="$index"/>
             <template #loading>
               <div style="height: 40px" loading>loading</div>
@@ -55,7 +54,7 @@ const tableData = ref([
     city: 'Los Angeles',
     address: 'No. 189, Grove St, Los Angeles',
     zip: 'CA 90036',
-    img: 'tt'
+    img: 'https://v3.cn.vuejs.org/logo.png'
   },
   {
     date: '2016-05-02',
@@ -64,11 +63,11 @@ const tableData = ref([
     city: 'Los Angeles',
     address: 'No. 189, Grove St, Los Angeles',
     zip: 'CA 90036',
-    img: 'dd'
+    img: 'https://v3.cn.vuejs.org/logo.png'
   }
 ])
 
-Array.from({length: 5}).forEach(() => tableData.value.push(...tableData.value))
+// Array.from({length: 5}).forEach(() => tableData.value.push(...tableData.value))
 
 function click() {
   tableData.value = tableData.value.sort(() => Math.random() - .5)
