@@ -1,12 +1,12 @@
 <template>
   <div>
     <div style="height: 200px"></div>
-        <el-tooltip content="<p>The content can be <strong>HTML</strong></p>" raw-content>
-          <template #content>
-            <img style="height: 300px;width: 300px" v-lazy="{src: 'sadfa', error: 'https://upfile2.asqql.com/upfile/hdimg/wmtp/wmtp/2015-12/30/9835VicmIhquvD.jpg'}"/>
-          </template>
-          <el-button>hover me</el-button>
-        </el-tooltip>
+    <el-tooltip content="<p>The content can be <strong>HTML</strong></p>" raw-content>
+      <template #content>
+        <img style="height: 300px;width: 300px" v-lazy="{src: 'sadfa', error: 'https://upfile2.asqql.com/upfile/hdimg/wmtp/wmtp/2015-12/30/9835VicmIhquvD.jpg'}"/>
+      </template>
+      <el-button>hover me</el-button>
+    </el-tooltip>
     <!--    <img style="width: 100px;height: 100px" v-show="show" v-lazy="'https://upfile2.asqql.com/upfile/hdimg/wmtp/wmtp/2015-12/30/9835VicmIhquvD.jpg'"/>-->
     <el-table :data="tableData" style="width: 100%" max-height="400" size="large" class="table2">
       <el-table-column fixed type="index" width="50"></el-table-column>
@@ -16,12 +16,12 @@
       <!--      <el-table-column prop="city" sortable label="City" width="420"/>-->
       <el-table-column prop="address" label="Address" width="400"/>
       <el-table-column prop="img" label="Address" width="300"/>
-<!--      <el-table-column prop="img" label="Address" width="100">-->
-<!--        <template v-slot="{ row }">-->
-<!--          <img v-lazy="{src: row.img, loading: 'https://upfile2.asqql.com/upfile/hdimg/wmtp/wmtp/2015-12/30/9835VicmIhquvD.jpg', loadingClass: ['lo']}"-->
-<!--               style="display: block;height: 40px;width: 40px"/>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
+      <!--      <el-table-column prop="img" label="Address" width="100">-->
+      <!--        <template v-slot="{ row }">-->
+      <!--          <img v-lazy="{src: row.img, loading: 'https://upfile2.asqql.com/upfile/hdimg/wmtp/wmtp/2015-12/30/9835VicmIhquvD.jpg', loadingClass: ['lo']}"-->
+      <!--               style="display: block;height: 40px;width: 40px"/>-->
+      <!--        </template>-->
+      <!--      </el-table-column>-->
       <el-table-column label="Operations" width="120">
         <template v-slot="{ row, $index }">
           <!--          <span :row="row" :index="$index"></span>-->
@@ -35,27 +35,27 @@
       </el-table-column>
     </el-table>
     <div style="height: 100px;background: red" @click="click">1</div>
-    <!--    <div style="height: 700px"></div>-->
-    <!--    <el-table :data="tableData" style="width: 100%" max-height="400" size="large">-->
-    <!--      <el-table-column fixed prop="date" label="Date" width="150"/>-->
-    <!--      <el-table-column prop="name" label="Name" width="120"/>-->
-    <!--      <el-table-column prop="state" label="State" width="120"/>-->
-    <!--      <el-table-column prop="city" label="City" width="120"/>-->
-    <!--      <el-table-column prop="address" label="Address" width="500"/>-->
-    <!--      <el-table-column label="Operations" width="120">-->
-    <!--        <template v-slot="{ $index }">-->
-    <!--          <lazy-component :lazy-key="1" :key="Math.random()" :index="$index + 13">Lazy</lazy-component>-->
-    <!--        </template>-->
-    <!--      </el-table-column>-->
-    <!--    </el-table>-->
+    <div style="height: 700px"></div>
+    <el-table :data="tableData" style="width: 100%" max-height="400" size="large">
+      <el-table-column fixed prop="date" label="Date" width="150"/>
+      <el-table-column prop="name" label="Name" width="120"/>
+      <el-table-column prop="state" label="State" width="120"/>
+      <el-table-column prop="city" label="City" width="120"/>
+      <el-table-column prop="address" label="Address" width="500"/>
+      <el-table-column label="Operations" width="120">
+        <template v-slot="{ $index }">
+          <lazy-component lazy-key="2" :index="$index + 13">Lazy</lazy-component>
+        </template>
+      </el-table-column>
+    </el-table>
+    <img style="width: 100px;height: 100px" v-lazy="'https://upfile2.asqql.com/upfile/hdimg/wmtp/wmtp/2015-12/30/9835VicmIhquvD.jpg'"/>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {getCurrentInstance, nextTick, onMounted, onUpdated, reactive, ref} from 'vue'
-import View2 from "@/views/view2.vue";
-import {listener} from "@/components/LazyLoad/listen";
-import loading from '@/assets/img/loading.png'
+import {onMounted, onUpdated, ref} from 'vue'
+import View2 from "./View2.vue";
+import {listener} from "~/listen";
 
 const show = ref(false)
 const tableData = ref([

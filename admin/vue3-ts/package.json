@@ -17,7 +17,6 @@
     "vue": "^3.0.0",
     "vue-class-component": "^8.0.0-0",
     "vue-router": "^4.0.0-0",
-    "vue3-lazyload": "^0.2.5-beta",
     "vuex": "^4.0.0-0"
   },
   "devDependencies": {

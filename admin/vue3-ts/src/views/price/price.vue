@@ -96,7 +96,7 @@
                 <p class="item-normal l1">{{ skuRow.originalPrice }}</p>
                 <p class="item-normal">{{ skuStatusMap[skuRow.pricingType] }}</p>
                 <p class="item-normal">{{ skuRow.pricingType ? skuRow.currentPrice : '--' }}</p>
-                <p class="item-normal l4 fs-12">{{ skuRow.startTime || '--' }}</p>
+                <p class="item-normal l4 fs-12">{{ skuRow.pricingType ? skuRow.startTime : '--' }}</p>
                 <div class="item-normal l5">
                   <div>
                     <!-- 懒加载获取销售记录 -->
@@ -271,9 +271,9 @@ import Records from './Records.vue';
 const activeName = ref('shopee')
 const dialogVisible = ref(false)
 const dialogVisible2 = ref(false)
-const dialogTableData = ref([{}, {}, {}, {}, {}] as LimitPriceRow[])
-const dialogTableData2 = ref([{}, {}, {}, {}, {}, {}, {}, {}, {}, {}] as AutoPriceRow[])
-const tableData = ref([] as ItemRow[])
+const dialogTableData = ref<LimitPriceRow[]>([{}, {}, {}, {}, {}] as LimitPriceRow[])
+const dialogTableData2 = ref<AutoPriceRow[]>([{}, {}, {}, {}, {}, {}, {}, {}, {}, {}] as AutoPriceRow[])
+const tableData = ref<ItemRow[]>([])
 const total = ref(0)
 const showStatus = ref('') // 展示sku状态，''全部，1只展示调价中的sku
 const searchParams = reactive({
@@ -287,14 +287,14 @@ const searchParams = reactive({
   priceEnd: ''
 })
 const searchParamsStr = JSON.stringify(searchParams)
-const curRow: ItemRow = reactive({} as ItemRow) // 当前操作的产品
-const curSku = reactive({} as SkuRow) // 当前操作产品的sku
-const shops = ref([] as Shops[])
+let curRow = reactive<ItemRow>({} as ItemRow) // 当前操作的产品
+let curSku = reactive<SkuRow>({} as SkuRow) // 当前操作产品的sku
+const shops = ref<Shops[]>([])
 const DEFAULT_SKU_SHOW_COUNT = 5 // 默认展示单个产品sku最多数量
 const skuStatusMap = {
-  0: '未调价',
-  1: '自动调价',
-  2: '限量调价'
+  [PricingType.noPrice]: '未调价',
+  [PricingType.autoPrice]: '自动调价',
+  [PricingType.limitPrice]: '限量调价'
 }
 const spreads = {
   more: false,
@@ -309,7 +309,7 @@ const showIcons = {
   less: markRaw(ArrowUp)
 }
 const DEFAULT_ORDER_SHOW_COUNT = 2 // 默认展示单个产品sku最多销售记录
-const autoAdjustForm: AutoPriceFrom = reactive({
+const autoAdjustForm = reactive<AutoPriceFrom>({
   lowestPrice: '',
   wavePrice: ''
 })
@@ -377,29 +377,28 @@ function setOrderList(data: LooseObject, itemIndex: number, skuIndex: number) {
 
 // 限量调价确定
 function limitAdjustConfirm() {
-  console.log('limit')
-  // const {curRow: {shopId, itemId}, curSku: {modelId}} = this,
-  const {shopId, itemId} = curRow.value, {modelId} = curSku.value,
-      modelList = dialogTableData.value.filter(i => i.model_promotion_price && i.model_promotion_stock), // 过滤不完整数据
-      params = {
-        shopId,
-        itemId,
-        type: 2,
-        modelList
-      };
+  const {shopId, itemId} = curRow
+  const {modelId} = curSku
+  const modelList = dialogTableData.value.filter(i => i.model_promotion_price && i.model_promotion_stock) // 过滤不完整数据
+  const params = {
+    shopId,
+    itemId,
+    type: PricingType.limitPrice,
+    modelList
+  }
   if (!modelList.length) return ElMessage.error('请至少有效填写一行数据')
   if (modelList.some(i => !(/^\d[\d,.]*/).test(i.model_promotion_price + '') || !(/^\d+$/).test(i.model_promotion_stock + '')))
     return ElMessage.error('请正确填写输入的值')
   modelList.forEach(i => i.model_id = modelId)
   http.post<never, SuccessResponse>(LIMIT_PRICEING_URL, params).then(r => {
     if (r.code === 1) {
-      ElMessage.success(r.msg);
-      dialogVisible.value = false;
-      getTableData();
+      ElMessage.success(r.msg)
+      dialogVisible.value = false
+      getTableData()
     } else {
-      ElMessage.error(r.msg);
+      ElMessage.error(r.msg)
     }
-  });
+  })
 }
 
 // 同步全部产品
@@ -411,19 +410,19 @@ function syncAllItem() {
     let total = r * 2, i = 1, timer = setInterval(() => {
       Loading.vm.setText(`加载中，时间可能较长，请耐心等待（${(i / total * 100).toFixed(0)}%）`)
       if (++i === total) {
-        getTableData();
-        clearInterval(timer);
+        getTableData()
+        clearInterval(timer)
       }
-    }, 500);
-  });
+    }, 500)
+  })
 }
 
 // sku展开或收起
 function showMoreOrLess(row: ItemRow) {
-  const key = row.showText === showTexts.more ? 'less' : 'more';
-  row.showText = showTexts[key];
-  row.spread = spreads[key];
-  row.icon = showIcons[key];
+  const key = row.showText === showTexts.more ? 'less' : 'more'
+  row.showText = showTexts[key]
+  row.spread = spreads[key]
+  row.icon = showIcons[key]
 }
 
 function getTableData(params = {}) { // 参数覆盖，同步更新记录中的searchParams
@@ -450,8 +449,8 @@ function getTableData(params = {}) { // 参数覆盖，同步更新记录中的s
 
 // 切换状态
 function statusChange(pricingType: PricingType) {
-  resetSearch();
-  getTableData({pricingType});
+  resetSearch()
+  getTableData({pricingType})
 }
 
 // 重置表格上方搜索条件
@@ -471,8 +470,8 @@ function resetSearch() {
 
 // 切换店铺
 function shopChange(shopId: number) {
-  resetSearch();
-  getTableData({shopId});
+  resetSearch()
+  getTableData({shopId})
 }
 
 // 获取店铺信息
@@ -485,52 +484,52 @@ function getShopData() {
         id: i.shopId
       }
     })
-    searchParams.shopId = shops.value.length ? (shops.value[0]).id : -1; // 默认选第一个店铺
+    searchParams.shopId = shops.value.length ? (shops.value[0]).id : -1 // 默认选第一个店铺
     getTableData()
   })
 }
 
 // 更新当前行操作的对象
 function setCurRow(row: ItemRow, sku: SkuRow) {
-  curRow.value = row; // todo
-  curSku.value = sku;
+  curRow = reactive(row)
+  curSku = reactive(sku)
 }
 
 // 点击限量调价
 function limitAdjust(row: ItemRow, sku: SkuRow) {
-  setCurRow(row, sku);
-  dialogVisible.value = true;
+  setCurRow(row, sku)
+  dialogVisible.value = true
   dialogTableData.value.forEach(i => {
-    i.current_price = sku.originalPrice;
-  });
+    i.current_price = sku.originalPrice
+  })
 }
 
 // 点击自动调价
 function autoAdjust(row: ItemRow, sku: SkuRow) {
-  setCurRow(row, sku);
-  dialogVisible2.value = true;
+  setCurRow(row, sku)
+  dialogVisible2.value = true
 }
 
 // 取消调价
 function cancelAdjust(row: ItemRow, sku: SkuRow) {
-  setCurRow(row, sku);
+  setCurRow(row, sku)
   ElMessageBox.confirm('确定取消调价?', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
     http.post<never, SuccessResponse>(CANCEL_PRICEING_URL, {
-      shopId: curRow.value.shopId,
-      modelId: curSku.value.modelId
+      shopId: curRow.shopId,
+      modelId: curSku.modelId
     }).then(r => {
       if (r.code === 1) {
-        ElMessage.success(r.msg);
+        ElMessage.success(r.msg)
       } else {
-        ElMessage.error(r.msg);
+        ElMessage.error(r.msg)
       }
-      getTableData();
-    });
-  });
+      getTableData()
+    })
+  })
 }
 
 function handleClick() {
