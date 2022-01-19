@@ -3,14 +3,11 @@ import babel from '@rollup/plugin-babel'
 import commonjs from "@rollup/plugin-commonjs"
 import typescript from 'rollup-plugin-typescript2'
 import jsx from 'acorn-jsx'
-import cssnano from "cssnano";
-import postcss from 'rollup-plugin-postcss'
 
 const extensions = [".ts", ".js", ".tsx"]
 const output = []
 const globals = {
-  vue: 'Vue',
-  '@antv/g2': 'G2',
+  vue: 'Vue'
 }
 const path = 'lib/';
 ['iife', 'es', 'umd'].forEach((item) => {
@@ -18,12 +15,11 @@ const path = 'lib/';
     dir: path + item,
     format: item,
     globals,
-    name: 'chartv',
   });
 });
 
 export default {
-  input: 'packages/index.ts',
+  input: 'packages2/index.ts',
   output,
   plugins: [
     typescript({
@@ -34,8 +30,7 @@ export default {
     resolve({mainFields: ["module", "main", "browser"]}),
     commonjs({extensions, sourceMap: true}),
     babel({babelHelpers: "bundled", extensions}), // babelHelpers是bable的最佳实践方案 extensions编译的扩展文件
-    postcss({plugins: [cssnano], extract: 'dist/css/z-style.css'})
   ],
   acornInjectPlugins: [jsx()],
-  external: ["vue", "@antv/g2"],
+  external: ["vue"],
 }

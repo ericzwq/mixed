@@ -1,7 +1,20 @@
 {
+  "presets": [
+    [
+      "latest",
+      {
+        "es2015": {
+          "modules": false
+        }
+      }
+    ]
+  ],
   "plugins": [
     [
-      "@vue/babel-plugin-jsx"
+      "@vue/babel-plugin-jsx",
+      {
+        "external-helpers": true
+      }
     ]
   ]
 }

@@ -1,4 +1,5 @@
 import {
+  ComponentPublicInstance,
   defineComponent,
   getCurrentInstance, h,
   nextTick,
@@ -11,9 +12,9 @@ export default defineComponent({
   render() {
     if (!this.loaded) {
       nextTick().then(() => addComponentRecords(this))
-      return this.$slots.loading ? h('div', this.$slots.loading()) : <div/>
+      return this.$slots.loading ? h('div', this.$slots.loading()) : h('div')
     } else {
-      return this.$slots.default ? h('div', this.$slots.default()) : <div/>
+      return this.$slots.default ? h('div', this.$slots.default()) : h('div')
     }
   },
   props: ['lazyKey'],
@@ -21,7 +22,8 @@ export default defineComponent({
     data.componentTotal++
     onBeforeUnmount(() => {
       for (const [, vmSet] of lazyVmMap) {
-        if (vmSet.delete(getCurrentInstance()?.proxy as ComponentPublicInstance)) {
+        const vm = getCurrentInstance() as any
+        if (vm && vmSet.delete(vm)) {
           data.componentTotal--
           data.componentCount--
         }
