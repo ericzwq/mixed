@@ -54,10 +54,10 @@ App.vue:
 
 | key              | description                                                                                                           | default | type     |
 |------------------|-----------------------------------------------------------------------------------------------------------------------|---------|----------|
-| component        | Whether to register the lazy component                                                                                | false   | boolean  |
+| component        | Whether to register the lazy component, If on, **lazy-components** can be used                                                                                | false   | boolean  |
 | preLoad          | The range of the preload distance when scrolling, calculated by multiplying the current scroll distance by this value | 0.3     | number   |
 | timeout          | Throttling interval(unit:milliseconds)                                                                                | 200     | number   |
-| loading          | Same as command, <span style="color: red">and the priority is lower than the instruction method</span>                | -       | string   |
+| loading          | Same as command, **and the priority is lower than the instruction method**                | -       | string   |
 | loadingClassList | Same as command                                                                                                       | []      | string[] |
 | error            | Same as command                                                                                                       | -       | string   |
 | errorClassList   | Same as command                                                                                                       | []      | string[] |

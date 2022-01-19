@@ -1,5 +1,7 @@
-import basicConfig, { name, file } from "./rollup.config";
-export default {
+import basicConfig, {name, file} from "./rollup.config";
+import {getBabelOutputPlugin} from "@rollup/plugin-babel";
+
+const config = {
   ...basicConfig,
   output: {
     name,
@@ -7,3 +9,10 @@ export default {
     format: "es"
   }
 }
+config.plugins.push(...[
+  getBabelOutputPlugin({
+    presets: ['@babel/preset-env']
+  })
+  // terser()
+])
+export default config

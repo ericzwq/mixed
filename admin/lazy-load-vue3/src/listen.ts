@@ -98,10 +98,10 @@ export function updateDirectiveEl(el: ExtHTMLElement, targetElSet?: Set<ExtHTMLE
 }
 
 export function addComponentRecords(vm: ComponentPublicInstance): void {
-  const lazyVmSet = lazyVmMap.get((vm.$props as { lazyKey: string }).lazyKey || 'default') || new Set()
+  const lazyVmSet = lazyVmMap.get((vm.$props as { lazyKey: string }).lazyKey ?? 'default') || new Set()
   if (lazyVmSet.has(vm)) return
   lazyVmSet.add(vm)
-  lazyVmMap.set((vm.$props as { lazyKey: string }).lazyKey || 'default', lazyVmSet)
+  lazyVmMap.set((vm.$props as { lazyKey: string }).lazyKey ?? 'default', lazyVmSet)
   let parent = vm.$el.parentElement as HTMLElement
   while (parent) {
     if (parentElSet.has(parent)) break

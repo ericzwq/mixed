@@ -22,8 +22,7 @@ export default defineComponent({
     data.componentTotal++
     onBeforeUnmount(() => {
       for (const [, vmSet] of lazyVmMap) {
-        const vm = getCurrentInstance() as any
-        if (vm && vmSet.delete(vm)) {
+        if (vmSet.delete(getCurrentInstance()?.proxy as ComponentPublicInstance)) {
           data.componentTotal--
           data.componentCount--
         }
