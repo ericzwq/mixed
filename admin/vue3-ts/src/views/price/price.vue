@@ -263,7 +263,16 @@ import {markRaw, onMounted, reactive, ref} from "vue";
 import {ElMessage, ElMessageBox} from "element-plus";
 import http from "@/http/http";
 import {LooseObject, SuccessResponse} from '@/types/types';
-import {AutoPriceFrom, AutoPriceRow, ItemRow, LimitPriceRow, PricingType, ShopInfo, Shops, SkuRow} from './price-types';
+import {
+  AutoPriceHeadFrom, AutoPriceData,
+  AutoPriceRow,
+  ItemRow, LimitPriceData,
+  LimitPriceRow,
+  PricingType,
+  ShopInfo,
+  Shops,
+  SkuRow
+} from './price-types';
 import {SHOPEE_SHOP_REGION_COUNTRY_MAP, SHOPEES, SHOPEES2} from "@/common/consts";
 import {ArrowDown, ArrowUp} from "@element-plus/icons-vue";
 import Records from './Records.vue';
@@ -309,7 +318,7 @@ const showIcons = {
   less: markRaw(ArrowUp)
 }
 const DEFAULT_ORDER_SHOW_COUNT = 2 // 默认展示单个产品sku最多销售记录
-const autoAdjustForm = reactive<AutoPriceFrom>({
+const autoAdjustForm = reactive<AutoPriceHeadFrom>({
   lowestPrice: '',
   wavePrice: ''
 })
@@ -345,8 +354,8 @@ function autoAdjustConfirm() {
       return flag
     })
     if (!urlList.length) return ElMessage.error('请填写与当前店铺相同国家的链接');
-    const form = {} as Record<keyof AutoPriceFrom, number>
-    for (let k in autoAdjustForm) form[k as keyof AutoPriceFrom] = +autoAdjustForm[k as keyof AutoPriceFrom]
+    const form = {} as Record<keyof AutoPriceHeadFrom, number>
+    for (let k in autoAdjustForm) form[k as keyof AutoPriceHeadFrom] = +autoAdjustForm[k as keyof AutoPriceHeadFrom]
     const params = {
       country,
       ...form,
@@ -366,12 +375,21 @@ function autoAdjustConfirm() {
 }
 
 // 设置销售记录
-function setOrderList(data: LooseObject, itemIndex: number, skuIndex: number) {
+function setOrderList(data: AutoPriceData | LimitPriceData, itemIndex: number, skuIndex: number) {
   const skuRow = tableData.value[itemIndex].modelList[skuIndex]
   skuRow.getOrder = true
-  if (data.content?.length || data.title?.length) {
-    skuRow.orderList = data.content || []
-    skuRow.limitOrderTitle = data.title || []
+  if (skuRow.pricingType === PricingType.autoPrice) {
+    const title = (data as AutoPriceData).title
+    if (title) {
+      skuRow.lowestPrice = title.lowestPrice
+      skuRow.wavePrice = title.wavePrice
+      skuRow.list = title.list
+    }
+  } else if (skuRow.pricingType === PricingType.limitPrice) {
+    if ((data as LimitPriceData).content?.length || (data as LimitPriceData).title?.length) {
+      skuRow.orderList = (data as LimitPriceData).content || []
+      skuRow.limitOrderTitle = (data as LimitPriceData).title || []
+    }
   }
 }
 

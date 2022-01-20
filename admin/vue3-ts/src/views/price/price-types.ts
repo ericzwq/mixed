@@ -1,4 +1,4 @@
-import {Component, Ref} from "vue";
+import {Component} from "vue";
 
 // 店铺信息
 export interface Shops {
@@ -29,8 +29,34 @@ export const enum PricingType {
   limitPrice = 2 // 限量调价
 }
 
+export interface AutoPriceUrls {
+  url: string
+  name: string
+}
+
+// 限量调价销售记录
+export interface LimitOrder {
+  orderSn: string
+  createTime: string
+  modelQuantityPurchased: number
+  modelDiscountedPrice: number
+}
+
+// 限量调价销售记录头信息
+export interface LimitTitle {
+  modelPromotionPrice: number
+  modelPromotionStock: number
+}
+
+// 自动调价销售记录
+export interface AutoOrder {
+  lowestPrice: number
+  wavePrice: number
+  list: AutoPriceUrls[]
+}
+
 // sku数据
-export interface SkuRow {
+export interface SkuRow extends AutoOrder {
   modelId: string,
   modelSku: string
   // option: number
@@ -41,17 +67,20 @@ export interface SkuRow {
   pricingType: PricingType
   startTime: string
   promotionPrice: number
-  orderList: Array<{
-    orderSn: string
-    createTime: string
-    modelQuantityPurchased: number
-    modelDiscountedPrice: number
-  }>
-  limitOrderTitle: Array<{
-    modelPromotionPrice: number
-    modelPromotionStock: number
-  }>
+  orderList: LimitOrder[]
+  limitOrderTitle: LimitTitle[]
   getOrder: boolean
+}
+
+// 自动调价销售记录返回信息
+export interface AutoPriceData {
+  title: AutoOrder
+}
+
+// 限量调价销售记录返回信息
+export interface LimitPriceData {
+  content: LimitOrder[]
+  title: LimitTitle[]
 }
 
 // 表格行数据
@@ -77,7 +106,8 @@ export interface LimitPriceRow {
   model_promotion_stock: number
 }
 
-export interface AutoPriceFrom {
+// 自动调价头部表单数据
+export interface AutoPriceHeadFrom {
   lowestPrice: string
   wavePrice: string
 }

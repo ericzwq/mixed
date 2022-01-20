@@ -32,11 +32,6 @@ const routes: Array<RouteRecordRaw> = [
     name: 'EditLimitPrice',
     component: () => import('@/views/price/EditLimitPrice.vue')
   }*/
-  {
-    path: '/test',
-    name: 'Test',
-    component: () => import('@/views/test.vue')
-  }
 ]
 
 const router = createRouter({

@@ -7,17 +7,11 @@ declare module '*.vue' {
   export default Vue;
 }
 
-declare module 'lazy-load-vue3/lib/lazy-load-vue3.esm.js' {
-
-}
-
-declare module 'lazy-load-vue3/lib/lazy-load-vue3.umd.js' {
-
-}
-
-declare module 'vue3-lazyload/dist/vue3-lazyload.esm.js' {
-
-}
-declare module 'vue3-lazyload/dist/vue3-lazyload.js' {
-
+declare module 'lazy-load-vue3' {
+  export {
+    listener,
+    config
+  }
+  import LazyLoad from 'lazy-load-vue3'
+  export default LazyLoad
 }
