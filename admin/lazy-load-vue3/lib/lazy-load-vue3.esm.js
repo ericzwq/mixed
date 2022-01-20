@@ -489,23 +489,13 @@ var LazyDirective = {
 };
 var index = {
   install: function install(app) {
-    var _ref2 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-        loading = _ref2.loading,
-        loadingClassList = _ref2.loadingClassList,
-        error = _ref2.error,
-        errorClassList = _ref2.errorClassList,
-        preLoad = _ref2.preLoad,
-        timeout = _ref2.timeout,
-        component = _ref2.component;
-
-    baseConfig.loading = loading || '';
-    baseConfig.loadingClassList = loadingClassList || [];
-    baseConfig.error = error || '';
-    baseConfig.errorClassList = errorClassList || [];
-    Object.assign(config, baseConfig);
-    config.preLoad = preLoad || 0.3;
-    config.timeout = timeout || 200;
-    config.component = component || false;
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    Object.keys(baseConfig).forEach(function (k) {
+      return options[k] && (baseConfig[k] = options[k]);
+    });
+    Object.keys(config).forEach(function (k) {
+      return options[k] && (config[k] = options[k]);
+    });
     Object.assign(directiveConfig, baseConfig);
     if (config.component) app.component('lazy-component', LazyComponent);
     app.directive('lazy', LazyDirective);

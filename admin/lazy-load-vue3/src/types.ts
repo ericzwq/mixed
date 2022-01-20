@@ -1,5 +1,9 @@
 import {ComponentPublicInstance} from "vue";
 
+export interface LooseObject {
+  [k: string]: any
+}
+
 export interface BaseConfig {
   error: string
   loading: string

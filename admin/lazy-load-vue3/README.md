@@ -12,7 +12,7 @@ $ npm i lazy-load-vue3 -S
 
 main.js
 
-```html
+```js
 import {createApp} from 'vue'
 import LazyLoad from 'lazy-load-vue3'
 import App from './App.vue'
@@ -23,7 +23,7 @@ app.use(LazyLoad, {component: true}).mount('#app')
 
 App.vue:
 
-```html
+```vue
 
 <template>
   <table>
@@ -40,14 +40,14 @@ App.vue:
 
 ## The complete command options are as follows
 
-| key              | description                           | default  | type   |
-|------------------|---------------------------------------|----------|--------|
-| src              | The real image URL                    | -        | string |
-| loading          | The image URL of the loading state    | -        | string |
-| loadingClassList | List of class names for loading state | []       | string[] |
-| error            | The image URL of the error state      | -        | string |
-| errorClassList   | List of class names for error state   | []       | string[] |
-| lazyKey          | When there are multiple scrolling elements (such as two tables on one page), in order to improve the update efficiency, they can be marked with different keys   | 'default' | string |
+| key              | description                                                                                                                                                                                   | default  | type   |
+|------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|--------|
+| src              | The real image URL                                                                                                                                                                            | -        | string |
+| loading          | The image URL of the loading state                                                                                                                                                            | -        | string |
+| loadingClassList | List of class names for loading state                                                                                                                                                         | []       | string[] |
+| error            | The image URL of the error state                                                                                                                                                              | -        | string |
+| errorClassList   | List of class names for error state                                                                                                                                                           | []       | string[] |
+| lazyKey          | When there are multiple scrolling elements (such as two tables on one page), in order to improve the update efficiency, they can be marked with different keys. Of course you can ignore him. | 'default' | string |
 
 ## The install options are as follows
 
@@ -61,6 +61,16 @@ App.vue:
 | loadingClassList | Same as command                                                                                                       | []      | string[] |
 | error            | Same as command                                                                                                       | -       | string   |
 | errorClassList   | Same as command                                                                                                       | []      | string[] |
+
+As for lazy-component, it looks like this:
+
+```vue
+<template>
+  <lazy-component>
+    <some-componet/>
+  </lazy-component>
+</template>
+```
 
 ## Exposed
 

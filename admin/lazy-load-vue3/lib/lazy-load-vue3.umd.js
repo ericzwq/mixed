@@ -1,50 +1,37 @@
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
 (function (global, factory) {
-  if (typeof define === "function" && define.amd) {
-    define(["exports", "vue"], factory);
-  } else if (typeof exports !== "undefined") {
-    factory(exports, require("vue"));
-  } else {
-    var mod = {
-      exports: {}
-    };
-    factory(mod.exports, global.vue);
-    global.unknown = mod.exports;
-  }
-})(typeof globalThis !== "undefined" ? globalThis : typeof self !== "undefined" ? self : this, function (_exports, _vue) {
-  "use strict";
-
-  Object.defineProperty(_exports, "__esModule", {
-    value: true
-  });
-  _exports.listener = _exports.default = _exports.config = void 0;
-
-  function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
-  function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
-  function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-  function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-
-  function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-  function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-  function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-  function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
-
-  function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-  function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
-
-  function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-
-  function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
-
-  function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-  function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+  (typeof exports === "undefined" ? "undefined" : _typeof(exports)) === 'object' && typeof module !== 'undefined' ? factory(exports, require('vue')) : typeof define === 'function' && define.amd ? define(['exports', 'vue'], factory) : (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.LazyLoad = {}, global.Vue));
+})(this, function (exports, vue) {
+  'use strict';
 
   var parentElSet = new Set();
   var lazyVmMap = new Map();
@@ -66,7 +53,6 @@
     preLoad: 0.3,
     component: false
   }, baseConfig);
-  _exports.config = config;
   var directiveConfig = Object.assign({
     src: '',
     lazyKey: 'default',
@@ -77,7 +63,6 @@
       return inParentView(el, top, right, bottom, left, y, x);
     } : inViewPort);
   });
-  _exports.listener = listener;
   window.addEventListener('scroll', listener);
 
   function inViewPort(el) {
@@ -407,34 +392,34 @@
     return new Set();
   }
 
-  var LazyComponent = (0, _vue.defineComponent)({
+  var LazyComponent = vue.defineComponent({
     render: function render() {
       var _this = this;
 
       if (!this.loaded) {
-        (0, _vue.nextTick)().then(function () {
+        vue.nextTick().then(function () {
           return addComponentRecords(_this);
         });
-        return this.$slots.loading ? (0, _vue.h)('div', this.$slots.loading()) : (0, _vue.h)('div');
+        return this.$slots.loading ? vue.h('div', this.$slots.loading()) : vue.h('div');
       } else {
-        return this.$slots.default ? (0, _vue.h)('div', this.$slots.default()) : (0, _vue.h)('div');
+        return this.$slots.default ? vue.h('div', this.$slots.default()) : vue.h('div');
       }
     },
     props: ['lazyKey'],
     setup: function setup() {
       data.componentTotal++;
-      (0, _vue.onBeforeUnmount)(function () {
+      vue.onBeforeUnmount(function () {
         var _iterator10 = _createForOfIteratorHelper(lazyVmMap),
             _step10;
 
         try {
           for (_iterator10.s(); !(_step10 = _iterator10.n()).done;) {
-            var _getCurrentInstance;
+            var _vue$getCurrentInstan;
 
             var _step10$value = _slicedToArray(_step10.value, 2),
                 vmSet = _step10$value[1];
 
-            if (vmSet.delete((_getCurrentInstance = (0, _vue.getCurrentInstance)()) === null || _getCurrentInstance === void 0 ? void 0 : _getCurrentInstance.proxy)) {
+            if (vmSet.delete((_vue$getCurrentInstan = vue.getCurrentInstance()) === null || _vue$getCurrentInstan === void 0 ? void 0 : _vue$getCurrentInstan.proxy)) {
               data.componentTotal--;
               data.componentCount--;
             }
@@ -445,7 +430,7 @@
           _iterator10.f();
         }
       });
-      var loaded = (0, _vue.ref)(false);
+      var loaded = vue.ref(false);
       return {
         loaded: loaded
       };
@@ -475,7 +460,7 @@
         el.lazy = Object.assign(_objectSpread({}, directiveConfig), value);
       }
 
-      (0, _vue.nextTick)().then(function () {
+      vue.nextTick().then(function () {
         return addDirectiveRecords(el, key);
       });
     },
@@ -510,27 +495,22 @@
   };
   var index = {
     install: function install(app) {
-      var _ref2 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          loading = _ref2.loading,
-          loadingClassList = _ref2.loadingClassList,
-          error = _ref2.error,
-          errorClassList = _ref2.errorClassList,
-          preLoad = _ref2.preLoad,
-          timeout = _ref2.timeout,
-          component = _ref2.component;
-
-      baseConfig.loading = loading || '';
-      baseConfig.loadingClassList = loadingClassList || [];
-      baseConfig.error = error || '';
-      baseConfig.errorClassList = errorClassList || [];
-      Object.assign(config, baseConfig);
-      config.preLoad = preLoad || 0.3;
-      config.timeout = timeout || 200;
-      config.component = component || false;
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      Object.keys(baseConfig).forEach(function (k) {
+        return options[k] && (baseConfig[k] = options[k]);
+      });
+      Object.keys(config).forEach(function (k) {
+        return options[k] && (config[k] = options[k]);
+      });
       Object.assign(directiveConfig, baseConfig);
       if (config.component) app.component('lazy-component', LazyComponent);
       app.directive('lazy', LazyDirective);
     }
   };
-  _exports.default = index;
+  exports.config = config;
+  exports["default"] = index;
+  exports.listener = listener;
+  Object.defineProperty(exports, '__esModule', {
+    value: true
+  });
 });
