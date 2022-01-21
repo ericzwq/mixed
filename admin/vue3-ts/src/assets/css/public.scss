@@ -43,6 +43,12 @@ $hyBlue: #198EDE;
   display: inline-block;
 }
 
+.clearfix:after {
+  content: '';
+  clear: both;
+  display: block;
+}
+
 .fs-12 {
   font-size: 12px;
 }

@@ -1,20 +1,16 @@
-interface a {
-  name: string
-}
+type TupleMapId<T extends { id: any }[]> = T[keyof T & number]['id']
 
-interface b {
-  age: number
-}
+type ActionId = TupleMapId<[{
+  id: 1,
+  name: 'user1'
+},
+  {
+    id: 2,
+    name: 'user2'
+  },
+  {
+    id: 3,
+    name: 'user3'
+  }]>
 
-function f(v: a | b) {
-  if ((v as a).name)  {
-    // v = v as a
-
-    console.log(v.name)
-  } else {
-    v = v as b
-    console.log(v.age)
-  }
-}
-
-f({name: '2'} as a)
+const a: ActionId = 3

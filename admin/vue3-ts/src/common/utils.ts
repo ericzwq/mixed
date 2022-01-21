@@ -62,3 +62,11 @@ export function formatDate(time: number): string {
     .padStart(2, '0')}:${String(s)
     .padStart(2, '0')}`;
 }
+
+export function debounce(this: unknown, cb: (...args: any[]) => void, timeout = 500): (...args: any[]) => void {
+  let timer: number
+  return (...args) => {
+    clearTimeout(timer)
+    timer = setTimeout(() => cb.apply(this, args), timeout)
+  }
+}

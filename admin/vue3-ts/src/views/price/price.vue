@@ -1,7 +1,6 @@
 <template>
   <div class="price-container">
-    <el-tabs class="head-tabs" style="overflow:hidden;" v-model="activeName" type="border-card"
-             @tab-click="handleClick">
+    <el-tabs class="head-tabs" style="overflow:hidden;" v-model="activeName" type="border-card">
       <el-tab-pane label="Shopee" name="shopee">
         <div class="fright">
           <el-button type="primary" class="el-btn-ft-12" @click="syncAllItem">同步全部产品</el-button>
@@ -45,10 +44,11 @@
         </div>
         <div class="tx-al-r">
           <el-button class="el-btn-ft-12" type="primary" @click="getTableData">查询</el-button>
-          <el-button class="el-btn-ft-12" @click="reset">重置</el-button>
+          <el-button class="el-btn-ft-12" @click="resetHeadSearch">重置</el-button>
         </div>
         <div class="hy-mt-10" style="border-bottom: 1px solid #eee"/>
         <el-table
+            v-loading="loading"
             :data="tableData"
             empty-text="暂无数据"
             size="small"
@@ -234,8 +234,31 @@
           </template>
         </el-table-column>
         <el-table-column prop="url" align="center" label="链接" min-width="100">
+          <template v-slot="{ row, $index }">
+            <el-input @input="url => urlChange(url, $index)" v-model.trim="row.url" clearable></el-input>
+          </template>
+        </el-table-column>
+        <el-table-column prop="spec1" align="center" label="规格1" min-width="60">
+          <template v-slot="{ row, $index }">
+            <el-input @input="() => autoPriceParamsChange($index)" v-model.trim="row.spec1" clearable></el-input>
+          </template>
+        </el-table-column>
+        <el-table-column prop="spec2" align="center" label="规格2" min-width="60">
+          <template v-slot="{ row, $index }">
+            <el-input @input="() => autoPriceParamsChange($index)" v-model.trim="row.spec2" clearable></el-input>
+          </template>
+        </el-table-column>
+        <el-table-column prop="compareType" align="center" label="对比价格" min-width="60">
+          <template v-slot="{ row, $index }">
+            <el-select @change="() => autoPriceParamsChange($index)" v-model="row.compareType" size="small">
+              <el-option :value="CompareType.allSku" label="链接中多个SKU最低价"></el-option>
+              <el-option :value="CompareType.oneSku" label="该SKU最低价"></el-option>
+            </el-select>
+          </template>
+        </el-table-column>
+        <el-table-column prop="status" align="center" label="状态" min-width="60">
           <template v-slot="{ row }">
-            <el-input v-model.trim="row.url" clearable></el-input>
+            <span>{{ autoPriceCheckStatusMap[row.status] }}</span>
           </template>
         </el-table-column>
       </el-table>
@@ -250,29 +273,13 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  AUTO_LIMIT_PRICE_URL,
-  CANCEL_PRICEING_URL,
-  GET_ITEM_INFO_URL,
-  GET_SHOP_INFO_URL,
-  LIMIT_PRICEING_URL,
-  SYNC_ITEM_DATA_URL
-} from '@/http/urls';
-import {Loading} from '@/common/utils';
-import {markRaw, onMounted, reactive, ref} from "vue";
+import {AUTO_LIMIT_PRICE_URL, CANCEL_PRICEING_URL, CHECK_SHOPEE_URL, GET_ITEM_INFO_URL, GET_SHOP_INFO_URL, LIMIT_PRICEING_URL, SYNC_ITEM_DATA_URL} from '@/http/urls';
+import {debounce, Loading} from '@/common/utils';
+import {markRaw, onMounted, reactive, ref, shallowRef} from "vue";
 import {ElMessage, ElMessageBox} from "element-plus";
 import http from "@/http/http";
-import {LooseObject, SuccessResponse} from '@/types/types';
-import {
-  AutoPriceHeadFrom, AutoPriceData,
-  AutoPriceRow,
-  ItemRow, LimitPriceData,
-  LimitPriceRow,
-  PricingType,
-  ShopInfo,
-  Shops,
-  SkuRow
-} from './price-types';
+import {SuccessResponse} from '@/types/types';
+import {AutoPriceCheckStatus, AutoPriceData, AutoPriceHeadFrom, AutoPriceRow, CompareType, ItemRow, LimitPriceData, LimitPriceRow, PricingType, ShopInfo, Shops, SkuRow} from './price-types';
 import {SHOPEE_SHOP_REGION_COUNTRY_MAP, SHOPEES, SHOPEES2} from "@/common/consts";
 import {ArrowDown, ArrowUp} from "@element-plus/icons-vue";
 import Records from './Records.vue';
@@ -281,13 +288,22 @@ const activeName = ref('shopee')
 const dialogVisible = ref(false)
 const dialogVisible2 = ref(false)
 const dialogTableData = ref<LimitPriceRow[]>([{}, {}, {}, {}, {}] as LimitPriceRow[])
-const dialogTableData2 = ref<AutoPriceRow[]>([{}, {}, {}, {}, {}, {}, {}, {}, {}, {}] as AutoPriceRow[])
+const dialogTableData2 = ref<AutoPriceRow[]>(Array.from({length: 10}).map(() => ({
+  name: '',
+  url: '',
+  spec1: '',
+  spec2: '',
+  compareType: 1,
+  status: AutoPriceCheckStatus.unkonw,
+  urlValid: false,
+})))
+const loading = ref(true)
 const tableData = ref<ItemRow[]>([])
 const total = ref(0)
 const showStatus = ref('') // 展示sku状态，''全部，1只展示调价中的sku
 const searchParams = reactive({
   shopId: -1,
-  pageSize: 2,
+  pageSize: 20,
   index: 1,
   itemStatus: 1,
   pricingType: PricingType.all,
@@ -296,8 +312,8 @@ const searchParams = reactive({
   priceEnd: ''
 })
 const searchParamsStr = JSON.stringify(searchParams)
-let curRow = reactive<ItemRow>({} as ItemRow) // 当前操作的产品
-let curSku = reactive<SkuRow>({} as SkuRow) // 当前操作产品的sku
+let curRow = shallowRef<ItemRow>({} as ItemRow) // 当前操作的产品
+let curSku = shallowRef<SkuRow>({} as SkuRow) // 当前操作产品的sku
 const shops = ref<Shops[]>([])
 const DEFAULT_SKU_SHOW_COUNT = 5 // 默认展示单个产品sku最多数量
 const skuStatusMap = {
@@ -333,29 +349,83 @@ const rules = {
   ]
 }
 const autoAdjustFormRef = ref()
-const SHOP_ID_REGION_MAP: LooseObject = {}
+const SHOP_ID_REGION_MAP: Record<number, string> = {}
 const times = ref(0)
+const autoPriceCheckStatusMap = {
+  [AutoPriceCheckStatus.unkonw]: '',
+  [AutoPriceCheckStatus.success]: '成功',
+  [AutoPriceCheckStatus.error]: '失败',
+  [AutoPriceCheckStatus.checking]: '校验中'
+}
+// 自动调价url改变
+const urlChange = debounce((url: string, index: number) => {
+  if (!url) {
+    return dialogTableData2.value[index].status = AutoPriceCheckStatus.unkonw
+  }
+  const country = SHOPEE_SHOP_REGION_COUNTRY_MAP[SHOP_ID_REGION_MAP[curRow.value.shopId]], row = dialogTableData2.value[index],
+      matched = url.match(/-i\.([0-9]+)\.([0-9]+)/)
+  if ((!url.startsWith('http://') && !url.startsWith('https://')) || !matched) {
+    row.status = AutoPriceCheckStatus.error
+    ElMessage.error('请输入正确的url')
+  } else if (!url.includes(SHOPEES[country - 1]) && !url.includes(SHOPEES2[country - 1])) {
+    row.status = AutoPriceCheckStatus.error
+    ElMessage.error('请输入与当前店铺国家相同的链接')
+  } else {
+    row.status = AutoPriceCheckStatus.checking
+    row.urlValid = true
+  }
+  if (row.status !== AutoPriceCheckStatus.checking) return
+  validAutoPrice(row)
+})
+// 自动调价规格1、规格2、对比价格改变
+const autoPriceParamsChange = debounce(index => validAutoPrice(dialogTableData2.value[index]))
+
+// 校验自动调价参数
+function validAutoPrice(row: AutoPriceRow) {
+  if (!row.urlValid) return
+  const matched = row.url.match(/-i\.([0-9]+)\.([0-9]+)/)
+  if (!matched) return
+  const [, shopid, itemid] = matched,
+      protocol = row.url.startsWith('https') ? 'https' : 'http',
+      host = row.url.replace(new RegExp(protocol + '://'), '').match(/^([\w.]+)\//)?.[0],
+      url = `${protocol}://${host}/api/v4/item/get?shopid=${shopid}&itemid=${itemid}`
+  let spec
+  if (row.compareType === CompareType.allSku) { // 全部sku
+    spec = ''
+  } else { // 单个sku
+    if (!row.spec1) return ElMessage.warning('请填写规格1')
+    spec = row.spec1 + (row.spec2 ? ',' + row.spec2 : '')
+  }
+  row.status = AutoPriceCheckStatus.checking
+  http.post<never, SuccessResponse>(CHECK_SHOPEE_URL, {
+    url,
+    spec,
+    compareType: row.compareType
+  }).then(r => {
+    if (!r.data) {
+      row.status = AutoPriceCheckStatus.error
+      ElMessage.error(r.msg)
+    } else {
+      row.status = AutoPriceCheckStatus.success
+    }
+  }, () => row.status = AutoPriceCheckStatus.error)
+}
 
 // 自动调价确定
 function autoAdjustConfirm() {
   autoAdjustFormRef.value.validate((valid: boolean) => {
     if (!valid) return
-    let urlList = dialogTableData2.value.filter(v => v.url && v.url.startsWith('http')).map(v => {
-      return {name: v.name, url: v.url}
-    })
-    if (!urlList.length) return ElMessage.error('请至少有效填写一行数据');
-    const {shopId, itemId} = curRow, {modelId} = curSku,
-        country = SHOPEE_SHOP_REGION_COUNTRY_MAP[SHOP_ID_REGION_MAP[shopId]]
-    // let url = urlList[0].url.match(/https?:\/\/([\w.]+)\//)[1]
+    const urlList = dialogTableData2.value.filter(v => v.status === AutoPriceCheckStatus.success) as Array<AutoPriceRow & { spec: string }>
+    if (!urlList.length) return ElMessage.error('请至少有效填写一行数据')
+    const {shopId, itemId} = curRow.value, {modelId} = curSku.value, country = SHOPEE_SHOP_REGION_COUNTRY_MAP[SHOP_ID_REGION_MAP[shopId]]
     let nameIndex = 1
-    urlList = urlList.filter(v => {
-      let flag = v.url.includes(SHOPEES[country - 1]) || v.url.includes(SHOPEES2[country - 1])
-      if (flag && !v.name) v.name = '链接' + nameIndex++
-      return flag
+    urlList.forEach(v => {
+      if (!v.name) v.name = '链接' + nameIndex++
+      v.spec = v.spec1 + (v.spec2 ? ',' + v.spec2 : '')
     })
-    if (!urlList.length) return ElMessage.error('请填写与当前店铺相同国家的链接');
     const form = {} as Record<keyof AutoPriceHeadFrom, number>
-    for (let k in autoAdjustForm) form[k as keyof AutoPriceHeadFrom] = +autoAdjustForm[k as keyof AutoPriceHeadFrom]
+    type Key = keyof AutoPriceHeadFrom
+    Object.keys(autoAdjustForm).forEach(k => form[k as Key] = +autoAdjustForm[k as Key])
     const params = {
       country,
       ...form,
@@ -386,17 +456,18 @@ function setOrderList(data: AutoPriceData | LimitPriceData, itemIndex: number, s
       skuRow.list = title.list
     }
   } else if (skuRow.pricingType === PricingType.limitPrice) {
-    if ((data as LimitPriceData).content?.length || (data as LimitPriceData).title?.length) {
-      skuRow.orderList = (data as LimitPriceData).content || []
-      skuRow.limitOrderTitle = (data as LimitPriceData).title || []
+    const {content, title} = (data as LimitPriceData)
+    if (content?.length || title?.length) {
+      skuRow.orderList = content || []
+      skuRow.limitOrderTitle = title || []
     }
   }
 }
 
 // 限量调价确定
 function limitAdjustConfirm() {
-  const {shopId, itemId} = curRow
-  const {modelId} = curSku
+  const {shopId, itemId} = curRow.value
+  const {modelId} = curSku.value
   const modelList = dialogTableData.value.filter(i => i.model_promotion_price && i.model_promotion_stock) // 过滤不完整数据
   const params = {
     shopId,
@@ -425,6 +496,7 @@ function syncAllItem() {
   http.post<never, number>(SYNC_ITEM_DATA_URL, {
     shopId: searchParams.shopId
   }).then(r => {
+    (Loading.vm.$el.querySelector('.el-loading-text') as HTMLElement).style.color = '#fff'
     let total = r * 2, i = 1, timer = setInterval(() => {
       Loading.vm.setText(`加载中，时间可能较长，请耐心等待（${(i / total * 100).toFixed(0)}%）`)
       if (++i === total) {
@@ -467,12 +539,12 @@ function getTableData(params = {}) { // 参数覆盖，同步更新记录中的s
 
 // 切换状态
 function statusChange(pricingType: PricingType) {
-  resetSearch()
+  resetPageSearch()
   getTableData({pricingType})
 }
 
 // 重置表格上方搜索条件
-function reset() {
+function resetHeadSearch() {
   const params = JSON.parse(searchParamsStr)
   params.pageSize = searchParams.pageSize
   params.index = searchParams.index
@@ -481,14 +553,14 @@ function reset() {
 }
 
 // 重置分页相关搜索条件
-function resetSearch() {
+function resetPageSearch() {
   searchParams.pageSize = 20
   searchParams.index = 1
 }
 
 // 切换店铺
 function shopChange(shopId: number) {
-  resetSearch()
+  resetPageSearch()
   getTableData({shopId})
 }
 
@@ -509,17 +581,15 @@ function getShopData() {
 
 // 更新当前行操作的对象
 function setCurRow(row: ItemRow, sku: SkuRow) {
-  curRow = reactive(row)
-  curSku = reactive(sku)
+  curRow.value = row
+  curSku.value = sku
 }
 
 // 点击限量调价
 function limitAdjust(row: ItemRow, sku: SkuRow) {
   setCurRow(row, sku)
   dialogVisible.value = true
-  dialogTableData.value.forEach(i => {
-    i.current_price = sku.originalPrice
-  })
+  dialogTableData.value.forEach(i => i.current_price = sku.originalPrice)
 }
 
 // 点击自动调价
@@ -537,8 +607,8 @@ function cancelAdjust(row: ItemRow, sku: SkuRow) {
     type: 'warning'
   }).then(() => {
     http.post<never, SuccessResponse>(CANCEL_PRICEING_URL, {
-      shopId: curRow.shopId,
-      modelId: curSku.modelId
+      shopId: curRow.value.shopId,
+      modelId: curSku.value.modelId
     }).then(r => {
       if (r.code === 1) {
         ElMessage.success(r.msg)
@@ -548,10 +618,6 @@ function cancelAdjust(row: ItemRow, sku: SkuRow) {
       getTableData()
     })
   })
-}
-
-function handleClick() {
-  console.log('handle click')
 }
 
 onMounted(() => {

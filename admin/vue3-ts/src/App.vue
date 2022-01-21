@@ -77,8 +77,12 @@ import {defineComponent, onMounted, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import http from "@/http/http";
 import zhCn from 'element-plus/es/locale/lang/zh-cn';
+import {ArrowDown} from "@element-plus/icons-vue";
 
 export default defineComponent({
+  components: {
+    ArrowDown
+  },
   setup() {
     const activeMenu = ref(AUTHORIZE_PATH)
     const finishedToken = ref(false)
@@ -187,7 +191,7 @@ export default defineComponent({
 
 .app-container {
   height: 100%;
-  min-width: 900px;
+  min-width: 1100px;
 
   header {
     height: 60px;

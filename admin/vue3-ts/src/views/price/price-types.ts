@@ -111,9 +111,25 @@ export interface AutoPriceHeadFrom {
   lowestPrice: string
   wavePrice: string
 }
-
+// 自动调价对比价格方式
+export const enum CompareType {
+  allSku = 1,
+  oneSku = 2
+}
+// 自动调价校验结果
+export const enum AutoPriceCheckStatus {
+  unkonw = 0, // 未知
+  success = 1,
+  error = 2,
+  checking = 3 // 校验中
+}
 // 自动调价填写的表格数据
 export interface AutoPriceRow {
   name: string
   url: string
+  spec1: string
+  spec2: string
+  compareType: CompareType
+  status: AutoPriceCheckStatus
+  urlValid: boolean
 }

@@ -13,9 +13,18 @@ const isProduction = process.env.NODE_ENV === 'production',
         pure_funcs: ['console.log'], //移除console.log
       },
     },
-  }),
-  autoImport = AutoImport({resolvers: [ElementPlusResolver()]}),
-  components = Components({resolvers: [ElementPlusResolver()]})
+  })
+// const autoImport = AutoImport({resolvers: [ElementPlusResolver()]})
+const autoImport = AutoImport({ // element-plus使用自动导入方式会地址指令loading不可用
+  imports: [
+    'vue',
+    'vue-router',
+    {
+      'vuex': ['useStore']
+    }
+  ],
+})
+const components = Components({resolvers: [ElementPlusResolver()]})
 module.exports = {
   publicPath: '/price-adjustment2',
   assetsDir: 'static',
