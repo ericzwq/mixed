@@ -1,6 +1,6 @@
 import {LooseObject} from "@/types/types";
 
-export const APP_BASE_PATH = '/price-adjustment2' // 项目的基础路径
+export const APP_BASE_PATH = process.env.BASE_URL.slice(0, -1) // 项目的基础路径
 export const TOKEN_KEY = 'token'
 export const REFRESH_TOKEN_KEY = 'refresh-token'
 export const SHOPEES = ['shopee.com.my', 'shopee.co.id', 'shopee.co.th', 'shopee.ph', 'xiapi.xiapibuy.com', 'shopee.sg', 'shopee.vn', 'shopee.com.br', 'shopee.cl', 'shopee.pl', 'shopee.com.mx', 'shopee.com.co']

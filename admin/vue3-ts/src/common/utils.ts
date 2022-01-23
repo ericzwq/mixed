@@ -60,10 +60,10 @@ export function formatDate(time: number): string {
     .padStart(2, '0')} ${String(h)
     .padStart(2, '0')}:${String(mn)
     .padStart(2, '0')}:${String(s)
-    .padStart(2, '0')}`;
+    .padStart(2, '0')}`
 }
 
-export function debounce(this: unknown, cb: (...args: any[]) => void, timeout = 500): (...args: any[]) => void {
+export function debounce(this: unknown, cb: (...args: never[]) => void, timeout = 500): (...args: never[]) => void {
   let timer: number
   return (...args) => {
     clearTimeout(timer)

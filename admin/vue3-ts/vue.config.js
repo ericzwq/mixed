@@ -40,9 +40,19 @@ module.exports = {
       }
     }
   },
+  transpileDependencies: [
+    /[/\\]node_modules[/\\]element-plus[/\\]es[/\\]components[/\\]/, // babel转化element-plus代码
+  ],
   configureWebpack: {
     plugins: isProduction ?
       [uglifyJsPlugin, autoImport, components] :
       [autoImport, components]
-  }
+  },
+  css: {
+    loaderOptions: {
+      scss: {
+        prependData: `@import "@/assets/css/element-plus.scss";` // 自定义element-plus主题,使用插件引入样式时必须配置样式文件预加载，否则会被覆盖
+      }
+    },
+  },
 };

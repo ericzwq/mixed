@@ -5,8 +5,7 @@
         <el-input clearable v-model.trim="formData.username"></el-input>
       </el-form-item>
       <el-form-item label="密码" prop="password">
-        <el-input clearable show-password v-model.trim="formData.password"
-                  @keydown.enter="login"></el-input>
+        <el-input clearable show-password v-model.trim="formData.password" @keydown.enter="login"></el-input>
       </el-form-item>
       <el-form-item class="form-btn-box">
         <el-button type="primary" @click="login">登录</el-button>

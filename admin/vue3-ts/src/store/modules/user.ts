@@ -6,7 +6,7 @@ export default {
     isLogin: false
   },
   mutations: {
-    setLogin(state: userState, v: boolean) {
+    setLogin(state: userState, v: boolean): void {
       state.isLogin = v;
     },
   }

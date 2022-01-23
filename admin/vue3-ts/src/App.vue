@@ -8,8 +8,7 @@
             text-color="#ffffff"
             active-text-color="#ffffff"
             background-color="#198EDE"
-            :default-active="activeMenu" class="menu-box-hr" router
-            @open="handleOpen" @close="handleClose">
+            :default-active="activeMenu" class="menu-box-hr" router>
           <el-menu-item :index="AUTHORIZE_PATH">
             <template #title>
               <span>授权</span>
@@ -101,9 +100,9 @@ export default defineComponent({
     }
 
     // 点击右上角下拉选项
-    type commandT = 'logout'
+    type Command = 'logout'
 
-    function handleCommand(command: commandT) {
+    function handleCommand(command: Command) {
       const map = {
         logout
       }
@@ -149,14 +148,6 @@ export default defineComponent({
       activeMenu.value = path
     }
 
-    function handleOpen(key: string, keyPath: Array<any>) {
-      console.log(key, keyPath)
-    }
-
-    function handleClose(key: string, keyPath: Array<any>) {
-      console.log(key, keyPath)
-    }
-
     watch(route, handleMenu)
 
     onMounted(() => {
@@ -179,15 +170,12 @@ export default defineComponent({
       setLogin,
       logout,
       handleCommand,
-      handleOpen,
-      handleClose
     }
   }
 })
 </script>
 
 <style lang="scss" scoped>
-@import "assets/css/public";
 
 .app-container {
   height: 100%;
