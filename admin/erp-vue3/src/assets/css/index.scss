@@ -1,0 +1,23 @@
+/*重置样式*/
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+.fleft {
+  float: left;
+}
+
+.fright {
+  float: right;
+}
+
+a, a:hover {
+  text-decoration: none;
+  color: unset;
+}

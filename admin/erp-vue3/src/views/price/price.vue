@@ -111,7 +111,7 @@
                 <div class="item-normal l5">
                   <div>
                     <!-- 懒加载获取销售记录 -->
-                    <lazy-component :key="skuRow.modelId + times" :watch-update="idx >= DEFAULT_SKU_SHOW_COUNT">
+                    <lazy-component :key="skuRow.modelId + times" :watch-update="row.watchUpdate">
                       <Records :skuRow="skuRow" :skuIndex="idx" :itemIndex="$index" :setOrderList="setOrderList"/>
                     </lazy-component>
                     <div v-if="skuRow.pricingType === PricingType.limitPrice && skuRow.limitOrderTitle.length"
@@ -294,7 +294,7 @@ import {
   SYNC_ITEM_DATA_URL
 } from '@/http/urls';
 import {debounce, Loading} from '@/common/utils';
-import {markRaw, nextTick, onMounted, onUpdated, reactive, ref, shallowRef} from "vue";
+import {markRaw, nextTick, onMounted, reactive, ref, shallowRef} from "vue";
 import {ElMessage, ElMessageBox} from "element-plus";
 import http from "@/http/http";
 import {SuccessResponse} from '@/types/types';
@@ -572,6 +572,8 @@ function showMoreOrLess(row: ItemRow) {
   row.showText = showTexts[key]
   row.spread = spreads[key]
   row.icon = showIcons[key]
+  if (row.watchUpdate === undefined) row.watchUpdate = true
+  nextTick(() => row.watchUpdate = false)
 }
 
 function getTableData(params = {}) { // 参数覆盖，同步更新记录中的searchParams

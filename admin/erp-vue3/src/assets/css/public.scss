@@ -1,0 +1,139 @@
+@for $i from 1 through 10 {
+  $size: $i * 5;
+  .hy-mt-#{$size} {
+    margin-top: unquote($size + 'px');
+  }
+  .hy-mr-#{$size} {
+    margin-right: unquote($size + 'px');
+  }
+  .hy-mb-#{$size} {
+    margin-bottom: unquote($size + 'px');
+  }
+  .hy-ml-#{$size} {
+    margin-left: unquote($size + 'px');
+  }
+
+  .hy-pt-#{$size} {
+    padding-top: unquote($size + 'px');
+  }
+  .hy-pr-#{$size} {
+    padding-right: unquote($size + 'px');
+  }
+  .hy-pb-#{$size} {
+    padding-bottom: unquote($size + 'px');
+  }
+  .hy-pl-#{$size} {
+    padding-left: unquote($size + 'px');
+  }
+}
+
+@for $i from 1 through 20 {
+  $size: $i * 10;
+  .hy-w-#{$size} {
+    width: unquote($size + 'px');
+  }
+  .hy-h-#{$size} {
+    height: unquote($size + 'px');
+  }
+}
+
+$hyBlue: #198EDE;
+
+.inline-block {
+  display: inline-block;
+}
+
+.clearfix:after {
+  content: '';
+  clear: both;
+  display: block;
+}
+
+.fs-12 {
+  font-size: 12px;
+}
+
+.fs-13 {
+  font-size: 13px;
+}
+
+.color-grey {
+  color: grey;
+}
+
+.color-white {
+  color: #fff;
+}
+
+.color-black {
+  color: #000;
+}
+
+.color-hy-blue {
+  color: $hyBlue;
+}
+
+.tx-al-l {
+  text-align: left;
+}
+
+.tx-al-c {
+  text-align: center;
+}
+
+.tx-al-r {
+  text-align: right;
+}
+
+.bd-bm-da-d {
+  border-bottom: 1px dashed #ddd;
+}
+
+.bd-bm-da-c {
+  border-bottom: 1px dashed #ccc;
+}
+
+.bd-bm-so-d {
+  border-bottom: 1px solid #ddd;
+}
+
+.bd-bm-so-c {
+  border-bottom: 1px solid #ccc;
+}
+
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.jst-tent-center {
+  justify-content: center;
+}
+
+.jst-tent-around {
+  justify-content: space-around;
+}
+
+.jst-tent-between {
+  justify-content: space-between;
+}
+
+.jst-tent-evenly {
+  justify-content: space-evenly;
+}
+
+// el开头表示针对element-plus（ui）的元素
+.el-btn-ft-12 {
+  span {
+    font-size: 12px;
+  }
+}
+
+.el-btn-ft-13 {
+  span {
+    font-size: 13px;
+  }
+}

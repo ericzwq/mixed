@@ -7,15 +7,15 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
   <style>
-      :root {
-          --text-color: red;
-      }
+    :root {
+      --text-color: red;
+    }
 
-      * {
-          padding: 0;
-          margin: 0;
-          box-sizing: border-box;
-      }
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
 
   </style>
 </head>
@@ -31,79 +31,19 @@
     this.next = next
   }
 
-  const records = new Map(), set = new Set()
-
-  function addRecords(el) {
-    // const el = vm.$el
-    if (set.has(el)) return
-    set.add(el)
-    let parent = el.parentElement
-    // if (parent) {
-    //   let els = records.get(parent) || []
-    //   els.push(el)
-    //   records.set(parent, els)
-    //   parent = parent.parentElement
-    //   while (parent) {
-    //     // if (set.has(parent)) break
-    //     const curEls = records.get(parent) || []
-    //     curEls.push(els)
-    //     records.set(parent, curEls)
-    //     els = curEls
-    //     parent = parent.parentElement
-    //   }
-    // }
-    let lastEls = el, curEls, flag
-    while (parent) {
-      console.log(1)
-      curEls = records.get(parent)
-      if (curEls) flag = true
-      else {
-        curEls = []
-        flag = false
-      }
-      curEls.push(lastEls)
-      records.set(parent, curEls)
-      if (flag) break
-      lastEls = curEls
-      parent = parent.parentElement
-    }
-    for (let [k, v] of records) console.log(k, v)
+  const config = {
+    sorted: true
   }
-
-  const vm = {
-    v: 2,
-    parentElement: {
-      v: 1,
-      parentElement: {
-        v: 0
-      }
+  const fn = (event, sorted) => {
+    if (event === undefined || event instanceof Object) { // default config
+      sorted = config.sorted
+    } else if (typeof event === 'boolean') { // manual call
+      sorted = event
+      event = undefined
     }
+    console.log({event, sorted})
   }
-  const vm1 = {
-    v: 13,
-    parentElement: {
-      v: 12,
-      parentElement: {
-        v: 11,
-        parentElement: vm
-      }
-    }
-  }
-  const vm2 = {
-    v: 23,
-    parentElement: {
-      v: 22,
-      parentElement: {
-        v: 21,
-        parentElement: vm
-      }
-    }
-  }
-  addRecords(vm1)
-  addRecords(vm1)
-  addRecords(vm2)
-  console.log(set)
-  console.log(records)
+  fn({target: document})
   //                   8
   //          6                   10
   //     5         7          9         11
@@ -115,10 +55,11 @@
 
 
   let node0 = new Node(0), node1 = new Node(1), node2 = new Node(2), node3 = new Node(3), node4 = new Node(4),
-    node5 = new Node(5), node6 = new Node(6), node7 = new Node(7), node8 = new Node(8)
+      node5 = new Node(5), node6 = new Node(6), node7 = new Node(7), node8 = new Node(8)
 
 
   f()
+
   // f2()
   function getRan(s = 0, e = 10) {
     return Math.floor(Math.random() * e) + s

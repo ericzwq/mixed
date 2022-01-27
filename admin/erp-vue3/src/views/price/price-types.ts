@@ -96,7 +96,7 @@ export interface ItemRow {
   icon: Component
   maxPricingIndex: number
   totalPricing: number
-  watchUpdate: boolean
+  watchUpdate: boolean | undefined
 }
 
 // 限量调价填写的表格数据
