@@ -58,10 +58,14 @@ type ActionId = TupleMapId<[{
 //
 // type ActionId = typeof action[number]['id']
 
-function f(set: Set<string> | Set<number>): string[] | number[] {
-  const res = []
-  for (const e of set as Set<string>) {
-    res.push(e)
-  }
-  return res
-}
+// 过滤属性类型----------------------------------------------------------------------------------------------------------
+type filterNumberProp<T extends Object> = {
+  [Key in keyof T]: T[Key] extends number ? T[Key] : never
+}[keyof T]
+
+type r = filterNumberProp<{
+  a: 1
+  b: '2',
+  c: 3
+}>
+
