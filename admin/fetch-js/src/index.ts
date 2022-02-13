@@ -1,5 +1,14 @@
-import {FetchJsOption, ContentType, FetchJsInstance, FetchJS, FetchJsConfig, FetchJsParameter, OmitFetchJsConfig, Progress} from "./types";
-import {unionUint8Array} from "./utils";
+import {
+  FetchJsOption,
+  ContentType,
+  FetchJsInstance,
+  FetchJsConfig,
+  FetchJsParameter,
+  OmitFetchJsConfig,
+  Progress,
+  FetchJs,
+  TransformMethod
+} from "./types";
 
 function request<T = any>(this: any, urlOrConfig: string | FetchJsConfig, config?: FetchJsConfig): Promise<T> {
   let url: string | undefined, search = ''
@@ -11,7 +20,6 @@ function request<T = any>(this: any, urlOrConfig: string | FetchJsConfig, config
   }
   if (!url) throw new Error('The url is invalid')
   const option: FetchJsOption = Object.assign(this.option, config)
-  // option.method = method
   const {data, params} = option
   if (params != undefined) search = '?' + new URLSearchParams(params)
   if (data != undefined) {
@@ -22,79 +30,72 @@ function request<T = any>(this: any, urlOrConfig: string | FetchJsConfig, config
   }
   const controller = option.controller || new AbortController()
   option.signal = controller.signal
-  setTimeout(() => handleTimeout(controller), option.timeout)
   if (!url.startsWith('http') && option.base) url = option.base + url
 
-  return new Promise<T>((async (resolve, reject) => {
+  return new Promise<T>(async (resolve, reject) => {
+    if (option.timeout) setTimeout(() => handleTimeout(controller, reject, option), option.timeout)
     try {
       const res = await fetch(url + search, option)
+      if (!res.ok) return reject(res)
       if (res.body) {
         const reader = res.body.getReader()
-        const chunks: Uint8Array[] = []
         const total = +(res.headers.get('Content-Length') || 0)
         const progress: Progress = {
           total,
           loaded: 0
         }
-        while (true) {
-          const {done, value} = await reader.read()
-          if (done) break
-          chunks.push(value as Uint8Array)
-          progress.loaded += (value as Uint8Array).length
-          option.onDownloadProgress && option.onDownloadProgress(progress)
-        }
-        let data
-        switch (option.responseType) {
-          case 'blob':
-            data = new Blob(chunks)
-            break
-          case 'arrayBuffer':
-            data = unionUint8Array(chunks, progress.loaded).buffer
-            break
-          case 'text':
-            data = new TextDecoder('utf-8').decode(unionUint8Array(chunks, progress.loaded))
-            break
-          default:
-            data = new TextDecoder('utf-8').decode(unionUint8Array(chunks, progress.loaded))
+        const stream: ReadableStream = new ReadableStream({
+          start: async function (controller) {
             try {
-              data = JSON.parse(data)
+              while (true) {
+                const {done, value} = await reader.read()
+                if (done) break
+                controller.enqueue(value)
+                progress.loaded += (value as Uint8Array).length
+                option.onDownloadProgress && option.onDownloadProgress(progress)
+              }
             } catch (e) {
+              // handle user aborted
+              return reject(e)
             }
-        }
-        // console.log({data})
-        resolve(data)
+            controller.close()
+            if (option.responseType === 'stream') return resolve(stream as unknown as T)
+            let response
+            try {
+              if (['json', 'blob', 'text', 'arrayBuffer', 'formData'].includes(option.responseType as string)) {
+                response = await new Response(stream)[option.responseType as TransformMethod]()
+              } else {
+                response = await new Response(stream).text()
+                try {
+                  response = JSON.parse(response)
+                } catch (e) {
+                }
+              }
+            } catch (e) {
+              return reject(new Error('Response parse error'))
+            }
+            resolve(response)
+          }
+        })
       } else {
         resolve(null as unknown as T)
       }
     } catch (e) {
-      console.log('e1', e)
+      // user aborted will in, timeout will in but the promise is already be rejected
+      reject(e)
     }
-    // fetch(url + search, option).then(r => {
-    //   console.log('r1', r)
-    //   if (!r.ok) return reject(r)
-    //   if (['arrayBuffer', 'blob', 'formData', 'json', 'text'].includes(option.responseType as TransformMethod)) return r[option.responseType as TransformMethod]()
-    //   return r.text()
-    // }, e => console.log('e1', e)).then(r => {
-    //   // console.log('r2', r)
-    //   if (!option.responseType) {
-    //     try {
-    //       resolve(JSON.parse(r))
-    //     } catch (e) {
-    //       resolve(r)
-    //     }
-    //   } else resolve(r)
-    // }, e => console.log('e2', e))
-  }))
+  })
 }
 
-const Fetch = function (url: string, config: FetchJsConfig) {
+const Fetch = function (url: string | FetchJsConfig, config?: FetchJsConfig) {
   return request.call(Fetch, url, config)
-} as FetchJS
+} as FetchJs
 
-Fetch.create = function (config: FetchJsConfig = {}) {
-  const fetchInstance = function (url: string, config: FetchJsConfig) {
-    return request.call(fetchInstance, url, config)
+Fetch.create = function (config: FetchJsConfig = {}): FetchJsInstance {
+  const fetchInstance = function (urlOrConfig: string | FetchJsConfig, config?: FetchJsConfig) {
+    return request.call(fetchInstance, urlOrConfig, config)
   } as FetchJsInstance
+
   Object.keys(Fetch).forEach(k => {
     if (k === 'create') return
     const v = Fetch[k];
@@ -105,21 +106,23 @@ Fetch.create = function (config: FetchJsConfig = {}) {
 }
 
 const defaultConfig: FetchJsOption = {
-  timeout: 10000,
+  timeout: 3000,
   headers: {}
 }
 
 Fetch.option = defaultConfig
 
 ;(['get', 'post', 'put', 'delete', 'options', 'head', 'trace', 'connect'] as const).forEach(method => {
-  Fetch[method] = function <T>(url: string, parameter: FetchJsParameter = {}, config: OmitFetchJsConfig = {}): any {
+  (Fetch as FetchJs)[method] = function <T>(url: string, parameter: FetchJsParameter = {}, config: OmitFetchJsConfig = {}): Promise<T> {
     config.method = method
-    return request.call(this, url, Object.assign(parameter, config))
+    return request.call<FetchJs, [string, FetchJsConfig], Promise<T>>(this, url, Object.assign(parameter, config))
   }
 })
 
-function handleTimeout(controller: AbortController) {
+function handleTimeout(controller: AbortController, reject: (reason?: any) => void, option: FetchJsOption) {
   controller.abort()
+  console.warn('timeout')
+  reject(`timeout of ${option.timeout}ms exceeded`)
 }
 
 export default Fetch

@@ -1,13 +1,15 @@
-import Fetch from "../src";
+// import Fetch from "../lib/fetch-js.esm";
+import Fetch from "../src/index";
 
 console.dir(Fetch)
 
-// cancel request, A controller can only correspond to one request
+// Cancel request, a controller can only correspond to one request, otherwise it may affect other requests, because timeout also used controller.
+// Unless you want to abort multiple requests with one controller.
 // const controller = new AbortController()
 // Fetch.get('/', {}, {timeout: 1000, controller})
 // controller.abort()
 
-// set timeout and Content-Type
+// Set timeout and Content-Type, timeout default is 3000, if timeout is 0, the request will not be aborted.
 // Fetch.get('/', {}, {
 //   timeout: 1,
 //   headers: {
@@ -33,13 +35,18 @@ console.dir(Fetch)
 // Fetch.config.base = 'http://wanqiang.top:3000'
 // Fetch.post('http://other.com/url', {data: {a: 2}}) // expected request url: http://other.com/url
 
-Fetch('http://wanqiang.top:3000', {data: undefined},
-  {
-    responseType: 'text',
-    headers: {Authorization: '5'},
-    // mode: 'no-cors'
-    onDownloadProgress(progress) {
-      console.log(progress)
-    }
-  })
-  .then(r => console.log(r), e => console.log(e))
+const controller = new AbortController()
+Fetch.post<ReadableStream>('http://wanqiang.top:3000', {}, {
+  responseType: 'stream',
+  headers: {Authorization: '5'},
+  timeout: 0,
+  controller,
+  // mode: 'no-cors'
+  onDownloadProgress(progress) {
+    console.log(progress)
+  }
+}).then(async r => {
+  const res = await r.getReader().read()
+  console.log(res)
+}, e => console.log(e))
+// setTimeout(() => controller.abort(), 20)

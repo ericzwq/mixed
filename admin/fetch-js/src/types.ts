@@ -12,9 +12,9 @@ export type OmitFetchJsConfig = Omit<FetchJsConfig, keyof FetchJsParameter>
 export type RequestFunction = <T>(url: string, parameter?: FetchJsParameter, config?: OmitFetchJsConfig) => Promise<T>
 
 export interface FetchJsInstance {
-  <T>(url: string, config: FetchJsConfig): Promise<T>
+  <T>(url: string, config?: FetchJsConfig): Promise<T>; // Omit<FetchJsConfig, 'url'>
 
-  (config: FetchJsConfig): void
+  <T>(config: FetchJsConfig): Promise<T>;
 
   option: FetchJsOption
   get: RequestFunction
@@ -27,14 +27,13 @@ export interface FetchJsInstance {
   connect: RequestFunction
 }
 
-export interface FetchJS extends FetchJsInstance {
+export interface FetchJs extends FetchJsInstance {
   create(config: FetchJsOption): FetchJsInstance
 }
 
-// export type TransformMethod = 'arrayBuffer' | 'blob' | 'json' | 'text'
+export type TransformMethod = 'arrayBuffer' | 'blob' | 'json' | 'text' | 'formData'
 
-// export type ResponseType = TransformMethod | 'stream' | 'document'
-export type ResponseType = 'arrayBuffer' | 'blob' | 'json' | 'text'
+export type FetchJsResponseType = TransformMethod | 'stream'
 
 export interface Progress {
   total: number
@@ -48,7 +47,7 @@ export interface FetchJsOption extends RequestInit {
   data?: FetchJsParameter['data']
   timeout: number
   controller?: AbortController
-  responseType?: ResponseType
+  responseType?: FetchJsResponseType
   headers: HeadersInit & { 'Content-Type'?: string }
   onDownloadProgress?: (progress: Progress) => void
 }

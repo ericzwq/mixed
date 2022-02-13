@@ -2,7 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const htmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
-  entry: path.join(__dirname, './examples/main.js'),
+  entry: path.join(__dirname, './examples/main.ts'),
   output: {
     filename: 'bundle.js',
     path: path.join(__dirname, './dist')

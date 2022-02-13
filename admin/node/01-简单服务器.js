@@ -64,9 +64,9 @@ server.on('request', function (req, res) {
 
   // const readStream = fs.createReadStream('./video.mp4')
   // readStream.pipe(res)
-  res.setHeader('Content-Type', 'application/json;charset=UTF-8;')
-  // res.end('{"ok": "true对的对的对的对的"}')
-  res.end('a=2')
+  // res.setHeader('Content-Type', 'application/json;charset=UTF-8;')
+  res.end('{"ok": "true对的对的对的对的"}')
+  // res.end('a=2')
 
   // fs.readFile('./video.mp4', (err, data) => {
   //   if (err) return console.log(err)
