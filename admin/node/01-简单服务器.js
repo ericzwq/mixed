@@ -1,4 +1,5 @@
 const http = require('http')
+const http2 = require('http2')
 const https = require('https')
 const fs = require('fs')
 const multiparty = require('multiparty')
@@ -7,7 +8,8 @@ const httpsOption = {
   key: fs.readFileSync("./https/6414388_www.wanqiang.top.key"),
   cert: fs.readFileSync("./https/6414388_www.wanqiang.top.pem")
 }
-let httpsServer = https.createServer(httpsOption)
+const server2 = http2.createSecureServer(httpsOption)
+const httpsServer = https.createServer(httpsOption)
 
 function setCORSHeader(res) {
   //设置允许跨域的域名，*代表允许任意域名跨域
@@ -17,7 +19,7 @@ function setCORSHeader(res) {
   //允许的header类型
   res.setHeader("Access-Control-Allow-Headers", "content-type,Authorization");//加Authorization防止跨域
   //跨域允许的请求方式
-  res.setHeader("Access-Control-Allow-Methods", "DELETE,PUT,POST,GET,OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "DELETE,PUT,POST,GET,OPTIONS,PATCH");
 }
 
 function setCookieHeader(res) {
@@ -57,7 +59,7 @@ server.on('request', function (req, res) {
   //   console.log('end', arguments.length)
   // })
   let url = req.url.split('?')[0];
-  console.log(req.url, '\n-------------http-------------');
+  console.log(`-----${req.url}--------http------${req.method}-------`);
   console.log(req.headers)
   setCORSHeader(res)
   // setHeader(res)
@@ -65,6 +67,7 @@ server.on('request', function (req, res) {
   // const readStream = fs.createReadStream('./video.mp4')
   // readStream.pipe(res)
   // res.setHeader('Content-Type', 'application/json;charset=UTF-8;')
+  // res.statusCode = 403
   res.end('{"ok": "true对的对的对的对的"}')
   // res.end('a=2')
 
@@ -82,6 +85,15 @@ server.on('request', function (req, res) {
   // }
   // res.end('a');
 });
+server2.on('request', function (req, res) {
+  setCORSHeader(res)
+  console.log(`-----${req.url}--------http------${req.method}-------`);
+  req.on('data', chunk => console.log('data', chunk.toString()))
+  res.end('http2')
+})
+server2.on('stream', function (stream,headers) {
+  console.log(stream.read());
+})
 httpsServer.on('request', function (req, res) {
   setCORSHeader(res)
   setCookieHeader(res)
@@ -91,10 +103,14 @@ httpsServer.on('request', function (req, res) {
 })
 
 server.listen(3000, 'wanqiang.top', function () {
-  console.log('start successful')
+  console.log('http started: 3000')
 });
 
+server2.listen(5000, 'wanqiang.top', function () {
+  console.log('http2 started 5000')
+})
+
 httpsServer.listen(4000, 'wanqiang.top', function () { // 需配置本地vhost文件
-  console.log('https started')
+  console.log('https started: 4000')
 })
 // fetch('http://wanqiang.top:3000', {body: JSON.stringify({a: 1}), method: 'put'})

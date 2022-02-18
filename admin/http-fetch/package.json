@@ -1,11 +1,11 @@
 {
-  "name": "fetch-js",
+  "name": "http-fetch",
   "version": "1.0.0",
   "private": false,
   "description": "fetch-based http request plugin",
-  "main": "lib/fetch-js.umd.js",
-  "module": "lib/fetch-js.esm.js",
-  "unpkg": "lib/fetch-js.min.js",
+  "main": "lib/http-fetch.umd.js",
+  "module": "lib/http-fetch.esm.js",
+  "unpkg": "lib/http-fetch.min.js",
   "typings": "types/index.d.ts",
   "keywords": [
     "http",
@@ -18,7 +18,8 @@
     "email": "1872757047@qq.com"
   },
   "scripts": {
-    "serve": "webpack-dev-server",
+    "serve": "webpack-dev-server --config ./webpack.config.dev.js",
+    "test": "webpack-dev-server --config ./webpack.config.test.js",
     "build": "npm run clean && npm run build:esm && npm run build:umd && npm run build:umd.min",
     "build:esm": "rollup  --config build/rollup.esm.config.js",
     "build:umd": "rollup --config build/rollup.umd.config.js",
