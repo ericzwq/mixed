@@ -1,22 +1,22 @@
-export declare type HttpFetchDataRequestFn = <T>(url: string, data?: HttpFetchParameterConfig['data'], config?: Omit<HttpFetchParameterConfig, 'data'>) => Promise<T>;
-export declare type HttpFetchParamsRequestFn = <T>(url: string, params?: HttpFetchParameterConfig['params'], config?: Omit<HttpFetchParameterConfig, 'params'>) => Promise<T>;
+export declare type HttpFetchDataRequestFn = <T>(url: string, data?: HttpFetchConfig['data'], config?: Omit<HttpFetchConfig, 'data'>) => Promise<T>;
+export declare type HttpFetchParamsRequestFn = <T>(url: string, params?: HttpFetchConfig['params'], config?: Omit<HttpFetchConfig, 'params'>) => Promise<T>;
 export interface HttpFetchRequestResolver<T = HttpFetchConfig, R = HttpFetchConfig> {
     (config: T): Promise<R> | R;
 }
-export interface HttpFetchRequestRejecter<R = any> {
-    (reason?: any): Promise<R> | R;
+export interface HttpFetchRequestRejecter<T = any, R = any> {
+    (reason: T): Promise<R> | R;
 }
 export interface HttpFetchResponseResolver<T = any, R = any> {
-    (data: T, config: HttpFetchConfig): Promise<R> | R;
+    (data: T, response: Response, config: HttpFetchConfig): Promise<R> | R;
 }
-export interface HttpFetchResponseRejecter<R = HttpFetchResponseError> {
-    (reason: HttpFetchResponseError): Promise<R> | R;
+export interface HttpFetchResponseRejecter<T = HttpFetchResponseError, R = any> {
+    (reason: T): Promise<R> | R;
 }
-export declare type HttpFetchInterceptorRequestHandler = HttpFetchRequestResolver | HttpFetchRequestRejecter | undefined;
-export declare type HttpFetchInterceptorResponseHandler = HttpFetchResponseResolver | HttpFetchResponseRejecter | undefined;
+export declare type HttpFetchInterceptorRequestHandler = HttpFetchRequestResolver | HttpFetchRequestRejecter | undefined | null;
+export declare type HttpFetchInterceptorResponseHandler = HttpFetchResponseResolver | HttpFetchResponseRejecter | undefined | null;
 export interface HttpFetchInstance {
-    <R>(url: string, config?: HttpFetchParameterConfig): Promise<R>;
-    <R>(config: HttpFetchParameterConfig): Promise<R>;
+    <R>(url: string, config?: HttpFetchConfig): Promise<R>;
+    <R>(config: HttpFetchConfig): Promise<R>;
     config: HttpFetchConfig;
     get: HttpFetchParamsRequestFn;
     delete: HttpFetchParamsRequestFn;
@@ -27,17 +27,17 @@ export interface HttpFetchInstance {
     patch: HttpFetchDataRequestFn;
     interceptors: {
         request: {
-            use: <T = HttpFetchConfig, R = HttpFetchConfig>(onFulfilled?: HttpFetchRequestResolver<R, T>, onRejected?: HttpFetchRequestRejecter) => number;
+            use: <T1 = HttpFetchConfig, T2 = any>(onFulfilled?: HttpFetchRequestResolver<T1> | null, onRejected?: HttpFetchRequestRejecter<T2> | null) => number;
             handlers: HttpFetchInterceptorRequestHandler[];
         };
         response: {
-            use: (onFulfilled?: (HttpFetchResponseResolver), onRejected?: HttpFetchResponseRejecter) => number;
+            use: <T1 = any, T2 = HttpFetchResponseError>(onFulfilled?: HttpFetchResponseResolver<T1> | null, onRejected?: HttpFetchResponseRejecter<T2> | null) => number;
             handlers: HttpFetchInterceptorResponseHandler[];
         };
     };
 }
 export interface HttpFetch extends HttpFetchInstance {
-    create(config?: HttpFetchParameterConfig): HttpFetchInstance;
+    create(config?: HttpFetchConfig): HttpFetchInstance;
 }
 export declare type TransformMethod = 'arrayBuffer' | 'blob' | 'json' | 'text' | 'formData';
 export declare type HttpFetchResponseType = TransformMethod | 'stream';
@@ -49,25 +49,29 @@ export declare type HttpFetchHttpMethod = 'get' | 'post' | 'put' | 'delete' | 'o
 export interface HttpFetchConfig extends RequestInit {
     url?: string;
     base?: string;
-    data?: BodyInit | Record<string, unknown> | Array<unknown> | number | boolean | null;
-    params?: unknown;
-    timeout: number;
+    data?: BodyInit | Record<string, any> | Array<any> | number | boolean | null;
+    params?: any;
+    timeout?: number;
     method?: HttpFetchHttpMethod;
     controller?: AbortController;
     responseType?: HttpFetchResponseType;
-    headers: HeadersInit & {
+    headers?: HeadersInit & {
         'Content-Type'?: string;
     };
     onDownloadProgress?: (progress: Progress) => void;
 }
-export declare type HttpFetchParameterConfig = Partial<HttpFetchConfig>;
 export declare enum ContentType {
     json = "application/json",
     formData = "multipart/form-data",
-    urlencoded = "application/x-www-from-urlencoded"
+    urlencoded = "application/x-www-from-urlencoded",
+    text = "text/plain"
 }
 export interface HttpFetchResponseError extends Error {
-    config?: HttpFetchConfig;
+    config: HttpFetchConfig;
     response?: Response;
-    data?: unknown;
+    data?: any;
+}
+export interface ReturnInterceptorResponse {
+    data: any;
+    response: Response;
 }

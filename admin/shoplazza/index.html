@@ -1,0 +1,99 @@
+<!DOCTYPE>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="lib/mui/css/icons-extra.css">
+  <link rel="stylesheet" href="lib/mui/css/mui.min.css">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+<header>
+  <div>
+    <span class="mui-icon mui-icon-bars" id="show"></span>
+    <span class="mui-icon mui-icon-search"></span>
+  </div>
+  <span class="_main_title">BELLERIS</span>
+  <div>
+    <span class="mui-icon mui-icon-person"></span>
+    <span class="mui-icon mui-icon-locked"></span>
+  </div>
+</header>
+<div class="_title">Ms coat</div>
+<main>
+  <div class="mui-clearfix">
+            <span class="_left box">
+                <span class="content">Best Match<span class="mui-icon mui-icon-arrowdown"></span></span>
+            </span>
+    <span class="_right box">
+                <span class="content">315 resylts</span>
+            </span>
+  </div>
+  <div class="_products mui-clearfix">
+    <div class="_box">
+      <img src="images/img1.png" class="_item" alt="图片找不到了"/>
+      <span class="_info">Product Title</span>
+      <p class="_price">
+        <span class="_new">$256</span>
+        <del>$667</del>
+      </p>
+    </div>
+    <div class="_box">
+      <img src="images/img2.png" class="_item" alt="图片找不到了"/>
+      <span class="_info">Product Title</span>
+      <p class="_price">
+        <span class="_new">$256</span>
+        <del>$667</del>
+      </p>
+    </div>
+    <div class="_box">
+      <img src="images/img3.png" class="_item" alt="图片找不到了"/>
+      <span class="_info">Product Title</span>
+      <p class="_price">
+        <span class="_new">$256</span>
+        <del>$667</del>
+      </p>
+    </div>
+    <div class="_box">
+      <img src="images/img4.png" class="_item" alt="图片找不到了"/>
+      <span class="_info">Product Title</span>
+      <p class="_price">
+        <span class="_new">$256</span>
+        <del>$667</del>
+      </p>
+    </div>
+  </div>
+</main>
+<div id="sheet1" class="mui-popover mui-popover-bottom mui-popover-action ">
+  <!-- 可选择菜单 -->
+  <div class="_popover">
+    <div class="_popover_title"><span class="_close mui-icon mui-icon-closeempty"></span> sort</div>
+    <ul class="_view mui-table-view">
+      <li class="mui-table-view-cell">Best Match</li>
+      <li class="mui-table-view-cell">Newest</li>
+      <li class="mui-table-view-cell">Price - Low To High</li>
+      <li class="mui-table-view-cell">Price - High To High</li>
+    </ul>
+  </div>
+</div>
+<script src="lib/mui/js/mui.js"></script>
+<script>
+  function togglePopover() {
+    mui('#sheet1').popover('toggle');
+  }
+
+  document.getElementById('show').addEventListener('click', togglePopover)
+  document.querySelector('._popover_title ._close').addEventListener('click', togglePopover)
+
+  function computeFont() {
+    let doc = document.documentElement
+    doc.style.fontSize = doc.clientWidth / 375 * 100 + 'px'
+  }
+
+  window.addEventListener('load', computeFont)
+  window.addEventListener('resize', computeFont)
+</script>
+</body>
+</html>

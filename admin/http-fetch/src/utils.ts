@@ -2,7 +2,7 @@ export const isProduction = process.env.NODE === 'production'
 
 export function deepClone<T>(o: T): T {
   if (typeof o !== 'object') return o
-  if (Array.isArray(o)) return o.map(deepClone) as unknown as T
+  if (Array.isArray(o)) return o.map(deepClone) as any as T
   const res = {} as T
   Object.keys(o).forEach(k => res[k] = deepClone(o[k]))
   return res
@@ -21,4 +21,8 @@ function paramsSerialize(o: unknown, s = ''): string {
         : s
     )
     : s + o
+}
+
+export function type(o: unknown): string {
+  return Object.prototype.toString.call(o).slice(8, -1)
 }

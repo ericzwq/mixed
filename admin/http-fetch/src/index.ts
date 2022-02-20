@@ -1,14 +1,13 @@
 import {
   HttpFetchConfig,
   HttpFetchInstance,
-  HttpFetchParameterConfig,
   HttpFetch,
 } from "./types";
 import interceptor from "./interceptor";
-import request from './request'
-import {deepClone} from "@/utils";
+import request from "./request";
+import {deepClone} from "./utils";
 
-function handler<T = unknown>(this: HttpFetchInstance, urlOrConfig: string | HttpFetchParameterConfig, config: HttpFetchParameterConfig = {}): Promise<T> {
+function handler<T>(this: HttpFetchInstance, urlOrConfig: string | HttpFetchConfig, config: HttpFetchConfig = {}): Promise<T> {
   let url: string | undefined
   if (typeof urlOrConfig === 'string') {
     url = urlOrConfig
@@ -21,14 +20,11 @@ function handler<T = unknown>(this: HttpFetchInstance, urlOrConfig: string | Htt
   return interceptor(this.interceptors.request.handlers, request, this.interceptors.response.handlers, config as HttpFetchConfig)
 }
 
-const Fetch = function (urlOrConfig: string | HttpFetchParameterConfig, config?: HttpFetchParameterConfig) {
+const Fetch = function (urlOrConfig: string | HttpFetchConfig, config?: HttpFetchConfig) {
   return handler.call(Fetch, urlOrConfig, config)
 } as HttpFetch
 
-Fetch.config = {
-  timeout: 0,
-  headers: {}
-}
+Fetch.config = {}
 
 Fetch.interceptors = {
   request: {
@@ -45,8 +41,8 @@ Fetch.interceptors = {
   }
 }
 
-Fetch.create = function (config: HttpFetchParameterConfig = {}): HttpFetchInstance {
-  const fetchInstance = function (urlOrConfig: string | HttpFetchParameterConfig, config?: HttpFetchParameterConfig) {
+Fetch.create = function (config: HttpFetchConfig = {}): HttpFetchInstance {
+  const fetchInstance = function (urlOrConfig: string | HttpFetchConfig, config?: HttpFetchConfig) {
     return handler.call(fetchInstance, urlOrConfig, config)
   } as HttpFetchInstance
 
@@ -61,18 +57,18 @@ Fetch.create = function (config: HttpFetchParameterConfig = {}): HttpFetchInstan
 }
 
 ;(['post', 'put', 'patch'] as const).forEach(method => {
-  (Fetch as HttpFetch)[method] = function <T>(url: string, data?: HttpFetchParameterConfig['data'], config: HttpFetchParameterConfig = {}): Promise<T> {
+  (Fetch as HttpFetch)[method] = function <T>(url: string, data?: HttpFetchConfig['data'], config: HttpFetchConfig = {}): Promise<T> {
     config.method = method
     config.data = data
-    return handler.call<HttpFetch, [string, HttpFetchParameterConfig], Promise<T>>(this, url, config)
+    return handler.call<HttpFetch, [string, HttpFetchConfig], Promise<T>>(this, url, config)
   }
 })
 
 ;(['get', 'delete', 'options', 'head'] as const).forEach(method => {
-  (Fetch as HttpFetch)[method] = function <T>(url: string, params?: HttpFetchParameterConfig['params'], config: HttpFetchParameterConfig = {}): Promise<T> {
+  (Fetch as HttpFetch)[method] = function <T>(url: string, params?: HttpFetchConfig['params'], config: HttpFetchConfig = {}): Promise<T> {
     config.method = method
     config.params = params
-    return handler.call<HttpFetch, [string, HttpFetchParameterConfig], Promise<T>>(this, url, config)
+    return handler.call<HttpFetch, [string, HttpFetchConfig], Promise<T>>(this, url, config)
   }
 })
 

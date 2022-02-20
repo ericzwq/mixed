@@ -1,0 +1,154 @@
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    background: white;
+}
+
+header {
+    height: 0.535rem;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-bottom: 1px #ccc solid;
+}
+
+header ._main_title {
+    font-weight: bold;
+}
+
+.mui-icon {
+    font-size: 0.25rem;
+}
+
+.mui-icon.mui-icon-bars {
+    margin-left: -0.1rem;
+    margin-right: 0.1rem;
+}
+
+.mui-icon.mui-icon-locked {
+    margin-right: -0.1rem;
+    margin-left: 0.1rem;
+}
+
+._title {
+    text-align: center;
+    height: 0.94rem;
+    line-height: 0.94rem;
+    font-weight: bold;
+    font-size: 0.17rem;
+}
+
+main .content {
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.13rem;
+}
+
+main .box {
+    display: inline-block;
+    height: 0.4rem;
+    line-height: 0.4rem;
+    width: 50%;
+    text-align: center;
+    border-bottom: 1px #ccc solid;
+    border-top: 1px #ccc solid;
+    float: left;
+}
+
+main ._left {
+    border-right: 1px #ccc solid;
+    border-bottom-left-radius: 0.04rem;
+    border-top-left-radius: 0.04rem;
+}
+
+main ._right {
+    border-bottom-right-radius: 0.04rem;
+    border-top-right-radius: 0.04rem;
+}
+
+main ._left .mui-icon-arrowdown {
+    font-size: 100%;
+    color: #ccc;
+    margin-left: 0.1rem;
+}
+
+main ._products {
+    margin-top: 0.1rem;
+}
+
+main ._products ._box {
+    display: inline-block;
+    text-align: center;
+    float: left;
+    padding-bottom: 0.2rem;
+}
+
+main ._products ._box:nth-of-type(2n) {
+    margin-right: 0.15rem;
+    margin-left: 0.075rem;
+}
+
+main ._products ._box:nth-of-type(2n + 1) {
+    margin-left: 0.15rem;
+    margin-right: 0.075rem;
+}
+
+main ._products ._box ._item {
+    background-size: cover;
+    display: block;
+    width: 1.65rem;
+    height: 2.475rem;
+}
+
+main ._products ._box ._info {
+    margin: 0.1rem 0;
+    font-size: 0.14rem;
+    color: #666;
+    display: inline-block;
+}
+
+main ._products ._box ._price {
+    font-size: 0.16rem;
+}
+
+main ._products ._box ._price ._new {
+    color: black;
+    font-weight: bold;
+    margin-right: 0.05rem;
+}
+
+.mui-table-view._view .mui-table-view-cell {
+    color: black;
+    height: 0.75rem;
+    line-height: 0.75rem;
+    padding: 0 0.1rem;
+    background: white;
+    text-align: left;
+    font-weight: bold;
+}
+
+#sheet1 ._popover {
+    background: white;
+    position: relative;
+    margin-bottom: -0.08rem;
+}
+
+#sheet1 ._popover ._popover_title {
+    text-align: center;
+    height: 0.6rem;
+    line-height: 0.6rem;
+    border-bottom: 1px #c8c7cc solid;
+    font-weight: bold;
+}
+
+#sheet1 ._popover ._popover_title ._close {
+    position: absolute;
+    left: 0;
+    top: 0.3rem;
+    transform: translateY(-50%);
+    font-size: 0.4rem;
+}

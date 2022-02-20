@@ -1,2 +1,2 @@
-import { HttpFetchConfig, HttpFetchInterceptorRequestHandler, HttpFetchInterceptorResponseHandler } from "./types";
-export default function interceptor<T>(reqInterceptors: HttpFetchInterceptorRequestHandler[], request: <T>(init: HttpFetchConfig) => Promise<T>, resInterceptors: HttpFetchInterceptorResponseHandler[], config: HttpFetchConfig): Promise<T>;
+import { HttpFetchConfig, HttpFetchInterceptorRequestHandler, HttpFetchInterceptorResponseHandler, ReturnInterceptorResponse } from "./types";
+export default function interceptor<T>(reqInterceptors: HttpFetchInterceptorRequestHandler[], request: (init: HttpFetchConfig) => Promise<ReturnInterceptorResponse>, resInterceptors: HttpFetchInterceptorResponseHandler[], config: HttpFetchConfig): Promise<T>;

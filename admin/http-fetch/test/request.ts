@@ -1,6 +1,5 @@
-import {HttpFetchInstance} from "../src/types";
+import {HttpFetchInstance, HttpFetch} from "../src/types";
 import Fetch from "../src/index";
-import {HttpFetch} from "../types/types";
 
 // createAndExtend(Fetch)
 
@@ -21,7 +20,8 @@ function fnRequest(Fetch: HttpFetchInstance) {
 
 function attributeRequestCheckDataAndParams(Fetch: HttpFetchInstance) {
   console.warn('expected result is in network')
-  Fetch.post('/bar', '5', {method: 'get', params: {q: '1'}}) // expected method: POST, url: http://localhost:8000/bar?q=1, body: '5', Content-Type: text/plain
+  Fetch.post('http://localhost:3000/bar', '5', {method: 'get', params: {q: '1'}}) // expected method: POST, url: http://localhost:8000/bar?q=1, body: '5', Content-Type: text/plain
+  Fetch.post('http://localhost:3000/bar', {p: 3}) // expected method: POST, url: http://localhost:8000/bar, body: {p:3}, Content-Type: application/json
   Fetch.delete('/bar', [5, 3], {data: new URLSearchParams({a: '3'})}) // excepted url: http://localhost:8000/bar?0=5&1=3 Content-Type: application/x-www-form-urlencoded
   Fetch.get('/bar', {a: '4'}, {data: undefined}) // excepted url: http://localhost:8000/bar?a=4, body: no body
   Fetch.options('/bar', null) // excepted url: http://localhost:8000/bar, body: {defaultData: 1, defaultData2: 2}
