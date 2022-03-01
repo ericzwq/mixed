@@ -1,8 +1,0 @@
-import './request'
-import './interceptor'
-import './cancel&timeout'
-import './contentType'
-import './base'
-import './typeInfer'
-import './progress'
-import './responseType'

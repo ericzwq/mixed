@@ -1,0 +1,25 @@
+# hy
+Host 114.67.110.173
+HostName 114.67.110.173
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/id_rsa
+
+# my-test
+Host github.com
+HostName github.com
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/my_test_id_rsa
+
+# lazy-load
+# git remote set-url origin git@lazy.com:ericzwq/lazy-load-vue3.git
+Host lazy.com
+HostName github.com
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/id_rsa_lazyload
+
+# http-fetch
+# git remote set-url origin git@httpfetch.com:http-fetch/http-fetch.git
+Host httpfetch.com
+HostName github.com
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/http-fetch_id_rsa
