@@ -1,0 +1,21 @@
+{
+  "name": "server-koa",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc app.ts --outDir dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "koa": "^2.9.0",
+    "koa-bodyparser": "^4.3.0",
+    "mysql-pro": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/koa": "^2.13.4",
+    "@types/node": "^17.0.21"
+  }
+}
