@@ -1,27 +1,23 @@
-import {checkParams} from '../../common'
-import {registerCheckConfig} from './user-params-config'
+import {registerSchema} from './user-schema'
 import {querySql} from '../../db'
 import {Context} from 'koa'
-
-const Router = require('koa-router')
+import Router = require('koa-router')
 
 const user = new Router()
 
-user.get('', (ctx: Context) => {
-  ctx.body = 'cheese-web'
-})
-
 user.post('register', (ctx: Context) => {
-  const {body} = ctx.request
-  if (!checkParams(ctx, registerCheckConfig, body, 1001)) return
+  const validation = registerSchema.validate(ctx.request.body)
+  if (validation.error) return ctx.body = {message: validation.error.message, status: 1001}
   return new Promise(resolve => {
-    querySql(ctx).then(con => {
-      con.query('select id from users where username = ?;', [body.username], (err, res) => {
+    querySql(ctx, resolve).then(con => {
+      const {username, password, email} = ctx.request.body
+      con.query('select email from users where username = ? or email = ? limit 1;', [username, email], (err, res) => {
         if (err) return resolve(ctx.body = {message: '注册失败', status: 1002})
-        if (res.length) return resolve(ctx.body = {message: '用户名已存在', status: 1003})
-        con.query(`insert users(username, password, email) values ('张三', '123456', '1234@163.com');`, (err, res2) => {
-          if (!res2.fieldCount) ctx.body = '注册成功'
-          else ctx.body = '注册失败！'
+        if (res.length) return resolve(ctx.body = {message: res[0].email === email ? '该邮箱已注册' : '该用户名已存在', status: 1003})
+        con.query('insert users(username, password, email) values (?, ?, ?);', [username, password, email], (err2, res2) => {
+          if (err2) return resolve(ctx.body = {message: '注册失败', status: 1004})
+          if (!res2.fieldCount) ctx.body = {message: '注册成功', status: 0, data: true}
+          else ctx.body = {message: '注册失败！', status: 1005}
           resolve(ctx.body)
         })
       })

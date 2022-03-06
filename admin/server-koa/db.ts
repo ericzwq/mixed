@@ -1,26 +1,32 @@
-import {PoolConnection} from 'mysql'
+import {MysqlError, PoolConnection} from 'mysql'
 import {Context} from 'koa'
 
 const mysql = require('mysql')
 const pool = mysql.createPool({
-  host: 'localhost',
+  // host: 'localhost',
+  host: 'korea.cheeseocean.com',
   user: 'root',
-  password: '123456',
+  port: 3306,
+  // password: '123456',
+  password: 'xc514xxx',
   database: 'cheese_web',
   multipleStatements: true,
-  timezone: '08:00'
+  timezone: '+08:00'
 })
-export const getLimitStr = function (query) {
+export const getLimitStr = function (query: any) {
   // if (!query.page || !query.count) throw Error('参数错误')
   let {page, count} = query
   if (!page) page = 1
   if (!count) count = 100
   return `LIMIT ${(page - 1) * count},${count}`
 }
-export const querySql = (ctx: Context) => new Promise<PoolConnection>(resolve => {
-  pool.getConnection((err, connection) => {
-    if (err) return ctx.body = {message: '数据库连接失败', status: 1000}
-    resolve(connection)
+export const querySql = (ctx: Context, resolve: (value: unknown) => void) => new Promise<PoolConnection>(resolve2 => {
+  pool.getConnection((err: MysqlError, connection: PoolConnection) => {
+    if (err) {
+      console.log(err)
+      return resolve(ctx.body = {message: '数据库连接失败', status: 1000})
+    }
+    resolve2(connection)
     connection.release()
   })
 })
@@ -53,7 +59,7 @@ export const paramsConfig = {
   isRegister: {k: 'isRegister', type: 'enum', enum: ['0', '1']},
   classTime: {k: 'classTime', type: 'date'},
   verificationCode: {
-    k: 'verificationCode', validator: (v) => {
+    k: 'verificationCode', validator: (v: any) => {
       if (v.length !== 6) return {valid: false, m: '长度为6位'}
       return {valid: true}
     }

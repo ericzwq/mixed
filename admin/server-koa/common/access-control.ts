@@ -1,4 +1,4 @@
-export function accessControl(req, res, access, status) {
+export function accessControl(req: any, res: any, access: any, status: any) {
   if (access.length < 1) return
   let level = req.headers['level']
   if (access.indexOf(level) > -1) return true
