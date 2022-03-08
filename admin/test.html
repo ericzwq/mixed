@@ -47,6 +47,35 @@
 </head>
 <body>
 <button>按钮</button>
+<script src='../../branddb/test.js'></script>
+<script>
+  const o = {
+    'p': {
+      'search': {
+        'sq': [
+          {
+            'te': 'sdf',
+            'fi': 'BRAND'
+          }
+        ]
+      }
+    },
+    's': {
+      'dis': 'flow'
+    },
+    'type': 'brand',
+    'la': 'en',
+    'qi': '1-U5ZED73JZ8f3L9KmqIkKVrRQ5DLvgANLI4lB9WRtn3M=',
+    _: '11642',
+    queue: 1
+  }
+  let d = {queue: 1}
+  var c = Object.assign(o, d || {}, {
+    _: '11642'
+  })
+  var a = LZString.compressToBase64(JSON.stringify(c))
+  console.log(a)
+</script>
 <script>
   function Node(val, next) {
     this.val = val

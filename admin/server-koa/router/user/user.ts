@@ -4,7 +4,12 @@ import {Context} from 'koa'
 import Router = require('koa-router')
 
 const user = new Router()
-
+user.post('', (ctx: Context) => {
+  ctx.body = {data: 'post ok'}
+})
+user.get('', (ctx: Context) => {
+  ctx.body = {data: 'get ok'}
+})
 user.post('register', (ctx: Context) => {
   const validation = registerSchema.validate(ctx.request.body)
   if (validation.error) return ctx.body = {message: validation.error.message, status: 1001}
