@@ -1,62 +1,27 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_application/common/utils.dart';
 
-Dio dio = Dio(BaseOptions(receiveTimeout: 10000));
+Dio dio = Dio(BaseOptions(receiveTimeout: 10000, baseUrl: '/api'));
 Loading loading = Loading();
 int count = 0;
 
-class ExtRequestOptions extends RequestOptions {
-  ExtRequestOptions({required String path}) : super(path: path);
-  bool noLoading = false; // 发请求时默认带loading
-}
-
-class ExtOptions extends Options {
-  ExtOptions(
-      {String? method,
-      int? sendTimeout,
-      int? receiveTimeout,
-      Map<String, dynamic>? extra,
-      Map<String, dynamic>? headers,
-      ResponseType? responseType,
-      String? contentType,
-      ValidateStatus? validateStatus,
-      bool? receiveDataWhenStatusError,
-      bool? followRedirects,
-      int? maxRedirects,
-      RequestEncoder? requestEncoder,
-      ResponseDecoder? responseDecoder,
-      ListFormat? listFormat,
-      noLoading = false})
-      : super(
-          method: method,
-          sendTimeout: sendTimeout,
-          receiveTimeout: receiveTimeout,
-          extra: extra,
-          headers: headers,
-          responseType: responseType,
-          contentType: contentType,
-          validateStatus: validateStatus,
-          receiveDataWhenStatusError: receiveDataWhenStatusError,
-          followRedirects: followRedirects,
-          maxRedirects: maxRedirects,
-          requestEncoder: requestEncoder,
-          responseDecoder: responseDecoder,
-          listFormat: listFormat,
-        );
-  bool? noLoading;
-}
-
-void main() {
+void main() async {
   dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
     count++;
-    print((options));
-    if (!(options as ExtRequestOptions).noLoading && loading.isClosed()) loading.open();
+    if (loading.getAutoOpen() && loading.getClosed()) loading.open();
     return handler.next(options);
   }, onResponse: (response, handler) {
-    if (--count == 0 && !loading.isClosed()) loading.close();
+    if (--count == 0) {
+      loading.setAutoOpen(true);
+      if (!loading.getManual() && !loading.getClosed()) loading.close();
+    }
     return handler.next(response);
   }, onError: (DioError e, handler) {
-    if (!loading.isClosed()) loading.close(); // 网络原因应该关闭loading
+    if (--count == 0) {
+      // 网络原因应该关闭loading
+      loading.setAutoOpen(true);
+      if (!loading.getClosed()) loading.close();
+    }
     return handler.next(e);
   }));
 }

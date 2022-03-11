@@ -4,10 +4,10 @@ class IndexPage extends StatefulWidget {
   const IndexPage({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => IndexPageState();
+  State<StatefulWidget> createState() => _IndexPageState();
 }
 
-class IndexPageState extends State<IndexPage> {
+class _IndexPageState extends State<IndexPage> {
   final TextEditingController _inputController = TextEditingController(text: '');
 
   @override

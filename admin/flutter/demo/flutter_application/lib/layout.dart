@@ -13,7 +13,7 @@ class LayoutPage extends StatefulWidget {
 }
 
 class LayoutPageState extends State<LayoutPage> {
-  int _currentIndex = 0;
+  int _currentIndex = 4;
   final _items = [
     const BottomNavigationBarItem(icon: Icon(Icons.set_meal), label: '首页'),
     const BottomNavigationBarItem(icon: Icon(Icons.padding), label: '云社区'),
@@ -40,6 +40,7 @@ class LayoutPageState extends State<LayoutPage> {
       //   title: const Text('bar'),
       // ),
       body: tabPages[_currentIndex],
+      // body: SpinKitWave(color: Colors.black, type: SpinKitWaveType.start),
       drawer: Drawer(
         child: ListView(
           children: const [

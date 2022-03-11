@@ -4,10 +4,10 @@ class CreationPage extends StatefulWidget {
   const CreationPage({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => CreationPageState();
+  State<StatefulWidget> createState() => _CreationPageState();
 }
 
-class CreationPageState extends State<CreationPage> {
+class _CreationPageState extends State<CreationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

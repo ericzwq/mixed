@@ -4,10 +4,10 @@ class PersonalPage extends StatefulWidget {
   const PersonalPage({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => PersonalPageState();
+  State<StatefulWidget> createState() => _PersonalPageState();
 }
 
-class PersonalPageState extends State<PersonalPage> {
+class _PersonalPageState extends State<PersonalPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

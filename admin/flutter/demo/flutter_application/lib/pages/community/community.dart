@@ -4,10 +4,10 @@ class CommunityPage extends StatefulWidget {
   const CommunityPage({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => CommunityPageState();
+  State<StatefulWidget> createState() => _CommunityPageState();
 }
 
-class CommunityPageState extends State<CommunityPage> {
+class _CommunityPageState extends State<CommunityPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
