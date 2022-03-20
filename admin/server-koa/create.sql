@@ -6,22 +6,20 @@ create
 use
     courseselection;
 
+#修改列
 #
-修改列
-#
-alter table students
+alter table users
     modify id bigint;
 #
-ALTER TABLE students
+ALTER TABLE users
     CHANGE COLUMN id id INT(8) NOT NULL AUTO_INCREMENT;
 #
-ALTER TABLE materials
+ALTER TABLE users
     modify COLUMN createdBy varchar(10) not null,
     modify COLUMN updatedBy varchar(10) not null default '--';
+#删除列
 #
-删除列
-#
-alter table students
+alter table users
     drop username,
     drop c2;
 
@@ -44,4 +42,17 @@ set global time_zone = '+8:00';
 insert users(username, password, email)
 values ('张三', '123456', '1234@163.com');
 
-
+/*帖子表*/
+drop table if exists posts;
+create table posts
+(
+    id        bigint auto_increment primary key not null,
+    userId    bigint                            not null,
+    content   longtext,
+    images    varchar(500),
+    videos    varchar(500),
+    createdAt timestamp                         not null default current_timestamp comment '创建时间',
+    updatedAt timestamp                         not null default current_timestamp on update current_timestamp comment '修改时间'
+);
+insert posts(userId, content, images, videos)
+values (8, 'hello', '', '');

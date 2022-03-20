@@ -1,29 +1,31 @@
 import {MysqlError, PoolConnection} from 'mysql'
 import {Context} from 'koa'
+import {PromiseResolve} from './types/types'
+import {PageParameter} from './types/sql-types'
 
 const mysql = require('mysql')
 const pool = mysql.createPool({
-  // host: 'localhost',
-  host: 'korea.cheeseocean.com',
+  host: 'localhost',
+  // host: 'korea.cheeseocean.com',
   user: 'root',
-  port: 3306,
-  // password: '123456',
-  password: 'xc514xxx',
+  // port: 3306,
+  password: '123456',
+  // password: 'xc514xxx',
   database: 'cheese_web',
   multipleStatements: true,
-  timezone: '+08:00'
+  timezone: '08:00'
 })
-export const getLimitStr = function (query: any) {
-  // if (!query.page || !query.count) throw Error('参数错误')
-  let {page, count} = query
-  if (!page) page = 1
-  if (!count) count = 100
-  return `LIMIT ${(page - 1) * count},${count}`
+export const getLimitSql = function (query: PageParameter) {
+  let {pageIndex, pageSize} = query
+  if (!pageIndex) pageIndex = '1'
+  if (!pageSize) pageSize = '100'
+  return `LIMIT ${(+pageIndex - 1) * +pageSize},${pageSize}`
 }
-export const querySql = (ctx: Context, resolve: (value: unknown) => void) => new Promise<PoolConnection>(resolve2 => {
+export const querySql = (ctx: Context, resolve: PromiseResolve) => new Promise<PoolConnection>((resolve2, reject2) => {
   pool.getConnection((err: MysqlError, connection: PoolConnection) => {
     if (err) {
       console.log(err)
+      reject2(err)
       return resolve(ctx.body = {message: '数据库连接失败', status: 1000})
     }
     resolve2(connection)
