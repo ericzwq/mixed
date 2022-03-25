@@ -5,10 +5,11 @@ import {addUser, getEmailByUsernameOrEmail, getUserByLogin} from './user-sql'
 import {GetEmailCodeQuery, LoginReqBody, RegisterBody, SessionData} from './user-types'
 import client from '../../redis/redis'
 import {formatDate} from '../../common/utils'
+import {getEmailCodeUrl, loginUrl, registerUrl} from '../urls'
 
 const user = new Router()
 
-user.post('register', ctx => {
+user.post(registerUrl, ctx => {
   const validation = registerSchema.validate(ctx.request.body)
   if (validation.error) return ctx.body = {message: validation.error.message, status: 1001}
   const body: RegisterBody = ctx.request.body
@@ -43,7 +44,7 @@ user.post('register', ctx => {
   })
 })
 
-user.get('getEmailCode', async ctx => {
+user.get(getEmailCodeUrl, async ctx => {
   const validation = getEmailCodeSchema.validate(ctx.request.query)
   if (validation.error) return ctx.body = {message: validation.error.message, status: 1009}
   const {email} = ctx.request.query as GetEmailCodeQuery
@@ -53,7 +54,7 @@ user.get('getEmailCode', async ctx => {
   ctx.body = {message: '验证码已发送', status: 0, data: true}
 })
 
-user.post('login', ctx => {
+user.post(loginUrl, ctx => {
   const validation = loginSchema.validate(ctx.request.body)
   if (validation.error) return ctx.body = {message: validation.error.message, status: 1011}
   const body = ctx.request.body as LoginReqBody

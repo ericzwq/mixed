@@ -4,16 +4,16 @@ import {Posts} from '../../types/posts-types'
 type _File = formidable.File
 
 export interface CreatePostBody {
-  content: Posts.Content
+  content?: Posts.Content
+  contentType: Posts.ContentType
+  images?: Posts.Images[]
+  videos?: Posts.Videos[]
 }
 
-export interface CreatePostFiles {
-  images: _File | _File[]
-  videos: _File | _File[]
-}
-
-export interface CreatePostSqlData extends CreatePostBody {
-  images: Posts.Images
-  videos: Posts.Videos
+export interface CreatePostSql extends CreatePostBody {
   id: Posts.Id
+}
+
+export interface UploadFiles {
+  assets?: _File | _File[]
 }

@@ -9,6 +9,8 @@ import session = require('koa-session')
 import assets = require('koa-static')
 import sessionConfig from './session/session'
 import {SessionData} from './router/user/user-types'
+import {loginUrl, noLoginUrlSet, registerUrl} from './router/urls'
+import {UPLOAD_PATH} from './common/consts'
 
 const app = new Koa()
 const stream = fs.createWriteStream(path.join(__dirname, './log/access.log'))
@@ -29,13 +31,13 @@ app.use(async (context, next) => {
 })
 // 登录校验
 app.use(async (context, next) => {
-  if (!(context.session as SessionData).login && !['/login', '/register', '/selectPosts'].includes(context.request.path)) return context.body = {message: '未登录', status: 401, data: false}
+  if (!(context.session as SessionData).login && !noLoginUrlSet.has(context.request.path.slice(1))) return context.body = {message: '未登录', status: 401, data: false}
   await next()
 })
 app.use(bodyParser({
   multipart: true, formidable: {
     keepExtensions: true,
-    uploadDir: path.resolve(__dirname, './uploads')
+    uploadDir: path.resolve(__dirname, UPLOAD_PATH)
   }
 }))
 

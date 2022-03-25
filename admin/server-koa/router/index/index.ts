@@ -6,12 +6,11 @@ import {PageParameter} from '../../types/sql-types'
 
 const index = new Router()
 index.get('selectPosts', ctx => {
-  console.log('select')
   const validation = selectPostsSchema.validate(ctx.request.query)
   if (validation.error) return ctx.body = {message: validation.error.message, status: 1201, data: []}
   return new Promise(resolve => {
     querySql(ctx, resolve).then(con => {
-      selectPosts(con, ctx.request.query as unknown as PageParameter, (err, res) => {
+      selectPosts(con, ctx.request.query as PageParameter, (err, res) => {
         if (err) return resolve(ctx.body = {message: '查询失败', status: 1202, data: []})
         res[0].forEach(post => {
           post.imageList = post.images?.split(',') || []

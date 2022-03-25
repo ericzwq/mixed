@@ -46,13 +46,17 @@ values ('张三', '123456', '1234@163.com');
 drop table if exists posts;
 create table posts
 (
-    id        bigint auto_increment primary key not null,
-    userId    bigint                            not null,
-    content   longtext,
-    images    varchar(500),
-    videos    varchar(500),
-    createdAt timestamp                         not null default current_timestamp comment '创建时间',
-    updatedAt timestamp                         not null default current_timestamp on update current_timestamp comment '修改时间'
+    id          bigint auto_increment primary key not null,
+    userId      bigint                            not null,
+    content     longtext,
+    contentType varchar(20)                       not null,
+    images      varchar(500),
+    videos      varchar(500),
+    likes       int                               not null default 0,
+    comments    int                               not null default 0,
+    deleted     int                               not null default 0,
+    createdAt   timestamp                         not null default current_timestamp comment '创建时间',
+    updatedAt   timestamp                         not null default current_timestamp on update current_timestamp comment '修改时间'
 );
-insert posts(userId, content, images, videos)
-values (8, 'hello', '', '');
+insert posts(userId, content, images, videos, contentType)
+values (8, 'hello', '', '', 'quill-normal');
