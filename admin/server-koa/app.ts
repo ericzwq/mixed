@@ -22,6 +22,7 @@ app.keys = ['some secret hurr']  // 这个是配合signed属性的签名key
 app.use(session(sessionConfig, app))
 
 app.use(async (context, next) => {
+  console.log(context.request.path)
   context.set('Access-Control-Allow-Origin', '*')
   context.set('Access-Control-Allow-Credentials', 'true')
   context.set('Access-Control-Allow-Headers', 'Content-Type,content-type')

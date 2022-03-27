@@ -11,14 +11,15 @@ index.get('selectPosts', ctx => {
   return new Promise(resolve => {
     querySql(ctx, resolve).then(con => {
       selectPosts(con, ctx.request.query as PageParameter, (err, res) => {
-        if (err) return resolve(ctx.body = {message: '查询失败', status: 1202, data: []})
+        console.log(err)
+        if (err) return resolve(ctx.body = {message: '查询失败', status: 1202, data: [], totalCount: 0})
         res[0].forEach(post => {
           post.imageList = post.images?.split(',') || []
           post.videoList = post.videos?.split(',') || []
           post.images = undefined
           post.videos = undefined
         })
-        console.log(res[0].length, res[1])
+        console.log(res[0], res[1])
         resolve(ctx.body = {message: '查询成功', status: 0, data: res[0], totalCount: res[1][0].totalCount})
       })
     })

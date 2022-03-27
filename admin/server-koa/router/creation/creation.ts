@@ -13,8 +13,8 @@ const creation = new Router()
 creation.post(createPostUrl, ctx => {
   const body = ctx.request.body as CreatePostBody
   const validation = createPostSchema.validate(body)
-  if (validation.error) return ctx.body = {message: validation.error.message, status: 1101, data: false}
   console.log(body)
+  if (validation.error) return ctx.body = {message: validation.error.message, status: 1101, data: false}
   // if (!body.content?.trim() && !body.images?.length && !body.videos?.length) return ctx.body = {message: 'one of content, images, videos must be not empty!', status: 1101, data: false}
   const deleteFiles = () => (['images', 'videos'] as const).forEach(type => body[type]!.forEach(name => fs.unlink(path.resolve(__dirname, UPLOAD_PATH, '/' + name), () => 1)))
   return new Promise(resolve => {

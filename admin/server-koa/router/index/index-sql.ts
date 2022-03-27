@@ -4,8 +4,18 @@ import {getLimitSql, selectTotal, totalRows} from '../../db'
 import {Post} from './index-types'
 
 export function selectPosts(con: Connection, query: PageParameter, cb: SelectQueryListCallback<Post>) {
-  con.query(`select ${totalRows} id, userId, content, images, videos, createdAt
-             from posts ${getLimitSql(query)}
-             order by updatedAt DESC;
+  con.query(`select ${totalRows} 
+                    user.username,
+                    post.id,
+                    post.userId,
+                    post.content,
+                    post.images,
+                    post.videos,
+                    post.likes,
+                    post.comments,
+                    post.createdAt
+             from posts as post
+                      left join users as user on user.id = post.userId
+             order by post.updatedAt DESC ${getLimitSql(query)};
   ${selectTotal}`, cb)
 }

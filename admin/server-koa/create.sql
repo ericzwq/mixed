@@ -59,4 +59,4 @@ create table posts
     updatedAt   timestamp                         not null default current_timestamp on update current_timestamp comment '修改时间'
 );
 insert posts(userId, content, images, videos, contentType)
-values (8, 'hello', '', '', 'quill-normal');
+values (8, 'hello', '', '', 'quill-json');
