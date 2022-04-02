@@ -10,10 +10,6 @@ export interface CreatePostBody {
   videos?: Posts.Videos[]
 }
 
-export interface CreatePostSql extends CreatePostBody {
-  id: Posts.Id
-}
-
 export interface UploadFiles {
   assets?: _File | _File[]
 }

@@ -60,3 +60,31 @@ create table posts
 );
 insert posts(userId, content, images, videos, contentType)
 values (8, 'hello', '', '', 'quill-json');
+
+/*帖子点赞表*/
+drop table if exists post_likes;
+create table post_likes
+(
+    id        bigint auto_increment primary key not null,
+    userId    bigint                            not null,
+    postId    bigint                            not null,
+    createdAt timestamp                         not null default current_timestamp comment '创建时间',
+    updatedAt timestamp                         not null default current_timestamp on update current_timestamp comment '修改时间'
+);
+insert post_likes(userId, postId)
+values (1, 1);
+
+/*帖子评论表*/
+drop table if exists post_comments;
+create table post_comments
+(
+    id        bigint auto_increment primary key not null,
+    userId    bigint                            not null,
+    postId    bigint                            not null,
+    content   varchar(500)                      not null,
+    parentId  bigint,
+    createdAt timestamp                         not null default current_timestamp comment '创建时间',
+    updatedAt timestamp                         not null default current_timestamp on update current_timestamp comment '修改时间'
+);
+insert post_comments(userId, postId, content)
+values (1, 1, 'good');

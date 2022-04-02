@@ -4,11 +4,11 @@ import {Users} from '../../types/users-types'
 
 // session储存信息
 export interface SessionData extends Session {
-  id?: Users.Id
-  username?: Users.Username
-  loginTime?: string
-  login?: boolean
-  email?: Users.Email
+  id: Users.Id
+  username: Users.Username
+  loginTime: string
+  login: boolean
+  email: Users.Email
   emailCode?: Users.Code
   emailCodeTime?: number
 }

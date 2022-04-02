@@ -9,8 +9,9 @@ import session = require('koa-session')
 import assets = require('koa-static')
 import sessionConfig from './session/session'
 import {SessionData} from './router/user/user-types'
-import {loginUrl, noLoginUrlSet, registerUrl} from './router/urls'
+import {noLoginUrlSet} from './router/urls'
 import {UPLOAD_PATH} from './common/consts'
+import {sqlMiddleware} from './db'
 
 const app = new Koa()
 const stream = fs.createWriteStream(path.join(__dirname, './log/access.log'))
@@ -22,7 +23,7 @@ app.keys = ['some secret hurr']  // 这个是配合signed属性的签名key
 app.use(session(sessionConfig, app))
 
 app.use(async (context, next) => {
-  console.log(context.request.path)
+  console.log(context.request.originalUrl)
   context.set('Access-Control-Allow-Origin', '*')
   context.set('Access-Control-Allow-Credentials', 'true')
   context.set('Access-Control-Allow-Headers', 'Content-Type,content-type')
@@ -35,6 +36,9 @@ app.use(async (context, next) => {
   if (!(context.session as SessionData).login && !noLoginUrlSet.has(context.request.path.slice(1))) return context.body = {message: '未登录', status: 401, data: false}
   await next()
 })
+
+app.use(sqlMiddleware)
+
 app.use(bodyParser({
   multipart: true, formidable: {
     keepExtensions: true,

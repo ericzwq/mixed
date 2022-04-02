@@ -1,16 +1,20 @@
-import {Connection} from 'mysql'
 import {LoginReqBody, RegisterBody} from './user-types'
-import {InsertQueryCallback, SelectQueryCallback} from '../../types/sql-types'
+import {InsertModal} from '../../types/sql-types'
 import {Users} from '../../types/users-types'
+import {Context} from 'koa'
+import {executeSql} from '../../db'
 
-export function getEmailByUsernameOrEmail(con: Connection, {username, email}: RegisterBody, cb: SelectQueryCallback<{ email: Users.Email }>) {
-  con.query('select email from users where username = ? or email = ? limit 1;', [username, email], cb)
+export function getEmailByUsernameOrEmail(ctx: Context) {
+  const {username, email} = ctx.request.body as RegisterBody
+  return executeSql<{ email: Users.Email }[]>(ctx, 'select email from users where username = ? or email = ? limit 1;', [username, email])
 }
 
-export function addUser(con: Connection, {username, password, email}: RegisterBody, cb: InsertQueryCallback) {
-  con.query('insert users(username, password, email) values (?, ?, ?);', [username, password, email], cb)
+export function addUser(ctx: Context) {
+  const {username, password, email} = ctx.request.body as RegisterBody
+  return executeSql<InsertModal>(ctx, 'insert users(username, password, email) values (?, ?, ?);', [username, password, email])
 }
 
-export function getUserByLogin(con: Connection, {username, password}: LoginReqBody, cb: SelectQueryCallback<{ id: Users.Id }>) {
-  con.query('select id from users where username = ? and password = ?', [username, password], cb)
+export function getUserByLogin(ctx: Context) {
+  const {username, password} = ctx.request.body as LoginReqBody
+  return executeSql<{ id: Users.Id }[]>(ctx, 'select id from users where username = ? and password = ?', [username, password])
 }
