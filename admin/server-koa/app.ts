@@ -12,6 +12,7 @@ import {SessionData} from './router/user/user-types'
 import {noLoginUrlSet} from './router/urls'
 import {UPLOAD_PATH} from './common/consts'
 import {sqlMiddleware} from './db'
+import {ResponseSchema} from './response/response'
 
 const app = new Koa()
 const stream = fs.createWriteStream(path.join(__dirname, './log/access.log'))
@@ -23,7 +24,7 @@ app.keys = ['some secret hurr']  // 这个是配合signed属性的签名key
 app.use(session(sessionConfig, app))
 
 app.use(async (context, next) => {
-  console.log(context.request.originalUrl)
+  console.log(context.request.url)
   context.set('Access-Control-Allow-Origin', '*')
   context.set('Access-Control-Allow-Credentials', 'true')
   context.set('Access-Control-Allow-Headers', 'Content-Type,content-type')
@@ -45,6 +46,14 @@ app.use(bodyParser({
     uploadDir: path.resolve(__dirname, UPLOAD_PATH)
   }
 }))
+
+app.use(async (ctx, next) => {
+  try {
+    await next()
+  } catch (e) {
+    if (ctx.body === undefined) ctx.body = new ResponseSchema({message: '未知异常', status: 777})
+  }
+})
 
 app.use(router.routes()).use(router.allowedMethods())
 const PORT = 5000

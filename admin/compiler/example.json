@@ -1,0 +1,126 @@
+{
+  "type": "File",
+  "errors": [],
+  "program": {
+    "type": "Program",
+    "sourceType": "module",
+    "interpreter": null,
+    "body": [
+      {
+        "type": "VariableDeclaration",
+        "declarations": [
+          {
+            "type": "VariableDeclarator",
+            "id": {
+              "type": "Identifier",
+              "name": "k"
+            },
+            "init": {
+              "type": "StringLiteral",
+              "extra": {
+                "rawValue": "key",
+                "raw": "'key'"
+              },
+              "value": "key"
+            }
+          }
+        ],
+        "kind": "const"
+      },
+      {
+        "type": "VariableDeclaration",
+        "declarations": [
+          {
+            "type": "VariableDeclarator",
+            "id": {
+              "type": "Identifier",
+              "name": "o"
+            },
+            "init": {
+              "type": "ObjectExpression",
+              "properties": [
+                {
+                  "type": "ObjectMethod",
+                  "method": true,
+                  "key": {
+                    "type": "Identifier",
+                    "name": "f"
+                  },
+                  "computed": false,
+                  "kind": "method",
+                  "id": null,
+                  "generator": false,
+                  "async": false,
+                  "params": [],
+                  "body": {
+                    "type": "BlockStatement",
+                    "body": [],
+                    "directives": []
+                  }
+                },
+                {
+                  "type": "ObjectMethod",
+                  "method": false,
+                  "key": {
+                    "type": "Identifier",
+                    "name": "k"
+                  },
+                  "computed": true,
+                  "kind": "set",
+                  "id": null,
+                  "generator": false,
+                  "async": false,
+                  "params": [
+                    {
+                      "type": "Identifier",
+                      "name": "v"
+                    }
+                  ],
+                  "body": {
+                    "type": "BlockStatement",
+                    "body": [],
+                    "directives": []
+                  }
+                },
+                {
+                  "type": "ObjectMethod",
+                  "method": false,
+                  "key": {
+                    "type": "Identifier",
+                    "name": "k"
+                  },
+                  "computed": true,
+                  "kind": "get",
+                  "id": null,
+                  "generator": false,
+                  "async": false,
+                  "params": [],
+                  "body": {
+                    "type": "BlockStatement",
+                    "body": [
+                      {
+                        "type": "ReturnStatement",
+                        "argument": {
+                          "type": "NumericLiteral",
+                          "extra": {
+                            "rawValue": 2,
+                            "raw": "2"
+                          },
+                          "value": 2
+                        }
+                      }
+                    ],
+                    "directives": []
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "kind": "const"
+      }
+    ],
+    "directives": []
+  },
+  "comments": []
+}

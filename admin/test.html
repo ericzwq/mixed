@@ -47,34 +47,50 @@
 </head>
 <body>
 <button>按钮</button>
-<script src='../../branddb/test.js'></script>
-<script>
-  const o = {
-    'p': {
-      'search': {
-        'sq': [
-          {
-            'te': 'sdf',
-            'fi': 'BRAND'
-          }
-        ]
-      }
-    },
-    's': {
-      'dis': 'flow'
-    },
-    'type': 'brand',
-    'la': 'en',
-    'qi': '1-U5ZED73JZ8f3L9KmqIkKVrRQ5DLvgANLI4lB9WRtn3M=',
-    _: '11642',
-    queue: 1
+<script src="https://cdn.bootcdn.net/ajax/libs/babel-core/5.8.9/browser-polyfill.js"></script>
+<script type='text/babel'>
+  async function a() {
+    await 1
   }
-  let d = {queue: 1}
-  var c = Object.assign(o, d || {}, {
-    _: '11642'
-  })
-  var a = LZString.compressToBase64(JSON.stringify(c))
-  console.log(a)
+</script>
+<script>
+  'use strict'
+
+  // document.querySelector('.a')
+  //  const codes = [{key: 'document', type: 'attr'}, {key: 'querySelector', type: 'func', params: ['.a']}, {type: 'symbol'}]
+  const codes = [{key: '$', type: 'func', params: ['.a']}, {key: '||', type: 'symbol'}, {key: '$', type: 'func', params: ['button']}]
+  const symbolMap = {
+    '||': (a, b) => a || b,
+    '&&': (a, b) => a && b,
+    '+': (a, b) => a + b,
+    '-': (a, b) => a - b,
+    '*': (a, b) => a * b,
+    '/': (a, b) => a / b,
+  }
+  const key2TypeMap = {}
+  const map = {
+    document,
+    window
+  }
+  const typeMap = {
+    attr: (ctx, key, codes, i) => ctx[key],
+    func: (ctx, key, codes, i, params) => ctx[key](params),
+    symbol: (ctx, key, codes, i) => symbolMap[key]([ctx, exec(codes.slice(i + 1))])
+  }
+  window.$ = document.querySelector
+  window.$all = document.querySelectorAll
+
+  function exec(codes) {
+    let ctx = window
+    for (let i = 0, l = codes.length; i < l; i++) {
+      const {key, type, params} = codes[i]
+      ctx = typeMap[type](ctx, key, codes, i, params)
+
+    }
+    console.log(ctx)
+    return ctx
+  }
+
 </script>
 <script>
   function Node(val, next) {
@@ -82,19 +98,6 @@
     this.next = next
   }
 
-  const config = {
-    sorted: true
-  }
-  const fn = (event, sorted) => {
-    if (event === undefined || event instanceof Object) { // default config
-      sorted = config.sorted
-    } else if (typeof event === 'boolean') { // manual call
-      sorted = event
-      event = undefined
-    }
-    console.log({event, sorted})
-  }
-  fn({target: document})
   //                   8
   //          6                   10
   //     5         7          9         11

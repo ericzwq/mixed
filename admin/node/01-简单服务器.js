@@ -100,7 +100,7 @@ server2.on('stream', function (stream, headers) {
 httpsServer.on('request', function (req, res) {
   setCORSHeader(res)
   setCookieHeader(res)
-  console.log(req.headers, '\n-------------https-------------')
+  console.log(req.url, '\n-------------https-------------')
   console.log(req.headers['x-forwarded-for'])
   fs.readFile('./cookie-test.html', (err, data) => {
     if (err) return console.log(err)
