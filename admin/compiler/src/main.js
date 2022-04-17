@@ -1,8 +1,8 @@
 import {parse} from '@babel/core'
-import {each} from '@/assets/utils'
-import Test from '@/assets/test'
+import {each} from './utils'
+import Test from './test'
 
-const ast = parse(Test.objectExpression)
+const ast = parse(Test.deconstruct)
 const s = JSON.stringify(ast, function (k, v) {
   if (v) {
     delete v.loc
@@ -45,6 +45,37 @@ class JSVM {
     '<=': (a, b) => a <= b,
   }
 
+  assignmentExpressionMap = {
+    '=': (a, b) => b,
+    '+=': (a, b) => a + b,
+    '-=': (a, b) => a - b,
+    '/=': (a, b) => a / b,
+    '*=': (a, b) => a * b,
+    '^=': (a, b) => a ^ b,
+    '&=': (a, b) => a & b,
+    '|=': (a, b) => a | b,
+  }
+
+  unaryExpressionMap = {
+    '+': a => +a,
+    '-': a => -a,
+    '!': a => !a,
+    '~': a => ~a,
+    'delete': (_, ctx, node) => {
+      if (node.type === 'MemberExpression') {
+        node.kind = 'delete'
+        return this.MemberExpression(ctx, node)
+      } else {
+        throw Error('不支持的 delete 操作')
+      }
+    },
+    'typeof': a => typeof a,
+    'void': a => void a,
+    'throw': a => { // never
+      throw a
+    },
+  }
+
   handler(ctx, node, parent) {
     if (arguments.length !== 3) throw Error('handler需要3个参数')
     if (typeof this[node.type] !== 'function') throw Error(`${node.type} 不是函数`)
@@ -56,10 +87,15 @@ class JSVM {
     while (ctx && !(name in ctx)) { // 查找上级作用域
       ctx = ctx._parent
     }
-    if (!ctx) {
-      if (name in window) return window[name] // 最后查全局作用域
-      throw Error(`找不到变量 ${name}`)
-    }
+    ctx = ctx || window // 最后查全局作用域
+//    if (!ctx) {
+//      if (name in window) return window[name] // 最后查全局作用域
+//      throw Error(`找不到变量 ${name}`)
+//    }
+//    if (parent.type === 'AssignmentExpression') {
+//      console.log(ctx, node, parent)
+//      return ctx[name] = this.handler(ctx, node.right, node)
+//    }
     return ctx[name]
   }
 
@@ -69,8 +105,76 @@ class JSVM {
     return this.handler(ctx, callee.object, node)[callee.property.name](...args.map(argument => this.handler(ctx, argument, node))) // this指向
   }
 
+  // 处理成员表达式
+  _memberExpressionHandler = {
+    undefined(vm, ctx, node, key) { // 取值模式（默认）
+      return vm.handler(ctx, node.object, node)[key]
+    },
+    delete(vm, ctx, node, key) { // 删除模式
+      return delete vm.handler(ctx, node.object, node)[key]
+    },
+    assign(vm, ctx, node, key) { // 赋值模式
+      const o = vm.handler(ctx, node.object, node)
+      return o[key] = vm.assignmentExpressionMap[node.operator](o[key], node.value)
+    }
+  }
+
   MemberExpression(ctx, node) {
-    return this.handler(ctx, node.object, node)[node.property.name]
+    const {property, kind} = node
+    const key = !node.computed ? property.name : this.handler(ctx, property, node)
+    return this._memberExpressionHandler[kind](this, ctx, node, key) // kind为自定义字段
+  }
+
+  _assignmentExpressionHandler = {
+    handler(vm, ctx, left, right, operator, usedKeys, assign) {
+      if (arguments.length !== 7) throw Error('参数错误') // todo
+      this[left.type](vm, ctx, left, right, operator, usedKeys, assign)
+    },
+    Identifier(vm, ctx, left, right, operator) {
+      return ctx[left.name] = vm.assignmentExpressionMap[operator](ctx[left.name], right)
+    },
+    MemberExpression(vm, ctx, left, right, operator) {
+      left.kind = 'assign'
+      left.value = right
+      left.operator = operator
+      return vm.MemberExpression(ctx, left)
+    },
+    ObjectPattern(vm, ctx, left, right, operator, usedKeys, assign) {
+      const _usedKeys = new Set() // 新的对象，重新记录解构的key
+      const fn = assign ?
+        (property, key) => this.handler(vm, ctx, property.value, right[key], operator, _usedKeys, false)
+        : (property, key) => ctx[property.value.name] = right[key]
+
+      each(left.properties, property => {
+        if (property.type === 'ObjectProperty') {
+          const key = vm.getObjectKey(ctx, property)
+          usedKeys.add(key)
+          return fn(property, key)
+        }
+        // RestElement
+        const rest = {...right}
+        each(Object.keys(right), key => usedKeys.has(key) ? delete rest[key] : 0)
+        ctx[property.argument.name] = rest
+      })
+    },
+    ArrayPattern(vm, ctx, left, right, operator, usedKeys) {
+      for (let i = 0; i < left.elements.length; i++) {
+        this.handler(vm, ctx, left.elements[i], right[i], operator, usedKeys, false)
+      }
+    },
+    AssignmentPattern(vm, ctx, _left, _right, operator, usedKeys) {
+      const {left, right} = _left
+      if (_right === undefined) _right = vm.handler(ctx, right, _left) // 参数默认值
+      this.handler(vm, ctx, left, _right, operator, usedKeys, true)
+    },
+    RestElement(vm, ctx, left, right, operator, usedKeys) {
+      ctx[left.argument.name] = usedKeys
+    }
+  }
+
+  AssignmentExpression(ctx, node) {
+    const {left, operator, right} = node
+    return this._assignmentExpressionHandler.handler(this, ctx, left, this.handler(ctx, right, node), operator, new Set(), true)
   }
 
   ExpressionStatement(ctx, node) {
@@ -96,6 +200,11 @@ class JSVM {
   BinaryExpression(ctx, node) {
     const {left, operator, right} = node
     return this.binaryExpressionMap[operator](this.handler(ctx, left, node), this.handler(ctx, right, node))
+  }
+
+  UnaryExpression(ctx, node) {
+    const {operator, argument} = node
+    return this.unaryExpressionMap[operator](this.handler(ctx, argument, node), ctx, argument)
   }
 
   NumericLiteral(ctx, node) {
@@ -138,12 +247,12 @@ class JSVM {
       this[node.type](vm, ctx, node, argument, restArgs, assign)
     },
     Identifier(vm, ctx, node, argument) {
-      ctx[node.name] = argument
+      return ctx[node.name] = argument
     },
     ObjectPattern(vm, ctx, node, argument, restArgs, assign) {
-      if (assign) { // 上一步是否为赋值模式
-        each(node.properties, property => this.handler(vm, ctx, property.value, argument[vm.getObjectKey(ctx, property)]), restArgs, false)
-      } else {
+      if (assign) { // 上一步已赋参数默认值，此时不再赋值，变量交给Identifier赋值
+        each(node.properties, property => this.handler(vm, ctx, property.value, argument[vm.getObjectKey(ctx, property)], restArgs, false))
+      } else { // 上一步不是赋值模式，直接从目标对象中取属性
         each(node.properties, property => ctx[property.value.name] = argument[vm.getObjectKey(ctx, property)])
       }
     },
@@ -175,11 +284,11 @@ class JSVM {
     }
     if (!node.async) {
       return function () { // 使用js的属性点方式绑定this
-        generateFnBody(arguments, this)
+        return generateFnBody(arguments, this)
       }
     } else {
       return async function () {
-        generateFnBody(arguments, this)
+        return generateFnBody(arguments, this)
       }
     }
   }
@@ -204,7 +313,7 @@ class JSVM {
     return new callee(...node.arguments.map(argument => this.handler(ctx, argument, node)))
   }
 
-  // 处理不同的函数类型 type: ObjectMethod
+  // 处理不同的函数类型kind type: ObjectMethod
   _kindMethodHandler = {
     handler(vm, ctx, node, o, key) {
       this[node.kind](vm, ctx, node, o, key)
@@ -232,13 +341,13 @@ class JSVM {
   // 处理对象表达式 type: ObjectExpression
   _objectExpressionHandler = {
     handler(vm, ctx, o, node) {
-      this[node.type](vm, ctx, o, node)
+      return this[node.type](vm, ctx, o, node)
     },
-    ObjectProperty(vm, ctx, o, node) {
+    ObjectProperty(vm, ctx, o, node) { // 属性
       o[vm.getObjectKey(ctx, node)] = vm.handler(ctx, node.value, node)
       return o
     },
-    ObjectMethod(vm, ctx, o, node) {
+    ObjectMethod(vm, ctx, o, node) { // 方法
       const key = vm.getObjectKey(ctx, node)
       vm._kindMethodHandler.handler(vm, ctx, node, o, key)
       return o
@@ -249,14 +358,7 @@ class JSVM {
   }
 
   ObjectExpression(ctx, node) {
-    return node.properties.reduce((acc, cur) => {
-//      return this._objectExpressionHandler.handler(this, ctx, acc, cur)
-      if (cur.type !== 'SpreadElement') {
-        acc[this.getObjectKey(ctx, cur)] = this.handler(ctx, cur.value, cur)
-        return acc
-      }
-      return Object.assign(acc, this.handler(ctx, cur.argument, cur)) // 展开运算符
-    }, {})
+    return node.properties.reduce((acc, cur) => this._objectExpressionHandler.handler(this, ctx, acc, cur), {})
   }
 
   ThisExpression(ctx) {
@@ -291,54 +393,12 @@ class JSVM {
     return elements
   }
 
+  ThrowStatement(ctx, node) {
+    throw this.handler(ctx, node.argument, node)
+  }
+
   IfStatement(node) {
-    //判断条件的类型是否是二进制表达式
-    if (node.test.type != 'BinaryExpression') {
-      throw new Error('if conds only support binary expression')
-    }
-    // 解析二进制表达式作为条件
-    let cond = this.binaryHandler(node.test)
-    // 生成数字0
-    let zero = llvm.ConstantFP.get(the_context, 0)
-    // 如果cond不是bool类型的指，将它转换为bool类型的值
-    let cond_v = builder.createFCmpONE(cond, zero, 'ifcond')
-    // 创建then和else和ifcont代码块，实际就是代码块标签
-    let then_bb = llvm.BasicBlock.create(the_context, 'then', the_function)
-    let else_bb = llvm.BasicBlock.create(the_context, 'else', the_function)
-    let phi_bb = llvm.BasicBlock.create(the_context, 'ifcont', the_function)
-    // 创造条件判断
-    // 如果cond_v是真就跳跃到then_bb代码块，否则跳跃到else_bb代码块
-    builder.createCondBr(cond_v, then_bb, else_bb)
-    // 设定往then_bb代码块写入内容
-    builder.setInsertionPoint(then_bb)
-    if (!node.consequent) {
-      throw new Error('then not extist')
-    }
-    if (node.consequent.type != 'BlockStatement') {
-      throw new Error('then body only support BlockStatement')
-    }
-    // 解析代码块
-    let then_value_list = this.BlockStatement(node.consequent)
-    // 如果代码块没内容就就跳跃到phi_bb代码块
-    if (then_value_list.length == 0) {
-      builder.createBr(phi_bb)
-    }
-    // 设定往else_bb代码块写入内容，和then_else差不多
-    // 不同点：else允许没有
-    builder.setInsertionPoint(else_bb)
-    let else_value_list = []
-    if (node.alternate) {
-      if (node.alternate.type != 'BlockStatement') {
-        throw new Error('else body only support BlockStatement')
-      }
-      else_value_list = this.BlockStatement(node.alternate)
-    }
-    if (else_value_list.length == 0) {
-      builder.createBr(phi_bb)
-    }
-    // 因为无论是then或else如果不中断一定会往phi_bb代码块
-    // 所以后续的代码直接在phi_bb里面写就好
-    builder.setInsertionPoint(phi_bb)
+
   }
 }
 

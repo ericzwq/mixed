@@ -10,7 +10,8 @@ import '@/assets/css/combination.scss'
 import App from './App.vue'
 import router from './router/router'
 import store from './store/store'
+import {LazyOptions} from 'lazy-load-vue3/types/types'
 
 const app = createApp(App)
 
-app.use(LazyLoad, {component: true, watchUpdate: false}).use(store).use(router).mount('#app')
+app.use(LazyLoad, {component: true, watchUpdate: false} as LazyOptions).use(store).use(router).mount('#app')
