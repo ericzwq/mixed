@@ -13,106 +13,73 @@
             "type": "VariableDeclarator",
             "id": {
               "type": "Identifier",
-              "name": "k"
+              "name": "p"
             },
             "init": {
-              "type": "StringLiteral",
-              "extra": {
-                "rawValue": "key",
-                "raw": "'key'"
+              "type": "NewExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "Promise"
               },
-              "value": "key"
-            }
-          }
-        ],
-        "kind": "const"
-      },
-      {
-        "type": "VariableDeclaration",
-        "declarations": [
-          {
-            "type": "VariableDeclarator",
-            "id": {
-              "type": "Identifier",
-              "name": "o"
-            },
-            "init": {
-              "type": "ObjectExpression",
-              "properties": [
+              "arguments": [
                 {
-                  "type": "ObjectProperty",
-                  "method": false,
-                  "key": {
-                    "type": "Identifier",
-                    "name": "age"
-                  },
-                  "computed": false,
-                  "shorthand": false,
-                  "value": {
-                    "type": "NumericLiteral",
-                    "extra": {
-                      "rawValue": 3,
-                      "raw": "3"
-                    },
-                    "value": 3
-                  }
-                },
-                {
-                  "type": "ObjectProperty",
-                  "method": false,
-                  "key": {
-                    "type": "Identifier",
-                    "name": "s"
-                  },
-                  "computed": false,
-                  "shorthand": false,
-                  "value": {
-                    "type": "StringLiteral",
-                    "extra": {
-                      "rawValue": "2",
-                      "raw": "'2'"
-                    },
-                    "value": "2"
-                  }
-                },
-                {
-                  "type": "ObjectMethod",
-                  "method": true,
-                  "key": {
-                    "type": "Identifier",
-                    "name": "f"
-                  },
-                  "computed": false,
-                  "kind": "method",
+                  "type": "ArrowFunctionExpression",
                   "id": null,
                   "generator": false,
                   "async": false,
-                  "params": [],
+                  "params": [
+                    {
+                      "type": "Identifier",
+                      "name": "resolve"
+                    }
+                  ],
                   "body": {
-                    "type": "BlockStatement",
-                    "body": [],
-                    "directives": []
-                  }
-                },
-                {
-                  "type": "ObjectProperty",
-                  "method": false,
-                  "computed": true,
-                  "key": {
-                    "type": "Identifier",
-                    "name": "k"
-                  },
-                  "shorthand": false,
-                  "value": {
-                    "type": "Identifier",
-                    "name": "k"
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "Identifier",
+                      "name": "setTimeout"
+                    },
+                    "arguments": [
+                      {
+                        "type": "ArrowFunctionExpression",
+                        "id": null,
+                        "generator": false,
+                        "async": false,
+                        "params": [],
+                        "body": {
+                          "type": "CallExpression",
+                          "callee": {
+                            "type": "Identifier",
+                            "name": "resolve"
+                          },
+                          "arguments": [
+                            {
+                              "type": "NumericLiteral",
+                              "extra": {
+                                "rawValue": 5,
+                                "raw": "5"
+                              },
+                              "value": 5
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "type": "NumericLiteral",
+                        "extra": {
+                          "rawValue": 500,
+                          "raw": "500"
+                        },
+                        "value": 500
+                      }
+                    ]
                   }
                 }
               ]
             }
           }
         ],
-        "kind": "const"
+        "kind": "let"
       },
       {
         "type": "VariableDeclaration",
@@ -121,326 +88,73 @@
             "type": "VariableDeclarator",
             "id": {
               "type": "Identifier",
-              "name": "a"
+              "name": "p2"
             },
-            "init": null
-          },
-          {
-            "type": "VariableDeclarator",
-            "id": {
-              "type": "Identifier",
-              "name": "b"
-            },
-            "init": null
-          },
-          {
-            "type": "VariableDeclarator",
-            "id": {
-              "type": "Identifier",
-              "name": "c"
-            },
-            "init": null
-          },
-          {
-            "type": "VariableDeclarator",
-            "id": {
-              "type": "Identifier",
-              "name": "d"
-            },
-            "init": null
-          },
-          {
-            "type": "VariableDeclarator",
-            "id": {
-              "type": "Identifier",
-              "name": "e"
-            },
-            "init": null
-          },
-          {
-            "type": "VariableDeclarator",
-            "id": {
-              "type": "Identifier",
-              "name": "f"
-            },
-            "init": null
-          },
-          {
-            "type": "VariableDeclarator",
-            "id": {
-              "type": "Identifier",
-              "name": "g"
-            },
-            "init": null
-          },
-          {
-            "type": "VariableDeclarator",
-            "id": {
-              "type": "Identifier",
-              "name": "obj"
-            },
-            "init": null
+            "init": {
+              "type": "NewExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "Promise"
+              },
+              "arguments": [
+                {
+                  "type": "ArrowFunctionExpression",
+                  "id": null,
+                  "generator": false,
+                  "async": false,
+                  "params": [
+                    {
+                      "type": "Identifier",
+                      "name": "resolve"
+                    }
+                  ],
+                  "body": {
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "Identifier",
+                      "name": "setTimeout"
+                    },
+                    "arguments": [
+                      {
+                        "type": "ArrowFunctionExpression",
+                        "id": null,
+                        "generator": false,
+                        "async": false,
+                        "params": [],
+                        "body": {
+                          "type": "CallExpression",
+                          "callee": {
+                            "type": "Identifier",
+                            "name": "resolve"
+                          },
+                          "arguments": [
+                            {
+                              "type": "NumericLiteral",
+                              "extra": {
+                                "rawValue": 6,
+                                "raw": "6"
+                              },
+                              "value": 6
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "type": "NumericLiteral",
+                        "extra": {
+                          "rawValue": 1000,
+                          "raw": "1000"
+                        },
+                        "value": 1000
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
           }
         ],
         "kind": "let"
-      },
-      {
-        "type": "ExpressionStatement",
-        "expression": {
-          "type": "AssignmentExpression",
-          "operator": "=",
-          "left": {
-            "type": "ObjectPattern",
-            "properties": [
-              {
-                "type": "ObjectProperty",
-                "method": false,
-                "computed": true,
-                "key": {
-                  "type": "Identifier",
-                  "name": "k"
-                },
-                "shorthand": false,
-                "value": {
-                  "type": "Identifier",
-                  "name": "a"
-                }
-              },
-              {
-                "type": "ObjectProperty",
-                "method": false,
-                "key": {
-                  "type": "Identifier",
-                  "name": "c"
-                },
-                "computed": false,
-                "shorthand": true,
-                "value": {
-                  "type": "AssignmentPattern",
-                  "left": {
-                    "type": "Identifier",
-                    "name": "c"
-                  },
-                  "right": {
-                    "type": "NumericLiteral",
-                    "extra": {
-                      "rawValue": 1,
-                      "raw": "1"
-                    },
-                    "value": 1
-                  }
-                },
-                "extra": {
-                  "shorthand": true
-                }
-              },
-              {
-                "type": "ObjectProperty",
-                "method": false,
-                "key": {
-                  "type": "Identifier",
-                  "name": "x"
-                },
-                "computed": false,
-                "shorthand": false,
-                "value": {
-                  "type": "AssignmentPattern",
-                  "left": {
-                    "type": "ObjectPattern",
-                    "properties": [
-                      {
-                        "type": "ObjectProperty",
-                        "method": false,
-                        "key": {
-                          "type": "Identifier",
-                          "name": "e"
-                        },
-                        "computed": false,
-                        "shorthand": true,
-                        "value": {
-                          "type": "Identifier",
-                          "name": "e"
-                        },
-                        "extra": {
-                          "shorthand": true
-                        }
-                      },
-                      {
-                        "type": "ObjectProperty",
-                        "method": false,
-                        "key": {
-                          "type": "Identifier",
-                          "name": "y"
-                        },
-                        "computed": false,
-                        "shorthand": false,
-                        "value": {
-                          "type": "Identifier",
-                          "name": "f"
-                        }
-                      },
-                      {
-                        "type": "RestElement",
-                        "argument": {
-                          "type": "Identifier",
-                          "name": "g"
-                        }
-                      }
-                    ]
-                  },
-                  "right": {
-                    "type": "ObjectExpression",
-                    "properties": [
-                      {
-                        "type": "ObjectProperty",
-                        "method": false,
-                        "key": {
-                          "type": "Identifier",
-                          "name": "e"
-                        },
-                        "computed": false,
-                        "shorthand": false,
-                        "value": {
-                          "type": "NumericLiteral",
-                          "extra": {
-                            "rawValue": 4,
-                            "raw": "4"
-                          },
-                          "value": 4
-                        }
-                      },
-                      {
-                        "type": "ObjectProperty",
-                        "method": false,
-                        "key": {
-                          "type": "Identifier",
-                          "name": "z"
-                        },
-                        "computed": false,
-                        "shorthand": false,
-                        "value": {
-                          "type": "NumericLiteral",
-                          "extra": {
-                            "rawValue": 0,
-                            "raw": "0"
-                          },
-                          "value": 0
-                        }
-                      },
-                      {
-                        "type": "ObjectProperty",
-                        "method": false,
-                        "key": {
-                          "type": "Identifier",
-                          "name": "age"
-                        },
-                        "computed": false,
-                        "shorthand": false,
-                        "value": {
-                          "type": "NumericLiteral",
-                          "extra": {
-                            "rawValue": 2,
-                            "raw": "2"
-                          },
-                          "value": 2
-                        }
-                      }
-                    ]
-                  }
-                }
-              },
-              {
-                "type": "ObjectProperty",
-                "method": false,
-                "key": {
-                  "type": "Identifier",
-                  "name": "age"
-                },
-                "computed": false,
-                "shorthand": false,
-                "value": {
-                  "type": "Identifier",
-                  "name": "b"
-                }
-              },
-              {
-                "type": "ObjectProperty",
-                "method": false,
-                "key": {
-                  "type": "Identifier",
-                  "name": "p"
-                },
-                "computed": false,
-                "shorthand": false,
-                "value": {
-                  "type": "Identifier",
-                  "name": "d"
-                }
-              },
-              {
-                "type": "ObjectProperty",
-                "method": false,
-                "key": {
-                  "type": "Identifier",
-                  "name": "base"
-                },
-                "computed": false,
-                "shorthand": false,
-                "value": {
-                  "type": "Identifier",
-                  "name": "d"
-                }
-              },
-              {
-                "type": "RestElement",
-                "argument": {
-                  "type": "Identifier",
-                  "name": "obj"
-                }
-              }
-            ]
-          },
-          "right": {
-            "type": "ObjectExpression",
-            "properties": [
-              {
-                "type": "ObjectProperty",
-                "method": false,
-                "key": {
-                  "type": "Identifier",
-                  "name": "a"
-                },
-                "computed": false,
-                "shorthand": false,
-                "value": {
-                  "type": "NumericLiteral",
-                  "extra": {
-                    "rawValue": 1,
-                    "raw": "1"
-                  },
-                  "value": 1
-                }
-              },
-              {
-                "type": "SpreadElement",
-                "argument": {
-                  "type": "Identifier",
-                  "name": "o"
-                }
-              }
-            ]
-          },
-          "extra": {
-            "parenthesized": true,
-            "parenStart": 136
-          }
-        },
-        "trailingComments": [
-          {
-            "type": "CommentLine",
-            "value": "    [a = 2, ...[c]] = [1, 3, 4] // todo"
-          }
-        ]
       },
       {
         "type": "ExpressionStatement",
@@ -449,64 +163,164 @@
           "callee": {
             "type": "MemberExpression",
             "object": {
-              "type": "Identifier",
-              "name": "console"
+              "type": "CallExpression",
+              "callee": {
+                "type": "MemberExpression",
+                "object": {
+                  "type": "Identifier",
+                  "name": "Promise"
+                },
+                "computed": false,
+                "property": {
+                  "type": "Identifier",
+                  "name": "all"
+                }
+              },
+              "arguments": [
+                {
+                  "type": "ArrayExpression",
+                  "elements": [
+                    {
+                      "type": "Identifier",
+                      "name": "p"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "p2"
+                    }
+                  ]
+                }
+              ]
             },
             "computed": false,
             "property": {
               "type": "Identifier",
-              "name": "log"
+              "name": "then"
             }
           },
           "arguments": [
             {
-              "type": "Identifier",
-              "name": "a"
-            },
-            {
-              "type": "Identifier",
-              "name": "b"
-            },
-            {
-              "type": "Identifier",
-              "name": "c"
-            },
-            {
-              "type": "Identifier",
-              "name": "d"
-            },
-            {
-              "type": "Identifier",
-              "name": "e"
-            },
-            {
-              "type": "Identifier",
-              "name": "f"
-            },
-            {
-              "type": "Identifier",
-              "name": "g"
-            },
-            {
-              "type": "Identifier",
-              "name": "obj"
+              "type": "ArrowFunctionExpression",
+              "id": null,
+              "generator": false,
+              "async": false,
+              "params": [
+                {
+                  "type": "Identifier",
+                  "name": "r"
+                }
+              ],
+              "body": {
+                "type": "CallExpression",
+                "callee": {
+                  "type": "MemberExpression",
+                  "object": {
+                    "type": "Identifier",
+                    "name": "console"
+                  },
+                  "computed": false,
+                  "property": {
+                    "type": "Identifier",
+                    "name": "log"
+                  }
+                },
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "r"
+                  }
+                ]
+              }
             }
           ]
-        },
-        "leadingComments": [
-          {
-            "type": "CommentLine",
-            "value": "    [a = 2, ...[c]] = [1, 3, 4] // todo"
-          }
-        ]
+        }
+      },
+      {
+        "type": "ExpressionStatement",
+        "expression": {
+          "type": "CallExpression",
+          "callee": {
+            "type": "FunctionExpression",
+            "id": null,
+            "generator": false,
+            "async": true,
+            "params": [],
+            "body": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "a"
+                      },
+                      "init": null
+                    }
+                  ],
+                  "kind": "let"
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "Identifier",
+                      "name": "a"
+                    },
+                    "right": {
+                      "type": "AwaitExpression",
+                      "argument": {
+                        "type": "NumericLiteral",
+                        "extra": {
+                          "rawValue": 1,
+                          "raw": "1"
+                        },
+                        "value": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "MemberExpression",
+                      "object": {
+                        "type": "Identifier",
+                        "name": "console"
+                      },
+                      "computed": false,
+                      "property": {
+                        "type": "Identifier",
+                        "name": "log"
+                      }
+                    },
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "a"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "directives": []
+            },
+            "extra": {
+              "parenthesized": true,
+              "parenStart": 201
+            }
+          },
+          "arguments": []
+        }
       }
     ],
     "directives": []
   },
-  "comments": [
-    {
-      "type": "CommentLine",
-      "value": "    [a = 2, ...[c]] = [1, 3, 4] // todo"
-    }
-  ]
+  "comments": []
 }

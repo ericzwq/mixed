@@ -89,7 +89,7 @@ class JSVM {
     '--false': (o, key) => o[key]--,
   }
 
-  async handler(ctx, node) {
+  handler(ctx, node) {
     if (arguments.length !== 2) throw Error('handler需要2个参数')
     if (typeof this[node.type] !== 'function') throw Error(`${node.type} 不是函数`)
     return this[node.type](ctx, node)
@@ -116,43 +116,39 @@ class JSVM {
     return _ctx[name]
   }
 
-  async CallExpression(ctx, node) {
-    const {callee, arguments: _args} = node
-    const args = []
-    for (const argument of _args) args.push(await this.handler(ctx, argument))
-    if (callee.type !== 'MemberExpression') return (await this.handler(ctx, callee))(...args)
-    const c = (await this.handler(ctx, callee.object))
-    console.log(c, callee, node)
-    return c[callee.property.name](...args) // this指向
+  CallExpression(ctx, node) {
+    const {callee, arguments: args} = node
+    if (callee.type !== 'MemberExpression') return this.handler(ctx, callee)(...args.map(argument => this.handler(ctx, argument)))
+    return this.handler(ctx, callee.object)[callee.property.name](...args.map(argument => this.handler(ctx, argument))) // this指向
   }
 
   // 处理成员表达式
   _memberExpressionHandler = {
-    async undefined(vm, ctx, node, key) { // 取值模式（默认）
-      return await vm.handler(ctx, node.object)[key]
+    undefined(vm, ctx, node, key) { // 取值模式（默认）
+      return vm.handler(ctx, node.object)[key]
     },
-    async delete(vm, ctx, node, key) { // 删除模式
-      return delete await vm.handler(ctx, node.object)[key]
+    delete(vm, ctx, node, key) { // 删除模式
+      return delete vm.handler(ctx, node.object)[key]
     },
-    async assign(vm, ctx, node, key) { // 赋值模式
-      const o = await vm.handler(ctx, node.object)
+    assign(vm, ctx, node, key) { // 赋值模式
+      const o = vm.handler(ctx, node.object)
       return o[key] = vm.assignmentExpressionMap[node.operator](o[key], node.value)
     },
-    async update(vm, ctx, node, key) { // 更新：++, --
+    update(vm, ctx, node, key) { // 更新：++, --
       const {object, updateInfo: {prefix, operator}} = node
-      const o = await vm.handler(ctx, object)
+      const o = vm.handler(ctx, object)
       return vm.updateExpressionMap[operator + prefix](o, key)
     }
   }
 
-  async MemberExpression(ctx, node) {
+  MemberExpression(ctx, node) {
     const {property, kind} = node
-    const key = !node.computed ? property.name : await this.handler(ctx, property)
+    const key = !node.computed ? property.name : this.handler(ctx, property)
     return this._memberExpressionHandler[kind](this, ctx, node, key) // kind为自定义字段
   }
 
   _assignmentExpressionHandler = {
-    async handler(vm, ctx, left, right, operatorOrRestArgs, assign) { // 公共方法
+    handler(vm, ctx, left, right, operatorOrRestArgs, assign) { // 公共方法
       if (arguments.length !== 6) throw Error('参数错误') // todo
       return this[left.type](vm, ctx, left, right, operatorOrRestArgs, assign)
     },
@@ -160,13 +156,13 @@ class JSVM {
       const [_ctx, name] = vm.findIdentifierAndCtx(ctx, left) // 可能是上级作用域的变量
       return _ctx[name] = vm.assignmentExpressionMap[operator](_ctx[name], right)
     },
-    async MemberExpression(vm, ctx, left, right, operator) {
+    MemberExpression(vm, ctx, left, right, operator) {
       left['kind'] = 'assign'
       left['value'] = right
       left['operator'] = operator
       return vm.MemberExpression(ctx, left)
     },
-    async ObjectPattern(vm, ctx, left, right, operatorOrRestArgs, assign) { // 公共方法
+    ObjectPattern(vm, ctx, left, right, operatorOrRestArgs, assign) { // 公共方法
       const usedKeys = new Set() // 新的对象，重新记录解构的key
       for (let i = 0; i < left.properties.length; i++) {
         const property = left.properties[i]
@@ -174,7 +170,7 @@ class JSVM {
           const key = vm.getObjectKey(ctx, property)
           usedKeys.add(key)
           assign ?
-            await this.handler(vm, ctx, property.value, right[key], operatorOrRestArgs, false) // 上一步已赋参数默认值，此时不再赋值，变量交给Identifier赋值
+            this.handler(vm, ctx, property.value, right[key], operatorOrRestArgs, false) // 上一步已赋参数默认值，此时不再赋值，变量交给Identifier赋值
             : ctx[property.value.name] = right[key] // 上一步不是赋值模式，直接从目标对象中取属性
           continue
         }
@@ -189,32 +185,32 @@ class JSVM {
       }
       return right
     },
-    async ArrayPattern(vm, ctx, left, right, operatorOrRestArgs) { // 公共方法
+    ArrayPattern(vm, ctx, left, right, operatorOrRestArgs) { // 公共方法
       for (let i = 0; i < left.elements.length; i++) {
         const element = left.elements[i]
         if (element === null) continue
-        if (element.type !== 'RestElement') await this.handler(vm, ctx, element, right[i], operatorOrRestArgs, false)
-        else await this.handler(vm, ctx, element.argument, [...right.slice(i)], operatorOrRestArgs, false) // 剩余元素
+        if (element.type !== 'RestElement') this.handler(vm, ctx, element, right[i], operatorOrRestArgs, false)
+        else this.handler(vm, ctx, element.argument, [...right.slice(i)], operatorOrRestArgs, false) // 剩余元素
       }
       return right
     },
-    async AssignmentPattern(vm, ctx, _left, _right, operatorOrRestArgs) { // 公共方法
+    AssignmentPattern(vm, ctx, _left, _right, operatorOrRestArgs) { // 公共方法
       const {left, right} = _left
-      if (_right === undefined) _right = await vm.handler(ctx, right) // 参数默认值
-      return await this.handler(vm, ctx, left, _right, operatorOrRestArgs, true)
+      if (_right === undefined) _right = vm.handler(ctx, right) // 参数默认值
+      return this.handler(vm, ctx, left, _right, operatorOrRestArgs, true)
     }
   }
 
-  async AssignmentExpression(ctx, node) {
+  AssignmentExpression(ctx, node) {
     const {left, operator, right} = node
-    return this._assignmentExpressionHandler.handler(this, ctx, left, await this.handler(ctx, right), operator, true)
+    return this._assignmentExpressionHandler.handler(this, ctx, left, this.handler(ctx, right), operator, true)
   }
 
-  async ExpressionStatement(ctx, node) {
+  ExpressionStatement(ctx, node) {
     return this.handler(ctx, node.expression)
   }
 
-  async File(ctx, node) {
+  File(ctx, node) {
     return this.handler(ctx, node.program)
   }
 
@@ -228,27 +224,27 @@ class JSVM {
     AssignmentPattern: this._assignmentExpressionHandler.AssignmentPattern,
   }
 
-  async VariableDeclaration(ctx, node) {
+  VariableDeclaration(ctx, node) {
     for (let i = 0; i < node.declarations.length; i++) {
       let {id, init} = node.declarations[i]
       if (init !== null) init['fnName'] = id.name // 将变量名作为赋值对象的函数名（如果init是函数），如：const a = function () {}
-      this._variableDeclarationHandler.handler(this, ctx, id, init !== null ? await this.handler(ctx, init) : undefined, null, true)
+      this._variableDeclarationHandler.handler(this, ctx, id, init !== null ? this.handler(ctx, init) : undefined, null, true)
     }
   }
 
-  async LogicalExpression(ctx, node) {
+  LogicalExpression(ctx, node) {
     const {left, operator, right} = node
-    return this.logicalExpressionMap[operator](await this.handler(ctx, left), await this.handler(ctx, right))
+    return this.logicalExpressionMap[operator](this.handler(ctx, left), this.handler(ctx, right))
   }
 
-  async BinaryExpression(ctx, node) {
+  BinaryExpression(ctx, node) {
     const {left, operator, right} = node
-    return this.binaryExpressionMap[operator](await this.handler(ctx, left), await this.handler(ctx, right))
+    return this.binaryExpressionMap[operator](this.handler(ctx, left), this.handler(ctx, right))
   }
 
-  async UnaryExpression(ctx, node) {
+  UnaryExpression(ctx, node) {
     const {operator, argument} = node
-    return this.unaryExpressionMap[operator](await this.handler(ctx, argument), ctx, argument)
+    return this.unaryExpressionMap[operator](this.handler(ctx, argument), ctx, argument)
   }
 
   /* _updateExpressionHandler = {
@@ -262,7 +258,7 @@ class JSVM {
     }
   } */
 
-  async UpdateExpression(ctx, node) { // todo
+  UpdateExpression(ctx, node) { // todo
     const {operator, prefix, argument} = node
     if (argument.type === 'Identifier') { // 可能是上级作用域的变量
       const [_ctx, name] = this.findIdentifierAndCtx(ctx, argument)
@@ -274,34 +270,34 @@ class JSVM {
 //    return this._updateExpressionHandler[argument.type](this, ctx, argument, prefix, operator)
   }
 
-  async NumericLiteral(ctx, node) {
+  NumericLiteral(ctx, node) {
     return node.value
   }
 
-  async ReturnStatement(ctx, node) {
-    return new this.Returned(await this.handler(ctx, node.argument))
+  ReturnStatement(ctx, node) {
+    return new this.Returned(this.handler(ctx, node.argument))
   }
 
-  async StringLiteral(ctx, node) {
+  StringLiteral(ctx, node) {
     return node.value
   }
 
-  async Program(ctx, node) {
+  Program(ctx, node) {
     for (let i = 0, l = node.body.length; i < l; i++) {
-      await this.handler(ctx, node.body[i])
+      this.handler(ctx, node.body[i])
     }
   }
 
   async AwaitExpression(ctx, node) {
-    return this.handler(ctx, node.argument)
+    return await this.handler(ctx, node.argument)
   }
 
   // 处理形参
-  async formalParamsHandler(ctx, params, args) {
+  formalParamsHandler(ctx, params, args) {
     const l = params.length
     const restArgs = args.slice(l - 1)
     for (let i = 0; i < l; i++) {
-      await this._formalParamsHandler.handler(this, ctx, params[i], args[i], restArgs, false)
+      this._formalParamsHandler.handler(this, ctx, params[i], args[i], restArgs, false)
     }
   }
 
@@ -361,19 +357,17 @@ class JSVM {
     }
   }
 
-  async FunctionDeclaration(ctx, node) {
-    return ctx[node.id.name] = this.FunctionExpression(ctx, node)
+  FunctionDeclaration(ctx, node) {
+    ctx[node.id.name] = this.FunctionExpression(ctx, node)
   }
 
-  async FunctionExpression(ctx, node) {
+  FunctionExpression(ctx, node) {
     const _this = this
-    const generateFnBody = async function (args, context) {
+    const generateFnBody = function (args, context) {
       const blockCtx = Object.create(null, {'_parent': {value: ctx}, 'this': {value: context}, 'arguments': {value: args}})
-      await _this.formalParamsHandler(blockCtx, node.params, Array.from(args))
+      _this.formalParamsHandler(blockCtx, node.params, Array.from(args))
       node.body['function'] = true
-//      const res = _this.handler(blockCtx, node.body)
-//      return res instanceof _this.Returned ? res.data : res
-      return (await _this.handler(blockCtx, node.body))?.data // 若有return，则必有data，若没有return，则返回为undefined todo
+      return _this.handler(blockCtx, node.body)?.data // 若有return，则必有data，若没有return，则返回为undefined
     }
     const name = node.id?.name ?? node['fnName']
     if (!node.async) {
@@ -405,41 +399,49 @@ class JSVM {
     }
   }
 
-  async ArrowFunctionExpression(ctx, node) {
+  ArrowFunctionExpression(ctx, node) {
     const blockCtx = Object.create(null, {'_parent': {value: ctx}})
     node.body['function'] = true
     const name = node['fnName']
-    const generateFnBody = async function (_this, args) {
-      _this.formalParamsHandler(blockCtx, node.params, args)
-//      const res = _this.handler(blockCtx, node.body)
-//      return res instanceof _this.Returned ? res.data : res
-      return (await _this.handler(blockCtx, node.body))?.data // 若有return，则必有data，若没有return，则返回为undefined todo
-    }
     if (!node.async) {
-      if (name === undefined) return (...args) => generateFnBody(this, args)
+      if (name === undefined) return (...args) => {
+        this.formalParamsHandler(blockCtx, node.params, args)
+        const res = this.handler(blockCtx, node.body)
+        return res instanceof this.Returned ? res.data : res
+      }
       const o = { // 保留函数名
-        [name]: (...args) => generateFnBody(this, args)
+        [name]: (...args) => {
+          this.formalParamsHandler(blockCtx, node.params, args)
+          const res = this.handler(blockCtx, node.body)
+          return res instanceof this.Returned ? res.data : res
+        }
       }
       return o[name]
     } else {
-      if (name === undefined) return async (...args) => generateFnBody(this, args)
+      if (name === undefined) return async (...args) => {
+        this.formalParamsHandler(blockCtx, node.params, args)
+        const res = this.handler(blockCtx, node.body)
+        return res instanceof this.Returned ? res.data : res
+      }
       const o = { // 保留函数名
-        [name]: async (...args) => generateFnBody(this, args)
+        [name]: async (...args) => {
+          this.formalParamsHandler(blockCtx, node.params, args)
+          const res = this.handler(blockCtx, node.body)
+          return res instanceof this.Returned ? res.data : res
+        }
       }
       return o[name]
     }
   }
 
-  async NewExpression(ctx, node) {
-    const callee = await this.handler(ctx, node.callee)
-    const args = []
-    for (const argument of node.arguments) args.push(await this.handler(ctx, argument))
-    return new callee(...args)
+  NewExpression(ctx, node) {
+    const callee = this.handler(ctx, node.callee)
+    return new callee(...node.arguments.map(argument => this.handler(ctx, argument)))
   }
 
   // 处理不同的函数类型kind type: ObjectMethod
   _kindMethodHandler = {
-    async handler(vm, ctx, node, o, key) {
+    handler(vm, ctx, node, o, key) {
       this[node.kind](vm, ctx, node, o, key)
     },
     getDescriptor(o, key) {
@@ -448,46 +450,43 @@ class JSVM {
         enumerable: true,
       }
     },
-    async method(vm, ctx, node, o, key) {
+    method(vm, ctx, node, o, key) {
       node['fnName'] = key
-      o[key] = await vm.FunctionExpression(ctx, node)
+      o[key] = vm.FunctionExpression(ctx, node)
     },
-    async get(vm, ctx, node, o, key) {
+    get(vm, ctx, node, o, key) {
       const descriptor = this.getDescriptor(o, key)
-      descriptor.get = await vm.FunctionExpression(ctx, node)
+      descriptor.get = vm.FunctionExpression(ctx, node)
       Object.defineProperty(o, key, descriptor)
     },
-    async set(vm, ctx, node, o, key) {
+    set(vm, ctx, node, o, key) {
       const descriptor = this.getDescriptor(o, key)
-      descriptor.set = await vm.FunctionExpression(ctx, node)
+      descriptor.set = vm.FunctionExpression(ctx, node)
       Object.defineProperty(o, key, descriptor)
     },
   }
   // 处理对象表达式 type: ObjectExpression
   _objectExpressionHandler = {
-    async handler(vm, ctx, o, node) {
+    handler(vm, ctx, o, node) {
       return this[node.type](vm, ctx, o, node)
     },
-    async ObjectProperty(vm, ctx, o, node) { // 属性
+    ObjectProperty(vm, ctx, o, node) { // 属性
       const key = vm.getObjectKey(ctx, node)
       node.value['fnName'] = key
-      o[key] = await vm.handler(ctx, node.value)
+      o[key] = vm.handler(ctx, node.value)
       return o
     },
-    async ObjectMethod(vm, ctx, o, node) { // 方法
-      await vm._kindMethodHandler.handler(vm, ctx, node, o, vm.getObjectKey(ctx, node))
+    ObjectMethod(vm, ctx, o, node) { // 方法
+      vm._kindMethodHandler.handler(vm, ctx, node, o, vm.getObjectKey(ctx, node))
       return o
     },
-    async SpreadElement(vm, ctx, o, node) { // 展开运算符
-      return Object.assign(o, await vm.handler(ctx, node.argument))
+    SpreadElement(vm, ctx, o, node) { // 展开运算符
+      return Object.assign(o, vm.handler(ctx, node.argument))
     }
   }
 
-  async ObjectExpression(ctx, node) {
-    const o = {}
-    for (const property of node.properties) await this._objectExpressionHandler.handler(this, ctx, o, property)
-    return o
-//    return node.properties.reduce(async (acc, cur) => await this._objectExpressionHandler.handler(this, ctx, acc, cur), {})
+  ObjectExpression(ctx, node) {
+    return node.properties.reduce((acc, cur) => this._objectExpressionHandler.handler(this, ctx, acc, cur), {})
   }
 
   ThisExpression(ctx) {
@@ -521,24 +520,24 @@ class JSVM {
   }
 
   // 函数体或代码块
-  async BlockStatement(ctx, node) {
+  BlockStatement(ctx, node) {
     const blockCtx = node['function'] || node['for'] ? ctx : Object.create(null, {'_parent': {value: ctx}}) // 如果不是函数声明或for语句里的，添加块级作用域
     for (let i = 0, l = node.body.length; i < l; i++) {
       const body = node.body[i]
       if (body.type !== 'ReturnStatement') {
-        const res = await this.handler(blockCtx, body)
+        const res = this.handler(blockCtx, body)
         if (res instanceof this.Returned || res instanceof this.Broken) return res // 返回为Returned表示内部已经return || 结束当前代码块。直接上抛标记类，终止上方的循环
         if (res instanceof this.Continued) return res.label === undefined ? undefined : res // 结束当前代码块。若没有label，跳出当前循环即可；若有label，则继续上抛标记类
-      } else return new this.Returned(await this.handler(blockCtx, body.argument))
+      } else return new this.Returned(this.handler(blockCtx, body.argument))
     }
   }
 
-  async ForStatement(ctx, node) {
+  ForStatement(ctx, node) {
     const blockCtx = Object.create(null, {'_parent': {value: ctx}})
     const {init, test, update, body} = node
     body['for'] = true
-    for ((await this.handler(blockCtx, init)); (await this.handler(blockCtx, test)); (await this.handler(blockCtx, update))) {
-      const res = await this.handler(blockCtx, body)
+    for (this.handler(blockCtx, init); this.handler(blockCtx, test); this.handler(blockCtx, update)) {
+      const res = this.handler(blockCtx, body)
       if (res instanceof this.Returned) return res // 返回为Returned表示内部已经return
       if (res instanceof this.Broken) { // break直接跳出，若没有label，跳出当前循环即可，若有label且上级作用域不包含label，则继续上抛Broken标记类
         return (res.label === undefined || ctx['_labels']?.has(res.label)) ? undefined : res
@@ -550,17 +549,17 @@ class JSVM {
     }
   }
 
-  async ForOfStatement(ctx, node) {
+  ForOfStatement(ctx, node) {
     const blockCtx = Object.create(null, {'_parent': {value: ctx}})
     const {left, right, body} = node
     body['for'] = true
     console.log(this.handler(ctx, right))
-    for (const value of (await this.handler(ctx, right))) {
+    for (const value of this.handler(ctx, right)) {
       console.log(value)
       left.init = {type: 'NumericLiteral', value} // 初始化变量，这里假定为数字类型
       console.log(value)
-      await this.handler(blockCtx, left)
-      const res = await this.handler(blockCtx, body)
+      this.handler(blockCtx, left)
+      const res = this.handler(blockCtx, body)
       if (res instanceof this.Returned) return res // 返回为Returned表示内部已经return
       if (res instanceof this.Broken) { // break直接跳出，若没有label，跳出当前循环即可，若有label且上级作用域不包含label，则继续上抛Broken标记类
         return (res.label === undefined || ctx['_labels']?.has(res.label)) ? undefined : res
@@ -580,19 +579,19 @@ class JSVM {
     return null
   }
 
-  async ArrayExpression(ctx, node) {
+  ArrayExpression(ctx, node) {
     const elements = []
     for (let i = 0; i < node.elements.length; i++) {
       const element = node.elements[i]
       if (element === null) delete elements[elements.push(null) - 1]// 缺省元素 [1,,3]
-      else if (element.type !== 'SpreadElement') elements.push(await this.handler(ctx, element)) // 正常情况
-      else elements.push(...(await this.handler(ctx, element.argument))) // 展开运算符
+      else if (element.type !== 'SpreadElement') elements.push(this.handler(ctx, element)) // 正常情况
+      else elements.push(...this.handler(ctx, element.argument)) // 展开运算符
     }
     return elements
   }
 
-  async ThrowStatement(ctx, node) {
-    throw await this.handler(ctx, node.argument)
+  ThrowStatement(ctx, node) {
+    throw this.handler(ctx, node.argument)
   }
 
   LabeledStatement(ctx, node) {
@@ -610,16 +609,14 @@ class JSVM {
     return new this.Broken(node.label?.name)
   }
 
-  async IfStatement(ctx, node) {
-    if (await this.handler(ctx, node.test)) {
+  IfStatement(ctx, node) {
+    if (this.handler(ctx, node.test)) {
       return this.handler(ctx, node.consequent)
     } else if (node.alternate !== null) {
       return this.handler(ctx, node.alternate)
     }
   }
-
-  EmptyStatement() {
-  }
+  EmptyStatement(){}
 }
 
 const vm = new JSVM()
