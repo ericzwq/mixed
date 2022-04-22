@@ -7,210 +7,59 @@
     "interpreter": null,
     "body": [
       {
-        "type": "VariableDeclaration",
-        "declarations": [
-          {
-            "type": "VariableDeclarator",
-            "id": {
-              "type": "Identifier",
-              "name": "p"
-            },
-            "init": {
-              "type": "NewExpression",
-              "callee": {
-                "type": "Identifier",
-                "name": "Promise"
-              },
-              "arguments": [
-                {
-                  "type": "ArrowFunctionExpression",
-                  "id": null,
-                  "generator": false,
-                  "async": false,
-                  "params": [
-                    {
-                      "type": "Identifier",
-                      "name": "resolve"
-                    }
-                  ],
-                  "body": {
-                    "type": "CallExpression",
-                    "callee": {
-                      "type": "Identifier",
-                      "name": "setTimeout"
-                    },
-                    "arguments": [
-                      {
-                        "type": "ArrowFunctionExpression",
-                        "id": null,
-                        "generator": false,
-                        "async": false,
-                        "params": [],
-                        "body": {
-                          "type": "CallExpression",
-                          "callee": {
-                            "type": "Identifier",
-                            "name": "resolve"
-                          },
-                          "arguments": [
-                            {
-                              "type": "NumericLiteral",
-                              "extra": {
-                                "rawValue": 5,
-                                "raw": "5"
-                              },
-                              "value": 5
-                            }
-                          ]
-                        }
-                      },
-                      {
-                        "type": "NumericLiteral",
-                        "extra": {
-                          "rawValue": 500,
-                          "raw": "500"
-                        },
-                        "value": 500
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
-          }
-        ],
-        "kind": "let"
-      },
-      {
-        "type": "VariableDeclaration",
-        "declarations": [
-          {
-            "type": "VariableDeclarator",
-            "id": {
-              "type": "Identifier",
-              "name": "p2"
-            },
-            "init": {
-              "type": "NewExpression",
-              "callee": {
-                "type": "Identifier",
-                "name": "Promise"
-              },
-              "arguments": [
-                {
-                  "type": "ArrowFunctionExpression",
-                  "id": null,
-                  "generator": false,
-                  "async": false,
-                  "params": [
-                    {
-                      "type": "Identifier",
-                      "name": "resolve"
-                    }
-                  ],
-                  "body": {
-                    "type": "CallExpression",
-                    "callee": {
-                      "type": "Identifier",
-                      "name": "setTimeout"
-                    },
-                    "arguments": [
-                      {
-                        "type": "ArrowFunctionExpression",
-                        "id": null,
-                        "generator": false,
-                        "async": false,
-                        "params": [],
-                        "body": {
-                          "type": "CallExpression",
-                          "callee": {
-                            "type": "Identifier",
-                            "name": "resolve"
-                          },
-                          "arguments": [
-                            {
-                              "type": "NumericLiteral",
-                              "extra": {
-                                "rawValue": 6,
-                                "raw": "6"
-                              },
-                              "value": 6
-                            }
-                          ]
-                        }
-                      },
-                      {
-                        "type": "NumericLiteral",
-                        "extra": {
-                          "rawValue": 1000,
-                          "raw": "1000"
-                        },
-                        "value": 1000
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
-          }
-        ],
-        "kind": "let"
-      },
-      {
-        "type": "ExpressionStatement",
-        "expression": {
-          "type": "CallExpression",
-          "callee": {
-            "type": "MemberExpression",
-            "object": {
-              "type": "CallExpression",
-              "callee": {
-                "type": "MemberExpression",
-                "object": {
-                  "type": "Identifier",
-                  "name": "Promise"
-                },
-                "computed": false,
-                "property": {
-                  "type": "Identifier",
-                  "name": "all"
-                }
-              },
-              "arguments": [
-                {
-                  "type": "ArrayExpression",
-                  "elements": [
-                    {
-                      "type": "Identifier",
-                      "name": "p"
-                    },
-                    {
-                      "type": "Identifier",
-                      "name": "p2"
-                    }
-                  ]
-                }
-              ]
-            },
-            "computed": false,
-            "property": {
-              "type": "Identifier",
-              "name": "then"
-            }
-          },
-          "arguments": [
+        "type": "ForStatement",
+        "init": {
+          "type": "VariableDeclaration",
+          "declarations": [
             {
-              "type": "ArrowFunctionExpression",
-              "id": null,
-              "generator": false,
-              "async": false,
-              "params": [
-                {
-                  "type": "Identifier",
-                  "name": "r"
-                }
-              ],
-              "body": {
+              "type": "VariableDeclarator",
+              "id": {
+                "type": "Identifier",
+                "name": "i"
+              },
+              "init": {
+                "type": "NumericLiteral",
+                "extra": {
+                  "rawValue": 0,
+                  "raw": "0"
+                },
+                "value": 0
+              }
+            }
+          ],
+          "kind": "let"
+        },
+        "test": {
+          "type": "BinaryExpression",
+          "left": {
+            "type": "Identifier",
+            "name": "i"
+          },
+          "operator": "<",
+          "right": {
+            "type": "NumericLiteral",
+            "extra": {
+              "rawValue": 5,
+              "raw": "5"
+            },
+            "value": 5
+          }
+        },
+        "update": {
+          "type": "UpdateExpression",
+          "operator": "++",
+          "prefix": false,
+          "argument": {
+            "type": "Identifier",
+            "name": "i"
+          }
+        },
+        "body": {
+          "type": "BlockStatement",
+          "body": [
+            {
+              "type": "ExpressionStatement",
+              "expression": {
                 "type": "CallExpression",
                 "callee": {
                   "type": "MemberExpression",
@@ -227,96 +76,13 @@
                 "arguments": [
                   {
                     "type": "Identifier",
-                    "name": "r"
+                    "name": "i"
                   }
                 ]
               }
             }
-          ]
-        }
-      },
-      {
-        "type": "ExpressionStatement",
-        "expression": {
-          "type": "CallExpression",
-          "callee": {
-            "type": "FunctionExpression",
-            "id": null,
-            "generator": false,
-            "async": true,
-            "params": [],
-            "body": {
-              "type": "BlockStatement",
-              "body": [
-                {
-                  "type": "VariableDeclaration",
-                  "declarations": [
-                    {
-                      "type": "VariableDeclarator",
-                      "id": {
-                        "type": "Identifier",
-                        "name": "a"
-                      },
-                      "init": null
-                    }
-                  ],
-                  "kind": "let"
-                },
-                {
-                  "type": "ExpressionStatement",
-                  "expression": {
-                    "type": "AssignmentExpression",
-                    "operator": "=",
-                    "left": {
-                      "type": "Identifier",
-                      "name": "a"
-                    },
-                    "right": {
-                      "type": "AwaitExpression",
-                      "argument": {
-                        "type": "NumericLiteral",
-                        "extra": {
-                          "rawValue": 1,
-                          "raw": "1"
-                        },
-                        "value": 1
-                      }
-                    }
-                  }
-                },
-                {
-                  "type": "ExpressionStatement",
-                  "expression": {
-                    "type": "CallExpression",
-                    "callee": {
-                      "type": "MemberExpression",
-                      "object": {
-                        "type": "Identifier",
-                        "name": "console"
-                      },
-                      "computed": false,
-                      "property": {
-                        "type": "Identifier",
-                        "name": "log"
-                      }
-                    },
-                    "arguments": [
-                      {
-                        "type": "Identifier",
-                        "name": "a"
-                      }
-                    ]
-                  }
-                }
-              ],
-              "directives": []
-            },
-            "extra": {
-              "parenthesized": true,
-              "parenStart": 201
-            }
-          },
-          "arguments": []
+          ],
+          "directives": []
         }
       }
     ],

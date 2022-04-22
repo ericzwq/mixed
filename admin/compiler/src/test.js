@@ -1,5 +1,5 @@
 // 形参默认值
-// break continue, switch,case,default   for，while，do while，预解析，类，三元, 二进制，bigint, 模板字符串  else if
+// async++, switch,case,default   for，while，do while，预解析，类，三元, 二进制，bigint, 模板字符串  else if
 import types from '@babel/types'
 
 export default class Test {
@@ -205,19 +205,35 @@ export default class Test {
     }
     console.log(s)
   `
-  static forward = `
-    let p = new Promise(resolve => setTimeout(() => resolve(5), 500));
-    let p2 = new Promise(resolve => setTimeout(() => resolve(6), 1000));
-    console.log(p)
-    Promise.all([p, p2]).then(r => console.log(r));
+  static async = `
 //    (async function () {
-//      let a
-//      a = await 1
-//      console.log(a)
+//      let p = new Promise(resolve => setTimeout(() => {console.log(0); resolve(5)}, 500));
+//      console.log(await p)
+//      console.log(1)
 //    })()
-  `
-  static forward2 = `
+
+//    const o = {
+//      get f() {
+//        return 1
+//      },
+//      d() {}
+//    }
+//    console.log(o.f)
+    
+//    let p = new Promise(resolve => setTimeout(() => resolve(5), 500));
+//    let p2 = new Promise(resolve => setTimeout(() => resolve(6), 1000));
+//    Promise.all([p, p2]).then(r => console.log(r));
+
     (async function () {
+      let a
+      a = await 1
+      console.log(a)
+    })()
+  `
+  static forOfStatement = `
+    (async function () {
+      let p = new Promise(resolve => setTimeout(() => {console.log(0); resolve(5)}, 500));
+      console.log(await p)
       console.log(1)
       const r = await new Promise(resolve => setTimeout(() => resolve(2)), 500)
       console.log(r)
@@ -231,14 +247,43 @@ export default class Test {
       }
   })()
   `
+  static forward = `
+    for(let i = 0; i < 5; i++) {
+      console.log(i)
+    }
+  `
 }
 'use strict'
 
-//let p = new Promise(resolve => setTimeout(() => resolve(5), 500));
-//let p2 = new Promise(resolve => setTimeout(() => resolve(6), 1000));
-//Promise.all([p, p2]).then(r => console.log(r));
-//(async function () {
-//  let a
-//  a = await 1
-//  console.log(a)
-//})()
+let s = ''
+label3: for (let y = 0; y < 10; y++) {
+  if (y === 4) break label3
+  if (y === 5) continue
+  console.log('%cyy', 'color: green', y)
+  s += 'yy' + y + ';'
+  label0: for (let x = 0; x < 10; x++) {
+    if (x === 7) break label0
+    if (x === 2) continue label3
+    console.log('%cxx', 'color: red', x)
+    s += 'xx:' + x + ';'
+    label1: for (let j = 0; j < 10; j++) {
+      console.log('%cjj', 'color: blue', j)
+      s += 'jj:' + j + ';'
+      if (j === 5) break label0
+      if (j === 6) break label1
+      if (j === 7) continue label3
+      if (j === 8) break
+      if (j === 9) continue
+      label2: for (let i = 0; i < 10; i++) {
+        if (i === 3) break label2
+        if (i === 1) continue label1
+        if (i === 7) continue label0
+        if (i === 8) break label3
+        if (i === 9) break
+        console.log('ii', i)
+        s += 'ii:' + i + ';'
+      }
+    }
+  }
+}
+console.log(s)
