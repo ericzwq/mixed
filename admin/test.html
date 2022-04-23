@@ -95,12 +95,11 @@
   function ff2() {
     const arr = []
 
+    let a = Array.from({length: 3000000})
     let t2 = Date.now()
-    for (let i = 0; i < 3000000; i++) {
-      (async function () {
-        let a = 7
-      })()
-    }
+    a.forEach(() => {
+
+    })
     console.log(Date.now() - t2, 't2')
   }
 

@@ -1,3 +1,4 @@
+/*标准版*/
 import {parse} from '@babel/core'
 import Test from './test'
 
@@ -90,25 +91,16 @@ class JSVM {
   }
 
   handler(ctx, node) {
-    if (arguments.length !== 2) throw Error('handler需要2个参数')
-    if (typeof this[node.type] !== 'function') throw Error(`${node.type} 不是函数`)
+//    if (arguments.length !== 2) throw Error('handler需要2个参数')
+//    if (typeof this[node.type] !== 'function') throw Error(`${node.type} 不是函数`)
     return this[node.type](ctx, node)
   }
 
   findIdentifierAndCtx(ctx, node) {
     const name = node.name
-//    if (name === 'Promise') console.log(ctx, node)
     while (ctx && !(name in ctx)) ctx = ctx['_parent'] // 查找上级作用域
     ctx = ctx || this.global // 最后查全局作用域
     return [ctx, name]
-    //    if (!ctx) {
-//      if (name in this.global) return this.global[name] // 最后查全局作用域
-//      throw Error(`找不到变量 ${name}`)
-//    }
-//    if (parent.type === 'AssignmentExpression') {
-//      console.log(ctx, node, parent)
-//      return ctx[name] = this.handler(ctx, node.right)
-//    }
   }
 
   Identifier(ctx, node) { // 变量
@@ -289,6 +281,7 @@ class JSVM {
   }
 
   async AwaitExpression(ctx, node) {
+    throw Error('暂不支持async语法糖（模拟性能低）')
     return await this.handler(ctx, node.argument)
   }
 
@@ -301,9 +294,12 @@ class JSVM {
     }
   }
 
+  getObjectKeyMap = [node => node.key.name, (node, ctx) => this.handler(ctx, node.key)]
+
   getObjectKey(ctx, node) {
     // computed 是否需计算
-    return !node.computed ? node.key.name : this.handler(ctx, node.key)
+    return this.getObjectKeyMap[+node.computed](node, ctx)
+//    return !node.computed ? node.key.name : this.handler(ctx, node.key)
   }
 
   _formalParamsHandler = {
@@ -384,6 +380,7 @@ class JSVM {
         return generateFnBody(arguments, this)
       } */
     } else {
+      throw Error('暂不支持async语法糖（模拟性能低）')
       if (name === undefined) return async function () { // 匿名函数
         return generateFnBody(arguments, this)
       }
@@ -418,6 +415,7 @@ class JSVM {
       }
       return o[name]
     } else {
+      throw Error('暂不支持async语法糖（模拟性能低）')
       if (name === undefined) return async (...args) => {
         this.formalParamsHandler(blockCtx, node.params, args)
         const res = this.handler(blockCtx, node.body)
@@ -590,6 +588,18 @@ class JSVM {
     return elements
   }
 
+  TemplateLiteral(ctx, node) {
+    const {quasis, expressions} = node
+    let i = 0
+    let temElement = quasis[i]
+    let res = ''
+    while (!temElement.tail) {
+      res += temElement.value.raw + String(this.handler(ctx, expressions[i]))
+      temElement = quasis[++i]
+    }
+    return res + temElement.value.raw
+  }
+
   ThrowStatement(ctx, node) {
     throw this.handler(ctx, node.argument)
   }
@@ -616,7 +626,18 @@ class JSVM {
       return this.handler(ctx, node.alternate)
     }
   }
-  EmptyStatement(){}
+
+  ConditionalExpression(ctx, node) {
+    const {test, alternate, consequent} = node
+    return this.handler(ctx, test) ? this.handler(ctx, consequent) : this.handler(ctx, alternate)
+  }
+
+  EmptyStatement() {
+  }
+
+  BigIntLiteral(ctx, node) {
+    return BigInt(node.value)
+  }
 }
 
 const vm = new JSVM()

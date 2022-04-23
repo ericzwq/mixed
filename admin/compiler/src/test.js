@@ -1,5 +1,5 @@
 // 形参默认值
-// async++, switch,case,default   for，while，do while，预解析，类，三元, 二进制，bigint, 模板字符串  else if
+// switch,case,default   for，while，do while，预解析，类, new.target
 import types from '@babel/types'
 
 export default class Test {
@@ -229,6 +229,13 @@ export default class Test {
       a = await 1
       console.log(a)
     })()
+    
+//    (async function () {
+//      const o = {a: 1}
+//      const p = new Promise(r => setTimeout(() => r(o), 1000))
+//      console.log((await p).a++)
+//      console.log(o)
+//    })()
   `
   static forOfStatement = `
     (async function () {
@@ -248,42 +255,20 @@ export default class Test {
   })()
   `
   static forward = `
-    for(let i = 0; i < 5; i++) {
-      console.log(i)
+    function ff2() {
+      const arr = []
+      const a = Array.from({length: 3000000})
+      let t2 = Date.now()
+      a.forEach(() => {
+        
+      })
+      console.log(Date.now() - t2, 't2')
     }
+    ff2()
+  `
+  static forward2 = `
+    console.log(Array.from({length: 30000}))
   `
 }
 'use strict'
 
-let s = ''
-label3: for (let y = 0; y < 10; y++) {
-  if (y === 4) break label3
-  if (y === 5) continue
-  console.log('%cyy', 'color: green', y)
-  s += 'yy' + y + ';'
-  label0: for (let x = 0; x < 10; x++) {
-    if (x === 7) break label0
-    if (x === 2) continue label3
-    console.log('%cxx', 'color: red', x)
-    s += 'xx:' + x + ';'
-    label1: for (let j = 0; j < 10; j++) {
-      console.log('%cjj', 'color: blue', j)
-      s += 'jj:' + j + ';'
-      if (j === 5) break label0
-      if (j === 6) break label1
-      if (j === 7) continue label3
-      if (j === 8) break
-      if (j === 9) continue
-      label2: for (let i = 0; i < 10; i++) {
-        if (i === 3) break label2
-        if (i === 1) continue label1
-        if (i === 7) continue label0
-        if (i === 8) break label3
-        if (i === 9) break
-        console.log('ii', i)
-        s += 'ii:' + i + ';'
-      }
-    }
-  }
-}
-console.log(s)
