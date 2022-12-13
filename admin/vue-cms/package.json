@@ -47,6 +47,6 @@
   "main": "webpack.config.js",
   "devDependencies": {
     "coffee-script": "^1.12.7",
-    "mocker-api": "^2.3.5"
+    "mocker-api": "^2.9.5"
   }
 }
