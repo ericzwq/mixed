@@ -1,0 +1,94 @@
+{
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/message/message",
+			"style": {
+				"navigationBarTitleText": "消息"
+			}
+		},
+		{
+			"path": "pages/contact/contact",
+			"style": {
+				"navigationBarTitleText": "联系人"
+			}
+		},
+		{
+			"path": "pages/found/found",
+			"style": {
+				"navigationBarTitleText": "发现"
+			}
+		},
+		{
+			"path": "pages/personal/personal",
+			"style": {
+				"navigationBarTitleText": "我的"
+			}
+		},
+		{
+			"path": "pages/login/login",
+			"style": {
+				"navigationBarTitleText": "登录"
+			}
+		},
+		{
+			"path":"pages/addContact/addContact",
+			"style": {
+				"navigationBarTitleText": "添加朋友"
+			}
+		},
+		{
+			"path":"pages/user/user-detail" // 用户详情
+		},
+		{
+			"path":"pages/chat/chat" ,// 聊天
+			"style": {
+				"navigationBarTitleText": ""
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8",
+		"rpxCalcBaseDeviceWidth": 750
+	},
+	"uniIdRouter": {},
+	"tabBar": {
+		"color": "#7A7E83",
+		"selectedColor": "#3cc51f",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"list": [{
+			"pagePath": "pages/message/message",
+			"iconPath": "static/image/message.png",
+			"selectedIconPath": "static/image/message-active.png",
+			"text": "消息"
+		}, {
+			"pagePath": "pages/contact/contact",
+			"iconPath": "static/image/message.png",
+			"selectedIconPath": "static/image/message-active.png",
+			"text": "联系人"
+		}, {
+			"pagePath": "pages/found/found",
+			"iconPath": "static/image/message.png",
+			"selectedIconPath": "static/image/message-active.png",
+			"text": "发现"
+		}, {
+			"pagePath": "pages/personal/personal",
+			"iconPath": "static/image/message.png",
+			"selectedIconPath": "static/image/message-active.png",
+			"text": "我的"
+		}]
+	},
+	"condition" : { //模式配置，仅开发期间生效
+		"current": 0, //当前激活的模式(list 的索引项)
+		"list": [
+			{
+				"name": "", //模式名称
+				"path": "", //启动页面，必选
+				"query": "" //启动参数，在页面的onLoad函数里面得到
+			}
+		]
+	}
+}

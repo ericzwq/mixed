@@ -1,111 +1,181 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
-  <style>
-    :root {
-      --text-color: red;
-    }
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport"
+			content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge">
+		<title>Document</title>
+		<style>
+			:root {
+				--text-color: red;
+			}
 
-    * {
-      padding: 0;
-      margin: 0;
-      box-sizing: border-box;
-    }
+			* {
+				padding: 0;
+				margin: 0;
+				box-sizing: border-box;
+			}
 
-    button {
-      position: relative;
-      outline: none;
-      padding: 10px;
-      background: red;
-      cursor: pointer;
-      color: #fff;
-      border: none;
-    }
+			button {
+				position: relative;
+				outline: none;
+				padding: 10px;
+				background: red;
+				cursor: pointer;
+				color: #fff;
+				border: none;
+			}
 
-    button:before {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      border-radius: inherit;
-      transform: translate(-50%, -50%);
-      opacity: 0;
-      content: " ";
-    }
+			button:before {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: 100%;
+				height: 100%;
+				background: #000;
+				border-radius: inherit;
+				transform: translate(-50%, -50%);
+				opacity: 0;
+				content: " ";
+			}
 
-    button:active:before {
-      opacity: 0.1;
-    }
-  </style>
-</head>
-<body>
-<button>按钮</button>
-<script>
-
-</script>
-<script>
-  'use strict'
-
-</script>
-<script>
-  function Node(val, next) {
-    this.val = val
-    this.next = next
-  }
-
-  //                   8
-  //          6                   10
-  //     5         7          9         11
-  // console.log(test({
-  //   val: 8,
-  //   left: {val: 6, left: {val: 5}, right: {val: 7.5}},
-  //   right: {val: 10, left: {val: 9}, right: {val: 11}}
-  // }, 12))
+			button:active:before {
+				opacity: 0.1;
+			}
+		</style>
+	</head>
+	<body>
+		<button>按钮</button>
+		<video id="remoteVideo"></video>
+		<video id="localVideo"></video>
+		<script>
+			'use strict'
+		</script>
+		<script>
+			const pc1 = new RTCPeerConnection();
+			pc1.addEventListener('icecandidate', async (e) => {
+				if (e.candidate) {
+					await pc2.addIceCandidate(e.candidate);
+				}
+			});
+			pc1.addEventListener('iceconnectionstatechange', (e) => {
+				console.log('pc1: iceconnectionstatechange', e);
+			});
 
 
-  let node0 = new Node(0), node1 = new Node(1), node2 = new Node(2), node3 = new Node(3), node4 = new Node(4),
-      node5 = new Node(5), node6 = new Node(6), node7 = new Node(7), node8 = new Node(8)
+			const pc2 = new RTCPeerConnection();
+			pc2.addEventListener('icecandidate', async (e) => {
+				if (e.candidate) {
+					await pc1.addIceCandidate(e.candidate);
+				}
+			});
 
 
-  // f2()
-  function getRan(s = 0, e = 10) {
-    return Math.floor(Math.random() * e) + s
-  }
+			pc2.addEventListener('iceconnectionstatechange', (e) => {
+				console.log('pc2: iceconnectionstatechange', e);
+			});
+
+			pc2.addEventListener('track', (e) => {
+				if (e.streams.length > 0) {
+					remoteVideo.srcObject = e.streams[0];			
+				}
+			});
 
 
-  function ff() {
-    const arr = []
+			const remoteVideo = document.querySelector('#remoteVideo');
+			const localVideo = document.querySelector('#localVideo');
 
-    let t = Date.now()
-    for (let i = 0; i < 3000000; i++) {
-      (async function () {
-        let a = 7 * 8
-      })()
-    }
-    console.log(Date.now() - t, 't')
-  }
+			async function pushStream(answer) {
+				pc1.setRemoteDescription(answer);
+			}
 
-  function ff2() {
-    const arr = []
+			async function pullStream(offer) {
+				pc2.setRemoteDescription(offer);
+				const answer = await pc2.createAnswer();
+				pc2.setLocalDescription(answer);
+				console.warn('answer', answer);
+				pushStream(answer);
+			}
 
-    let t2 = Date.now()
-    for (let i = 0; i < 3000000; i++) {
-      (async function () {
-        let a = 7
-      })()
-    }
-    console.log(Date.now() - t2, 't2')
-  }
 
-  ff()
-  ff2()
-</script>
-</body>
+			window.onload = async () => {
+				const localStream = await navigator.mediaDevices.getUserMedia({
+					video: true,
+					audio: true,
+				});
+
+
+
+
+				localVideo.srcObject = localStream;
+				localStream.getTracks().forEach((track) => pc1.addTrack(track, localStream));
+
+
+				const offer = await pc1.createOffer();
+				pc1.setLocalDescription(offer);
+				console.warn('pc1 offer', offer);
+				pullStream(offer);
+			};
+
+			function Node(val, next) {
+				this.val = val
+				this.next = next
+			}
+
+			//                   8
+			//          6                   10
+			//     5         7          9         11
+			// console.log(test({
+			//   val: 8,
+			//   left: {val: 6, left: {val: 5}, right: {val: 7.5}},
+			//   right: {val: 10, left: {val: 9}, right: {val: 11}}
+			// }, 12))
+
+
+			let node0 = new Node(0),
+				node1 = new Node(1),
+				node2 = new Node(2),
+				node3 = new Node(3),
+				node4 = new Node(4),
+				node5 = new Node(5),
+				node6 = new Node(6),
+				node7 = new Node(7),
+				node8 = new Node(8)
+
+
+			// f2()
+			function getRan(s = 0, e = 10) {
+				return Math.floor(Math.random() * e) + s
+			}
+
+
+			function ff() {
+				const arr = []
+
+				let t = Date.now()
+				for (let i = 0; i < 3000000; i++) {
+					(async function() {
+						let a = 7 * 8
+					})()
+				}
+				console.log(Date.now() - t, 't')
+			}
+
+			function ff2() {
+				const arr = []
+
+				let t2 = Date.now()
+				for (let i = 0; i < 3000000; i++) {
+					(async function() {
+						let a = 7
+					})()
+				}
+				console.log(Date.now() - t2, 't2')
+			}
+
+			// ff()
+			// ff2()
+		</script>
+	</body>
 </html>

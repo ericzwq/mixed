@@ -1,4 +1,4 @@
-import {FieldInfo, MysqlError, PoolConnection} from 'mysql'
+﻿import {FieldInfo, MysqlError, PoolConnection} from 'mysql'
 import {Middleware} from 'koa'
 import {CustomQueryFunction, PageParameter, SqlConfig} from './types/sql-types'
 import {ResponseSchema} from './response/response'
@@ -11,7 +11,7 @@ const pool = mysql.createPool({
   // port: 3306,
   password: '123456',
   // password: 'xc514xxx',
-  database: 'cheese_web',
+  database: 'chat',
   multipleStatements: true,
   timezone: '08:00'
 })
