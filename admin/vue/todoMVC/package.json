@@ -10,6 +10,6 @@
     "vue": "^2.5.11"
   },
   "devDependencies": {
-    "browser-sync": "^2.26.7"
+    "browser-sync": "^2.27.10"
   }
 }
