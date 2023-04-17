@@ -6,9 +6,10 @@ export namespace Messages {
 	export type From = Users.Username
 	export type To = Users.Username
 	export type Type = number
-	export type FackId = string // 前端消息id
+	export type FakeId = string // 前端消息id
 	export type CreatedAt = string
 	export type Status = number
+	export type Ext = string
 }
 export interface Message {
 	action: string
@@ -17,13 +18,14 @@ export interface Message {
 	to: Messages.To
 	type: Messages.Type
 	content: Messages.Content
-	fackId: Messages.FackId
+	fakeId: Messages.FakeId
 	createdAt: Messages.CreatedAt
+	ext: Messages.Ext
 }
 
 export interface SocketData {
 	type: number // 1普通消息 2系统消息 3撤回消息
-	fackId?: string // 前端消息id
+	fakeId?: string // 前端消息id
 	from: Users.Username
 	to: Users.Username
 	createdAt?: string

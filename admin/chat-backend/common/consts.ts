@@ -7,3 +7,5 @@ export const videoSet = new Set([
 ])
 
 export const UPLOAD_PATH = './uploads'
+
+export const isProd = process.env.NODE_ENV === 'production'

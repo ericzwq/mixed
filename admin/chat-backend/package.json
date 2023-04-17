@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc app.ts --outDir dist"
+    "dev": "cross-env NODE_ENV=dev nodemon app.ts",
+    "build": "cross-env NODE_ENV=production tsc app.ts --outDir dist"
   },
   "keywords": [],
   "author": "",
@@ -36,6 +37,7 @@
     "@types/redis": "^4.0.11",
     "@types/socket.io": "^3.0.2",
     "@types/ws": "^8.5.4",
+    "cross-env": "^7.0.3",
     "typescript": "^4.6.2"
   }
 }
