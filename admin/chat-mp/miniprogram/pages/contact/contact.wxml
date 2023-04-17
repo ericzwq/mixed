@@ -1,0 +1,14 @@
+<view class="contact-box">
+  <view class="contact-item">
+    <image class="left" src="../../static/image/add.svg"></image>
+    <view class="right">新的朋友</view>
+  </view>
+  <view class="contact-item">
+    <image class="left" src="../../static/image/group-chat.svg"></image>
+    <view class="right">群聊</view>
+  </view>
+  <view class="contact-item" wx:for="{{contacts}}" wx:key="username" data-i="{{index}}" bindtap="toDetail">
+    <image class="left" src="{{STATIC_BASE_URL + item.avatar}}"></image>
+    <view class="right">{{ item.nickname }}</view>
+  </view>
+</view>

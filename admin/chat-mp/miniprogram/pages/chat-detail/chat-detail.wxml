@@ -1,0 +1,74 @@
+<view class="{{['chat-box', keyboardUp ? 'focus': '']}}" bindtap="containerTap">
+  <view class="{{['main', showOpts ? 'showOpt' : '']}}" id="main">
+    <block wx:for="{{viewMessages}}" wx:key="fakeId">
+      <view wx:if="{{item.type === 0}}" class="middle">{{item.data}}</view>
+      <view wx:elif="{{user.username !== item.from}}" class="item left">
+        <image class="avatar" src="{{STATIC_BASE_URL + target.avatar}}" bindtap="toDetail"></image>
+        <view class="content">
+          <view wx:if="{{item.type === 1}}">{{item.data}}</view>
+          <image src="../../static/image/voice.svg" wx:elif="{{item.type === 3}}" width="30" data-i="{{index}}" class="audio {{item.isPlay ? 'play' : ''}}" bindtap="audioPlay"></image>
+        </view>
+        <image src="../../static/image/loading.svg" wx:if="{{item.state === 'loading'}}" width="20" class="status loading"></image>
+        <image src="../../static/image/error.svg" wx:if="{{item.state === 'error'}}" width="20" color="red" class="status error">
+        </image>
+      </view>
+      <view wx:else class="item right">
+        <image src="../../static/image/loading.svg" wx:if="{{item.state === 'loading'}}" class="status loading"></image>
+        <image src="../../static/image/error.svg" wx:if="{{item.state === 'error'}}" color="red" class="status error">
+        </image>
+        <view class="content">
+          <view wx:if="{{item.type === 1}}">{{item.data}}</view>
+          <image src="../../static/image/voice.svg" wx:elif="{{item.type === 3}}" width="30" data-i="{{index}}" class="audio {{item.isPlay ? 'play' : ''}}" bindtap="audioPlay"></image>
+        </view>
+        <image class="avatar" src="{{STATIC_BASE_URL + user.avatar}}" data-right="1" bindtap="toDetail"></image>
+      </view>
+    </block>
+  </view>
+  <view class="{{['bottom', showOpts ? 'showOpt' : '']}}">
+    <view class="input-box">
+      <image src="../../static/image/mic.svg" hidden="{{inputState !== 0}}" style="margin: 0;" bindtap="handleMic"></image>
+      <image src="../../static/image/keyboard.svg" hidden="{{inputState !== 1}}" bindtap="retKeybroad"></image>
+      <input id="content" focus="{{true}}" hidden="{{inputState !== 0}}" model:value="{{content}}" bindconfirm="send" bindinput="contentInput" />
+      <wxs module="chat" src="./chat-detail.wxs"></wxs>
+      <button hidden="{{inputState !== 1}}" class="btn-small" size="mini" bindtap="handleRecording">{{chat.getRecordStateText(recordState)}}</button>
+      <image id="showOpt" src="../../static/image/more.svg" hidden="{{!(!content && !recorder)}}" bindtap="handleShowOpts">
+      </image>
+      <button hidden="{{!(content || recordState === 2 )}}" size="mini" type="primary" bindtap="send">发送</button>
+      <button hidden="{{!(inputState === 1 && recordState === 2)}}" size="mini" type="default" class="cancel" bindtap="cancel">取消</button>
+    </view>
+    <view mark:opts="1" style="{{showOpts ? '' : 'display: none;'}}" class="opts">
+      <view class="opt-item">
+        <image src="../../static/image/pic.svg" width="40"></image>
+        <text>图片</text>
+      </view>
+      <view class="opt-item">
+        <image src="../../static/image/dir.svg" width="40"></image>
+        <text>文件</text>
+      </view>
+      <view class="opt-item" bindtap="handleVoiceCall">
+        <image src="../../static/image/voice.svg" width="40"></image>
+        <text>语音</text>
+      </view>
+      <view class="opt-item">
+        <image src="../../static/image/voice.svg" width="40"></image>
+        <text>视频</text>
+      </view>
+    </view>
+  </view>
+  <!-- <uni-popup id="confirmCall" type="dialog">
+    <uni-popup-dialog ref="inputClose" title="语音通话" @confirm="dialogInputConfirm" @close="dialogInputClose" confirmText="接听" cancelText="拒接"></uni-popup-dialog>
+  </uni-popup>
+  <uni-popup ref="calling" type="dialog" backgroundColor="#fff">
+    <view class="calling-box">
+      <video ref="localVideo" autoplay muted></video>
+      <video ref="remoteVideo" autoplay :muted="isMuted"></video>
+      <view class="state">正在等待对方回应...</view>
+      <view class="btns">
+        <button type="primary" size="mini" @click="handleMute">{{isMuted ? '开音' : '静音'}}</button>
+        <button type="primary" size="mini" @click="cancelCall">取消</button>
+        <button type="primary" size="mini" @click="handleMicoff">{{noMicoff ? '开麦' : '闭麦'}}</button>
+        <button type="primary" size="mini" @click="handleVideo">{{noVideo ? '开像' : '关像'}}</button>
+      </view>
+    </view>
+  </uni-popup> -->
+</view>

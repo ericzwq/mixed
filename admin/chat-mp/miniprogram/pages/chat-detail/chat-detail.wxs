@@ -1,0 +1,4 @@
+  function getRecordStateText(recordState) {
+    return [0, 2].indexOf(recordState) > -1 ? '开始录制' : '停止录制'
+  }
+  module.exports.getRecordStateText = getRecordStateText

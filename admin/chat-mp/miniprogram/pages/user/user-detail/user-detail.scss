@@ -1,0 +1,46 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  height: 120rpx;
+}
+
+image {
+  display: block;
+  width: 80rpx;
+  height: 80rpx;
+  margin: 20rpx;
+  border-radius: 8rpx;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  flex-grow: 1;
+}
+
+.nickname {
+  font-weight: 700;
+}
+
+.id {
+  color: #ccc;
+  font-size: 24rpx;
+}
+
+.gap {
+  height: 20rpx;
+  background-color: #f2f2f2;
+}
+
+.btn1 {
+  margin-bottom: 20rpx;
+}
+
+.btn2 {
+  margin-top: 80rpx;
+}
+
+.btn3 {
+  margin-top: 20rpx;
+}

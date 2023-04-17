@@ -1,0 +1,13 @@
+<view class="login-box">
+  <ui-form id="form" rules="{{rules}}" models="{{formData}}">
+    <ui-cells>
+      <ui-cell prop="username" show-error>
+        <input value="{{formData.username}}" data-bindkey="formData.username" bindinput="valueModel" placeholder="请输入用户名" />
+      </ui-cell>
+      <ui-cell prop="password" show-error>
+        <input type="password" value="{{formData.password}}" data-bindkey="formData.password" bindinput="valueModel" placeholder="请输入密码" />
+      </ui-cell>
+    </ui-cells>
+  </ui-form>
+  <button type="primary" bindtap="login" class="btn">登录</button>
+</view>

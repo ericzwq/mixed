@@ -1,0 +1,17 @@
+{
+  "name": "chat-mp",
+  "version": "1.0.0",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "miniprogram-api-typings": "^2.8.3-1"
+  },
+  "main": ".eslintrc.js",
+  "description": "",
+  "dependencies": {
+    "mobx-miniprogram": "^4.13.2",
+    "mobx-miniprogram-bindings": "^2.1.5"
+  }
+}

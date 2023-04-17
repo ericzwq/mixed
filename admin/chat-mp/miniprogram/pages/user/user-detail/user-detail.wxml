@@ -1,0 +1,13 @@
+<view class="user-detail-box">
+		<view class="header">
+			<image src="{{STATIC_BASE_URL + target.avatar}}"></image>
+			<view class="right">
+				<text class="nickname">{{target.nickname}}</text>
+				<text class="id">{{target.username}}</text>
+			</view>
+		</view>
+		<view class="gap"></view>
+		<button wx:if="{{!isInContact}}" class="btn1" type="primary" bindtap="addContact">添加到通讯录</button>
+		<button wx:if="{{isInContact}}" class="btn2" bindtap="toChat">发消息</button>
+		<button wx:if="{{isInContact}}" class="btn3">音视频通话</button>
+	</view>

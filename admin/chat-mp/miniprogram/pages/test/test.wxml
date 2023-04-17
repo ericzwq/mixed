@@ -1,0 +1,5 @@
+<!--pages/test/test.wxml-->
+<text bindtap="change">pages/test/test.wxml</text>
+<view bindtap="{{5}}" class="red" id="t">{{user.username}}</view>
+<test class="{{num > 7 ? 'red' : 'blue'}}"></test>
+<icon id="t" size="20" type="success"></icon>

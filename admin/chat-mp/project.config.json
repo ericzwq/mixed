@@ -1,0 +1,34 @@
+{
+    "description": "项目配置文件",
+    "packOptions": {
+        "ignore": [],
+        "include": []
+    },
+    "miniprogramRoot": "miniprogram/",
+    "compileType": "miniprogram",
+    "projectname": "chat-mp",
+    "setting": {
+        "useCompilerPlugins": [
+            "typescript",
+            "sass"
+        ],
+        "babelSetting": {
+            "ignore": [],
+            "disablePlugins": [],
+            "outputPath": ""
+        },
+        "condition": false,
+        "es6": false,
+        "enhance": false
+    },
+    "simulatorType": "wechat",
+    "simulatorPluginLibVersion": {},
+    "condition": {},
+    "srcMiniprogramRoot": "miniprogram/",
+    "appid": "wx24062df648734dd9",
+    "libVersion": "2.30.4",
+    "editorSetting": {
+        "tabIndent": "insertSpaces",
+        "tabSize": 4
+    }
+}

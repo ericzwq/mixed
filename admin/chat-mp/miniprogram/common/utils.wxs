@@ -1,0 +1,8 @@
+function formatSimpleDate(dateStr) {
+  var date = getDate(dateStr)
+  var h = date.getHours()
+  var m = date.getMinutes()
+  return (h >= 12 ? '下午' + (h - 12) : '上午' + h) + ':' + (m < 10 ? '0' + m : m)
+}
+
+module.exports.formatSimpleDate = formatSimpleDate

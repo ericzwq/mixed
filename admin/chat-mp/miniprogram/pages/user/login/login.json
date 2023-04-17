@@ -1,0 +1,7 @@
+{
+    "usingComponents": {
+      "ui-form": "weui-miniprogram/form/form",
+      "ui-cells": "weui-miniprogram/cells/cells",
+      "ui-cell": "weui-miniprogram/cell/cell"
+    }
+}

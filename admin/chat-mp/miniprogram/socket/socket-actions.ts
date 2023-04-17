@@ -1,0 +1,5 @@
+export const SEND_MSG = 'sendMessage'
+export const VOICE_RESULT = 'voiceResult'
+export const OFFER = 'offer'
+export const ANSWER = 'answer'
+export const CANDIDATE = 'candidate'

@@ -1,0 +1,22 @@
+  .contact-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 120rpx;
+  }
+
+  .left {
+    display: block;
+    width: 80rpx;
+    height: 80rpx;
+    margin: 20rpx;
+    border-radius: 8rpx;
+  }
+
+  .right {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    height: 100%;
+    border-bottom: 1px solid #efefef;
+  }
