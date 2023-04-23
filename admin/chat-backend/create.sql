@@ -21,6 +21,15 @@ create table users
     updatedAt timestamp               not null default current_timestamp on update current_timestamp comment '修改时间'
 );
 
+insert users(username, password, avatar, email, nickname)
+values ('eric', '111111', '/avatar/th(1).jpg', '1234@163.com', '淡定');
+
+insert users(username, password, avatar, email, nickname)
+values ('eric2', '111111', '/avatar/th(2).jpg', '12345@163.com', '等等');
+
+insert users(username, password, avatar, email, nickname)
+values ('eric3', '111111', '/avatar/th.jpg', '12346@163.com', '布露妮娅');
+
 #修改列
 
 # alter table users
@@ -38,9 +47,6 @@ create table users
 #     drop username,
 #     drop c2;
 
-insert users(username, password, avatar, email, nickname)
-values ('eric', '123456', '/avatar/default.png', '1234@163.com', '淡定');
-
 /*好友表*/
 drop table if exists contacts;
 create table contacts
@@ -53,6 +59,15 @@ create table contacts
     updatedAt timestamp                         not null default current_timestamp on update current_timestamp comment '修改时间'
 );
 
+insert contacts(master, sub, status)
+values ('eric', 'eric2', '00');
+
+insert contacts(master, sub, status)
+values ('eric', 'eric3', '00');
+
+insert contacts(master, sub, status)
+values ('eric2', 'eric3', '00');
+
 /*单聊表*/
 drop table if exists single_chat;
 create table single_chat
@@ -60,6 +75,34 @@ create table single_chat
     id        bigint auto_increment primary key not null,
     `from`    varchar(20)                       not null,
     `to`      varchar(20)                       not null,
+    content   varchar(500)                      not null,
+    type      int                               not null comment '0系统消息 1文本 2图片 3音频 4视频',
+    status    int                               not null comment '0正常 1撤回',
+    createdAt timestamp                         not null default current_timestamp comment '创建时间'
+);
+
+/*群表*/
+drop table if exists `groups`;
+create table `groups`
+(
+    id        bigint auto_increment primary key not null,
+    name      varchar(20)                       not null,
+    avatar    varchar(20)                       not null,
+    leader    varchar(20)                       not null,
+    manager   varchar(400),
+    member    varchar(15800)                    not null,
+    createdAt timestamp                         not null default current_timestamp comment '创建时间'
+);
+insert `groups`(name, avatar, leader, manager, member)
+values ('群聊1', '/avatar/th.jpg', 'eric', 'eric2', 'eric3');
+
+/*群聊表*/
+drop table if exists group_chat;
+create table group_chat
+(
+    id        bigint auto_increment primary key not null,
+    `from`    varchar(20)                       not null,
+    `to`      bigint                            not null,
     content   varchar(500)                      not null,
     type      int                               not null comment '0系统消息 1文本 2图片 3音频 4视频',
     status    int                               not null comment '0正常 1撤回',

@@ -19,7 +19,9 @@ import socket from './socket/socket'
 
 export default (port: number) => {
   const app = new Koa()
+  // todo wss
   app.use(sslify.default())
+  // const server = https.createServer({}, app.callback())
   const server = https.createServer({
     key: fs.readFileSync('./https/6414388_www.wanqiang.top.key'),
     cert: fs.readFileSync('./https/6414388_www.wanqiang.top.pem')
@@ -30,7 +32,7 @@ export default (port: number) => {
   const stream = fs.createWriteStream(path.join(__dirname, './log/access.log'))
   app.use(morgan('combined', {stream}))
 
-  const wss = socket(server)
+  const wss = socket(server) // todo wss
 
   app.keys = ['some secret hurr']  // 这个是配合signed属性的签名key
   app.use(session(sessionConfig, app))

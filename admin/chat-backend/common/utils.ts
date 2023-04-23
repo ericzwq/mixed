@@ -35,11 +35,11 @@ export function checkParams(ctx: Context, schema: AnySchema, params: any, status
   return Promise.resolve(validation)
 }
 
-export function checkMessageParams(ws: WebSocket.WebSocket, schema: AnySchema, params: Message, status: number = 999) {
+export function checkMessageParams(ws: WebSocket.WebSocket, schema: AnySchema, params: unknown, status: number = 999) {
   const validation = schema.validate(params)
   if (validation.error) {
-    if (params.type === 3) params.content = '' // 删除音频数据
-    ws.send(JSON.stringify(new SocketResponseSchema({message: validation.error.message, status, action: '', data: [params]})))
+    // if (params.type === 3) params.content = '' // 删除音频数据
+    ws.send(JSON.stringify(new SocketResponseSchema({message: validation.error.message, status, action: '', data: params})))
     console.log(validation.error.message)
     return Promise.reject(validation)
   }

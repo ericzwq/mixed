@@ -1,5 +1,5 @@
 import Joi = require("joi");
-import { userSchemas } from "../user/user-schema";
+import { userSchemas } from "../../../router/user/user-schema";
 
 const contactSchemas = {
 	master: userSchemas.username,

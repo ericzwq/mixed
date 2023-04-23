@@ -41,7 +41,13 @@ function master() {
 
   app.use(assets(path.resolve(__dirname, './public'), {maxAge: 400000000}))
 
-  const stream = fs.createWriteStream(path.join(__dirname, './log/access.log'))
+  const logPath = path.join(__dirname, './log/access.log')
+  try {
+    fs.accessSync(logPath)
+  } catch (e) {
+    fs.mkdirSync(path.join(__dirname, './log'))
+  }
+  const stream = fs.createWriteStream(logPath)
   app.use(morgan('combined', {stream}))
 
   app.use(function () {

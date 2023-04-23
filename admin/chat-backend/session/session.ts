@@ -16,8 +16,8 @@ const sessionConfig: Partial<session.opts> & { key: string } = {
 		async set(key, sess) {
 			// console.log('set', key, sess)
 			if (sess.login) { // 处理单端登录
-				client.del([await client.get(sess.username) || ''])
-				client.set(sess.username, key)
+				client.del([await client.get(sess.username!) || ''])
+				client.set(sess.username!, key)
 			}
 			client.set(key, JSON.stringify(sess)).then(null, e => console.log('redis写入失败', e))
 		},
