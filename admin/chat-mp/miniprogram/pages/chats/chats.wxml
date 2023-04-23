@@ -16,4 +16,5 @@
   <view class="hover-btn-box" hidden="{{!showHoverBtn}}" bindtap="clickMask">
     <view>删除该聊天</view>
   </view>
+  <more/>
 </view>

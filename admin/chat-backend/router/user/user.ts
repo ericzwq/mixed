@@ -1,10 +1,10 @@
-import {getEmailCodeSchema, loginSchema, registerSchema, searchUserSchema} from './user-schema'
+import {getEmailCodeSchema, loginSchema, registerSchema} from './user-schema'
 import Router = require('koa-router')
-import {addUser, getEmailByUsernameOrEmail, getUserByLogin, searchUserByUsername} from './user-sql'
+import {addUser, getEmailByUsernameOrEmail, getUserByLogin} from './user-sql'
 import {GetEmailCodeQuery, LoginReqBody, RegisterBody, SessionData} from './user-types'
 import client from '../../redis/redis'
 import {checkParams, formatDate} from '../../common/utils'
-import {getEmailCodeUrl, loginUrl, logoutUrl, registerUrl, searchUserUrl} from '../urls'
+import {getEmailCodeUrl, loginUrl, logoutUrl, registerUrl} from '../urls'
 import {ResponseSchema} from '../../response/response'
 
 const user = new Router()
@@ -62,11 +62,5 @@ user.post(logoutUrl, async ctx => {
   const cookie = await client.get(username)
   await client.del([username, cookie || ''])
   ctx.body = new ResponseSchema({message: '成功退出登录'})
-})
-
-user.get(searchUserUrl, async ctx => {
-  await checkParams(ctx, searchUserSchema, ctx.request.query, 1011)
-  const {result} = await searchUserByUsername(ctx)
-  ctx.body = new ResponseSchema({message: '查询成功', status: 0, data: result})
 })
 export default user

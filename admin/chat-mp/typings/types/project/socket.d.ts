@@ -1,4 +1,4 @@
-interface SocketResponse<T = Message[]> {
+interface SocketResponse<T = any> {
   status: number
   message: string
   data: T

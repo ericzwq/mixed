@@ -109,6 +109,17 @@ create table group_chat
     createdAt timestamp                         not null default current_timestamp comment '创建时间'
 );
 
+/*好友申请表*/
+drop table if exists friend_applications;
+create table friend_applications
+(
+    id        bigint auto_increment primary key not null,
+    `from`    varchar(20)                       not null,
+    `to`      varchar(20)                       not null,
+    status    int                               not null comment '0待确认 1同意 2拒绝',
+    createdAt timestamp                         not null default current_timestamp comment '创建时间'
+);
+
 /*帖子表*/
 drop table if exists posts;
 create table posts

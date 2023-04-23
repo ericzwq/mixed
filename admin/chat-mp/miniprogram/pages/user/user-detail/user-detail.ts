@@ -1,9 +1,9 @@
 import { createStoreBindings } from 'mobx-miniprogram-bindings'
-import http from "../../../http/http"
-import { addUserUrl } from "../../../http/urls"
 import { STATIC_BASE_URL } from '../../../consts/consts'
 import { userStore } from '../../../store/user'
 import { ChatDetailPath } from '../../../consts/routes'
+import { chatSocket } from '../../../socket/socket'
+import { ADD_USER } from '../../../socket/socket-actions'
 
 // pages/user/user-detail/user-detail.ts
 Page({
@@ -30,13 +30,15 @@ Page({
   },
   // 添加到通讯录
   addContact() {
-    http.post(addUserUrl, {
-      username: this.data.target.username
-    }).then(r => {
-      if (r.status === 0) {
-        userStore.setContacts(userStore.contacts.concat(this.data.target))
-      }
-    })
+    chatSocket.send({ action: ADD_USER, data: { username: this.data.target.username } })
+    chatSocket.addSuccessHandler(ADD_USER, (data) => wx.showToast({ title: data.message }))
+    // http.post(addUserUrl, {
+    //   username: this.data.target.username
+    // }).then(r => {
+    //   if (r.status === 0) {
+    //     userStore.setContacts(userStore.contacts.concat(this.data.target))
+    //   }
+    // })
   },
   // 发消息
   toChat() {

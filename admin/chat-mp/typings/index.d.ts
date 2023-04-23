@@ -6,9 +6,10 @@ interface IAppOption {
     toSaveUnameFakeIdsMap: { [k in string]: Messages.FakeId[] }
     saveStatus: string
   }
-  getUser: () => void
-  addMessageListener: () => void
+  getUser: () => boolean
   saveMessages: () => void
   saveMessagesHanlder: () => void
+  saveChat: (message: Message, target: Contact, newCount: number) => void
+  addReceMsgsListener: () => void
   // userInfoReadyCallback?: WechatMiniprogram.GetUserInfoSuccessCallback,
 }

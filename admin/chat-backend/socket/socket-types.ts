@@ -1,6 +1,6 @@
-import {SessionData, Users} from "../router/user/user-types"
-import * as WebSocket from "ws";
-import {IncomingMessage} from "http";
+import {SessionData, Users} from '../router/user/user-types'
+import * as WebSocket from 'ws'
+import {IncomingMessage} from 'http'
 
 export namespace Messages {
   export type Target = string // '1-2'
@@ -24,6 +24,11 @@ export namespace Groups {
   export type Member = string
   export type Members = Set<string>
   export type CreatedAt = string
+}
+
+export interface RequestMessage<T = null> {
+  action: string
+  data: T
 }
 
 export interface Group {

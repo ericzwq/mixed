@@ -40,7 +40,7 @@ export function checkMessageParams(ws: WebSocket.WebSocket, schema: AnySchema, p
   if (validation.error) {
     // if (params.type === 3) params.content = '' // 删除音频数据
     ws.send(JSON.stringify(new SocketResponseSchema({message: validation.error.message, status, action: '', data: params})))
-    console.log(validation.error.message)
+    console.log('params error:', validation.error.message)
     return Promise.reject(validation)
   }
   return Promise.resolve(validation)

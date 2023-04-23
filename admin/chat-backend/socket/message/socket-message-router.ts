@@ -1,15 +1,17 @@
-import {MessageHandler, ActionHandlerMap, Message} from "../socket-types";
-import {SessionData} from "../../router/user/user-types";
-import {IncomingMessage} from "http";
-import {getChatData} from "../socket-sql";
-import {SocketResponseSchema} from "../../response/response";
-import {RECEIVE_MSGS} from "../socket-actions";
-import {formatDate} from "../../common/utils";
-import client from "../../redis/redis";
-import WebSocket = require("ws");
-import {usernameClientMap, sendMessage} from "./chat/chat";
-import {addUser, getContacts} from "./contact/contact";
-import {answer, candidate, offer, voiceResult} from "./mediaCall/mediaCall";
+import {MessageHandler, ActionHandlerMap, Message} from '../socket-types'
+import {SessionData} from '../../router/user/user-types'
+import {IncomingMessage} from 'http'
+import {getChatData} from '../socket-sql'
+import {SocketResponseSchema} from '../../response/response'
+import {ADD_USER, ADD_USER_RET, ANSWER, GET_CONTACTS, OFFER, RECEIVE_MSGS, SEARCH_USERS, VOICE_RESULT} from '../socket-actions'
+import {formatDate} from '../../common/utils'
+import client from '../../redis/redis'
+import WebSocket = require('ws')
+import {usernameClientMap, sendMessage} from './chat/chat'
+import {getContacts} from './contact/contact'
+import {answer, candidate, offer, voiceResult} from './mediaCall/mediaCall'
+import {CANCELLED} from 'dns'
+import {addUser, addUserRet, searchUsers} from './user/user'
 
 const socketMessageRouter = {
   actionHandlerMap: {} as ActionHandlerMap,
@@ -77,10 +79,15 @@ socketMessageRouter.addHandler('stop', function (ws: WebSocket, session: Session
 })*/
 
 socketMessageRouter.addHandler('sendMessage', sendMessage)
-socketMessageRouter.addHandlers([{action: 'addUser', handler: addUser}, {action: 'getContacts', handler: getContacts}])
+socketMessageRouter.addHandlers([{action: GET_CONTACTS, handler: getContacts}])
 socketMessageRouter.addHandlers([
-  {action: 'voiceResult', handler: voiceResult},
-  {action: 'candidate', handler: candidate},
-  {action: 'offer', handler: offer},
-  {action: 'answer', handler: answer}
+  {action: VOICE_RESULT, handler: voiceResult},
+  {action: CANCELLED, handler: candidate},
+  {action: OFFER, handler: offer},
+  {action: ANSWER, handler: answer}
+])
+socketMessageRouter.addHandlers([
+  {action: ADD_USER, handler: addUser},
+  {action: SEARCH_USERS, handler: searchUsers},
+  {action: ADD_USER_RET, handler: addUserRet}
 ])

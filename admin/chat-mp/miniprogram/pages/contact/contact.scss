@@ -16,7 +16,21 @@
   .right {
     display: flex;
     flex-grow: 1;
+    justify-content: space-between;
     align-items: center;
     height: 100%;
     border-bottom: 1px solid #efefef;
+  }
+
+  .van-badge {
+    background: #fff !important;
+    padding-left: 12px !important;
+
+    &::after {
+      border: transparent !important;
+    }
+  }
+
+  .van-info {
+    right: 2rpx !important;
   }

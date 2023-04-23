@@ -34,10 +34,6 @@ export interface GetEmailCodeQuery extends ParsedUrlQuery {
 	email: Users.Email
 }
 
-export interface SearchUserQuery extends ParsedUrlQuery {
-	username: Users.Username
-}
-
 export interface LoginReqBody {
 	username: Users.Username
 	password: Users.Password

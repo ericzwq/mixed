@@ -3,7 +3,7 @@ import { userStore } from '../../store/store'
 import { LOAD_MESSAGE_COUNT, STATIC_BASE_URL } from '../../consts/consts'
 import { chatSocket, voiceSocket } from '../../socket/socket'
 import { formatDate, formatSimpleDate } from '../../common/utils'
-import { ANSWER, CANDIDATE, OFFER, SEND_MSG, VOICE_RESULT } from '../../socket/socket-actions'
+import { ANSWER, CANDIDATE, OFFER, RECE_MSGS, SEND_MSG, VOICE_RESULT } from '../../socket/socket-actions'
 import { UserDetailPath } from '../../consts/routes'
 
 const app = getApp<IAppOption>()
@@ -53,6 +53,7 @@ Page({
     const target = userStore.contactMap[username]
     if (!target) return
     this.setData({ target, type })
+    this.clearChat()
     wx.setNavigationBarTitle({ title: target?.nickname })
     this.loadInitMessage()
   },
@@ -434,7 +435,7 @@ Page({
   },
   // 注册socket消息监听
   addMessageListener() {
-    chatSocket.successHandlers[1] = ((data) => {
+    chatSocket.addSuccessHandler(RECE_MSGS, ((data: SocketResponse<Message[]>) => {
       data.data.forEach((message: Message) => {
         if (message.from === userStore.user.username) { // 自己发的
           const ownMessage = this.data.viewMessages.find(msg => msg.fakeId === message.fakeId)!
@@ -448,14 +449,14 @@ Page({
       this.setData({ viewMessages: this.data.viewMessages, })
       this.scrollView()
       app.saveMessages()
-    })
-    chatSocket.errorHandlers[1] = (data) => {
-      const messageInfo = userStore.unameMessageInfoMap[data.data[0].to!]
-      const message = messageInfo.messages[messageInfo.fakeIdIndexMap[data.data[0].fakeId!]]
+    }))
+    chatSocket.addErrorHandler(RECE_MSGS, (data: SocketResponse<Message>) => {
+      const messageInfo = userStore.unameMessageInfoMap[data.data.to!]
+      const message = messageInfo.messages[messageInfo.fakeIdIndexMap[data.data.fakeId!]]
       message.state = 'error'
       // userStore.setUnameMessageInfoMap({ ...userStore.unameMessageInfoMap })
       // this.setData({ viewMessages: this.data.viewMessages })
-    }
+    })
   },
   cmpTime(t1: string | number, t2: string | number) {
     return new Date(t1).getTime() < new Date(t2).getTime() - 180000 // 大于3分钟显示时间
@@ -583,13 +584,15 @@ Page({
     fakeIds.push(fakeId)
     app.globalData.toSaveUnameFakeIdsMap[target.username] = fakeIds
     this.setData({ content: '', _recordFilePath: '', recordState: 0 })
-    const message2 = type === 1 ? data : ''
-    const chat = { username: target.username, nickname: target.nickname, avatar: target.avatar, message: message2, createdAt: formatDate(), newCount: 0, type, from: username }
-    const index = userStore.chats.findIndex(chat => chat.nickname === target.nickname)
-    if (index > -1) userStore.chats.splice(index, 1)
-    userStore.chats.unshift(chat)
-    userStore.setChats([...userStore.chats])
-    wx.setStorageSync('chats', JSON.stringify(userStore.chats))
+    app.saveChat(message, this.data.target, 0)
     app.saveMessages()
-  }
+  },
+  clearChat() {
+    const index = userStore.chats.findIndex(chat => chat.username === this.data.target.username)
+    if (index > -1) {
+      userStore.chats[index].newCount = 0
+      userStore.setChats([...userStore.chats])
+      wx.setStorageSync('chats-' + userStore.user.username, JSON.stringify(userStore.chats))
+    }
+  },
 })

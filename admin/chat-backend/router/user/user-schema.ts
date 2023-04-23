@@ -16,17 +16,13 @@ export const registerSchema = Joi.object({
 	avatar: userSchemas.avatar,
 	email: userSchemas.email,
 	code: userSchemas.code,
-}).unknown() // 允许出现其他字段
+}).required().unknown() // 允许出现其他字段
 
 export const getEmailCodeSchema = Joi.object({
 	email: userSchemas.email
-}).unknown()
+}).required().unknown()
 
 export const loginSchema = Joi.object({
 	username: userSchemas.username,
 	password: userSchemas.password
-}).unknown()
-
-export const searchUserSchema = Joi.object({
-	username: userSchemas.username
-})
+}).required().unknown()

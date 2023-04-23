@@ -1,6 +1,6 @@
 import { observable, action } from 'mobx-miniprogram'
-import http from '../http/http'
-import { getContactsUrl } from '../http/urls'
+import { chatSocket } from '../socket/socket'
+import { GET_CONTACTS } from '../socket/socket-actions'
 
 const store = observable({
   contacts: [] as Contact[],
@@ -12,7 +12,7 @@ const store = observable({
     store.unameMessageInfoMap = value
   }),
   getChats() {
-    this.setChats(JSON.parse(wx.getStorageSync('chats') || '[]'))
+    this.setChats(JSON.parse(wx.getStorageSync('chats-' + this.user.username) || '[]'))
   },
   setChats: action(function (value: ChatItem[]) {
     store.chats = value
@@ -26,15 +26,16 @@ const store = observable({
   // 获取通讯录
   getContacts() {
     return new Promise<void>(resolve => {
-      let contacts = wx.getStorageSync('contacts')
+      let contacts = wx.getStorageSync('contacts-' + this.user.username)
       if (!contacts) {
-        http.get<Contact[]>(getContactsUrl).then(r => {
+        chatSocket.addSuccessHandler<Contact[]>(GET_CONTACTS, (r) => {
           const data = store.user
           if (data.username) r.data.push({ avatar: data.avatar, username: data.username, nickname: data.nickname, status: '00' }) // 已获取用户信息
-          wx.setStorageSync('contacts', JSON.stringify(r.data))
+          wx.setStorageSync('contacts-' + this.user.username, JSON.stringify(r.data))
           this.setContacts(r.data)
           resolve()
-        })
+        }, 0)
+        chatSocket.send({ action: GET_CONTACTS })
       } else {
         this.setContacts(JSON.parse(contacts))
         resolve()
@@ -45,7 +46,7 @@ const store = observable({
     store.user = value
     if (store.contacts.length) { // 已获取通讯录
       store.setContacts([...store.contacts, { avatar: value.avatar, username: value.username, nickname: value.nickname, status: '00' }])
-      wx.setStorageSync('contacts', JSON.stringify(store.contacts))
+      wx.setStorageSync('contacts-' + userStore.user.username, JSON.stringify(store.contacts))
     }
     wx.setStorageSync('user', JSON.stringify(value))
   })

@@ -1,4 +1,4 @@
-import { LoginReqBody, RegisterBody, SearchUserQuery } from './user-types'
+import { LoginReqBody, RegisterBody } from './user-types'
 import { InsertModal } from '../../types/sql-types'
 import { Users } from './user-types'
 import { Context } from 'koa'
@@ -19,9 +19,4 @@ export function getUserByLogin(ctx: Context) {
 	return executeSql<{
 		username: Users.Username, nickname: Users.Nickname, avatar: Users.Avatar, email: Users.Email
 	}[]>(ctx, 'select username,nickname,avatar,email from users where username = ? and password = ?', [username, password])
-}
-
-export function searchUserByUsername(ctx: Context) {
-	const { username } = ctx.request.query as SearchUserQuery
-	return executeSql<{ username: Users.Username, nickname: Users.Nickname, avatar: Users.Avatar }[]>(ctx, 'select username, nickname, avatar from users where username = ? limit 1;', [username])
 }

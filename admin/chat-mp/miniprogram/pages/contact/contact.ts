@@ -6,6 +6,7 @@ import { userStore } from '../../store/store'
 Page({
   data: {
     STATIC_BASE_URL,
+    newFriendCount: ''
   },
   toDetail(e: WechatMiniprogram.CustomEvent) {
     const data = userStore.contacts[e.currentTarget.dataset.i]
@@ -29,7 +30,8 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow() {
-
+    this.getTabBar().init()
+    this.setData({ newFriendCount: wx.getStorageSync('friendApplication-' + userStore.user.username) })
   },
 
   /**

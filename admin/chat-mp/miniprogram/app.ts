@@ -1,6 +1,8 @@
 import { createStoreBindings } from 'mobx-miniprogram-bindings'
-import { LoginPath } from './consts/routes'
+import { formatDate } from './common/utils'
+import { ChatDetailPath, LoginPath } from './consts/routes'
 import { chatSocket } from "./socket/socket"
+import { RECE_MSGS } from './socket/socket-actions'
 import { userStore } from "./store/store"
 
 App<IAppOption>({
@@ -13,30 +15,43 @@ App<IAppOption>({
       store: userStore,
       actions: ['setUser', 'getContacts']
     })
-    this.addMessageListener()
-    chatSocket.connect()
-    this.getUser()
-    userStore.getContacts()
-    userStore.getChats()    
+    this.addReceMsgsListener()
+    if (!this.getUser()) return
+    chatSocket.connect().then(() => userStore.getContacts())
+    userStore.getChats()
   },
   // 获取用户信息
   getUser() {
     const user = wx.getStorageSync('user')
     if (!user) {
-      chatSocket.close()
+      chatSocket.close('无用户信息')
       wx.navigateTo({ url: LoginPath })
     } else {
       userStore.setUser(JSON.parse(user))
     }
+    return !!user
   },
-  addMessageListener() {
-    chatSocket.successHandlers[0] = ((data) => {
+  addReceMsgsListener() {
+    chatSocket.addSuccessHandler(RECE_MSGS, ((data: SocketResponse<Message[]>) => {
       const { unameMessageInfoMap } = userStore
-      const targetUname = (data.data[0] || {}).to
-      const { messages, fakeIdIndexMap } = unameMessageInfoMap[targetUname!] || {}
+      const msg = data.data[0]
+      if (!msg) return
+      const targetUname = msg.to === userStore.user.username ? msg.from : msg.to
+      let messageInfo = unameMessageInfoMap[targetUname!]
+      if (!messageInfo) {
+        messageInfo = {
+          messages: [],
+          fakeIdIndexMap: {},
+          loadedMessagesMinIndex: -1,
+          loadedMessagesPageMinIndex: Infinity,
+          maxMessagesIndex: 0
+        }
+        unameMessageInfoMap[targetUname!] = messageInfo
+      }
+      const { messages, fakeIdIndexMap } = messageInfo
       data.data.forEach((message: Message) => {
         const ownMessage = messages[fakeIdIndexMap[message.fakeId!]]
-        console.log('接收到消息', message);
+        console.log('接收到消息', message, ownMessage);
         if (ownMessage) { // 自己发的
           delete ownMessage.state
           ownMessage.createdAt = ownMessage.createdAt
@@ -55,15 +70,29 @@ App<IAppOption>({
         fakeIds.push(message.fakeId!)
         this.globalData.toSaveUnameFakeIdsMap[targetUname!] = fakeIds
       })
-      // userStore.setUnameMessageInfoMap({ ...userStore.unameMessageInfoMap })
+      this.saveChat(data.data[data.data.length - 1], userStore.contactMap[targetUname!], data.data.length)
       this.saveMessages()
-    })
-    chatSocket.errorHandlers[0] = (data) => {
-      const newMessage = data.data[0]
+    }))
+    chatSocket.addErrorHandler(RECE_MSGS, (data: SocketResponse<Message>) => {
+      const newMessage = data.data
       const messageInfo = userStore.unameMessageInfoMap[newMessage.to!]
       const message = messageInfo.messages[messageInfo.fakeIdIndexMap[newMessage.fakeId!]]
       message.state = 'error'
+    })
+  },
+  saveChat(message: Message, target: Contact, newCount: number) {
+    const pages = getCurrentPages()
+    const isChatDetailPath = '/' + pages[pages.length - 1].route === ChatDetailPath
+    const message2 = message.type === 1 ? message.data : ''
+    const chat = { username: target.username, nickname: target.nickname, avatar: target.avatar, message: message2, createdAt: formatDate(), newCount, type: message.type, from: message.from! }
+    const index = userStore.chats.findIndex(chat => chat.nickname === target.nickname)
+    if (index > -1) {
+      chat.newCount = isChatDetailPath ? 0 : userStore.chats[index].newCount + newCount
+      userStore.chats.splice(index, 1)
     }
+    userStore.chats.unshift(chat)
+    userStore.setChats([...userStore.chats])
+    wx.setStorageSync('chats-' + userStore.user.username, JSON.stringify(userStore.chats))
   },
   // 缓存消息
   saveMessages() {

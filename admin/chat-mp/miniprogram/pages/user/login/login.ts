@@ -32,7 +32,7 @@ Page({
         userStore.setUser(data)
         wx.showToast({ title: '登录成功' })
         wx.switchTab({ url: ChatsPath })
-        userStore.getContacts().then(() => chatSocket.connect())
+        chatSocket.connect().then(() => userStore.getContacts())
         userStore.getChats()
       })
     })
