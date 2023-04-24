@@ -8,7 +8,8 @@ export const searchUserSchema = Joi.object({
 
 export const addUserSchema = Joi.object({
   username: userSchemas.username,
-  reason: friendApplicationSchemas.reason
+  reason: friendApplicationSchemas.reason,
+  remark: friendApplicationSchemas.remark
 }).required()
 
 export const addUserRetSchema = Joi.object({

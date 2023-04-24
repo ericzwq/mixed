@@ -9,8 +9,8 @@ export function searchUserByUsername(username: Users.Username) {
   }[]>('select username, nickname, avatar from users where username = ? limit 1;', [username])
 }
 
-export function addContact(to: Users.Username, from: Users.Username) {
-  return executeSocketSql<InsertModal>(`insert contacts(master, sub, status) values(?, ?, 0);`, [from, to])
+export function addContactRemark(to: Users.Username, from: Users.Username, remark: string) {
+  return executeSocketSql<InsertModal>(`insert contacts(master, sub, status, remark) values(?, ?, 1, ?);`, [from, to, remark])
 }
 
 export function updateContactStatus(to: Users.Username, from: Users.Username, status: number) {
@@ -18,7 +18,11 @@ export function updateContactStatus(to: Users.Username, from: Users.Username, st
 }
 
 export function selectContactByAddUser(to: Users.Username, from: Users.Username) {
-  return executeSocketSql<{ status: Contacts.Status }[]>('select status from contacts where (master = ? and sub = ?);', [from, to])
+  return executeSocketSql<{ id: number, status: Contacts.Status }[]>('select id, status from contacts where (master = ? and sub = ?);', [from, to])
+}
+
+export function updateContactRemarkAndStatusById(id: number, remark: string) {
+  return executeSocketSql<UpdateModal>('update contacts set remark = ?, status = 1 where id = ?;', [remark, id])
 }
 
 export function selectFriendApplicationByAddUser(to: Users.Username, from: Users.Username) {

@@ -8,6 +8,7 @@ export interface SearchUserQuery {
 export interface AddUserBody {
   username: Users.Username
   reason: string
+  remark: string
 }
 
 export interface AddUserRetBody {

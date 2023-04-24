@@ -1,0 +1,7 @@
+{
+    "usingComponents": {
+      "van-cell-group": "vant-weapp/cell-group",
+      "van-field": "vant-weapp/field"
+    },
+    "navigationBarTitleText": "好友申请"
+}

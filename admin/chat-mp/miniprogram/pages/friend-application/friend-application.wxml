@@ -1,0 +1,7 @@
+<van-cell-group>
+  <text class="title">申请原因：</text>
+  <van-field value="{{ formData.reason }}" bind:input="reasonChange" error-message="{{errors.reason}}" placeholder="请输入申请原因" required />
+  <text class="title">备注：</text>
+  <van-field value="{{ formData.remark }}" bind:input="remarkChange" placeholder="请输入备注" error-message="{{errors.remark}}" required />
+  <button type="primary" class="btn" bindtap="addUser">发送</button>
+</van-cell-group>
