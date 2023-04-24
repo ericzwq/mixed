@@ -34,7 +34,7 @@ export const groupClientsMap = {} as { [key in string]: Group }
 export async function sendMessage(ws: WebSocket.WebSocket, session: SessionData, data: Message) {
   await checkMessageParams(ws, MessageSchema, data, 1001)
   const [type, to] = data.target.split('-')
-  if (!type || !to) return ws.send(JSON.stringify(new SocketResponseSchema({message: '参数target非法', status: 1002, action: ''})))
+  if (!type || !to) return ws.send(new SocketResponseSchema({message: '参数target非法', status: 1002, action: ''}).toString())
   data.from = session.username
   data.to = to
   switch (type) {
@@ -45,7 +45,7 @@ export async function sendMessage(ws: WebSocket.WebSocket, session: SessionData,
       groupChat(ws, data, session)
       break
     default:
-      return ws.send(JSON.stringify(new SocketResponseSchema({message: '参数target非法', status: 1003, action: ''})))
+      return ws.send(new SocketResponseSchema({message: '参数target非法', status: 1003, action: ''}).toString())
   }
 }
 
@@ -66,10 +66,10 @@ async function singleChat(ws: WebSocket, message: Message, session: SessionData)
   if (message.type === 3) handleAudio(message, createdAt) // 音频
   message.createdAt = createdAt
   await addSingleMessage(message)
-  const data = JSON.stringify(new SocketResponseSchema({
+  const data = new SocketResponseSchema({
     data: [{data: message.content, type: message.type, fakeId: message.fakeId, from: session.username, to: message.to, createdAt}],
     action: RECEIVE_MSGS
-  }))
+  }).toString()
   ws.send(data) // 给自己返回消息
   usernameClientMap[message.to]?.send(data) // 给好友发送消息
 }
@@ -77,7 +77,7 @@ async function singleChat(ws: WebSocket, message: Message, session: SessionData)
 async function getGroupClient(ws: WebSocket, id: Groups.Id) {
   const {result} = await selectGroupById(id)
   if (!result.length) {
-    ws.send(JSON.stringify(new SocketResponseSchema({status: 1004, message: '未知的群聊id：' + id})))
+    ws.send(new SocketResponseSchema({status: 1004, message: '未知的群聊id：' + id}).toString())
     return Promise.reject()
   }
   const groupClient = result[0]
@@ -96,15 +96,15 @@ async function groupChat(ws: WebSocket, message: Message, session: SessionData) 
   }
   const {username} = session
   if (username !== groupClient.leader && !groupClient.managers.has(username) && !groupClient.members.has(username)) {
-    return ws.send(JSON.stringify(new SocketResponseSchema({status: 1005, message: '您不在群内'})))
+    return ws.send(new SocketResponseSchema({status: 1005, message: '您不在群内'}).toString())
   }
   const createdAt = formatDate()
   if (message.type === 3) handleAudio(message, createdAt) // 音频
   message.createdAt = createdAt
-  const data = JSON.stringify(new SocketResponseSchema({
+  const data = new SocketResponseSchema({
     data: [{data: message.content, type: message.type, fakeId: message.fakeId, from: session.username, to: message.to, createdAt}],
     action: RECEIVE_MSGS
-  }))
+  }).toString()
   await addGroupMessage(message)
   usernameClientMap[groupClient.leader]?.send(data)
   groupClient.managers.forEach(manager => usernameClientMap[manager]?.send(data))

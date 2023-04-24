@@ -5,7 +5,7 @@ import {SocketResponseSchema} from "../../../response/response";
 import {usernameClientMap} from "../chat/chat";
 
 export function voiceResult(ws: WebSocket.WebSocket, session: SessionData, data: VoiceResult) {
-  usernameClientMap[data.data.to]?.send(JSON.stringify(new SocketResponseSchema(data)))
+  usernameClientMap[data.data.to]?.send(new SocketResponseSchema(data).toString())
 }
 
 export function candidate(ws: WebSocket.WebSocket, session: SessionData, data: CandidateMessage) {

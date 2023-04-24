@@ -19,7 +19,7 @@ const socketConnectionRouter = {
     console.log(pathname, params)
     const handler = this.connectionHandlerMap[pathname.slice(1)]
     if (handler) handler?.(session, cookie, ws, req, params)
-    else ws.send(JSON.stringify(new SocketResponseSchema({status: 1001, message: '未知的请求地址'})))
+    else ws.send(new SocketResponseSchema({status: 1001, message: '未知的请求地址'}).toString())
   },
   addHandler(connection: string, handler: ConnectionHandler) {
     this.connectionHandlerMap[connection] = handler

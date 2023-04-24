@@ -1,0 +1,2 @@
+fetch('https://localhost:5001/login', {body: JSON.stringify({username: 'eric', password: '111111'}), method: 'POST', headers: {'Content-Type': 'application/json'}})
+let ws = new WebSocket('wss://localhost:5001/?cookie=' + encodeURIComponent('session-id=52a4c813-e9b0-475f-814d-aeadd4c27646;session-id.sig=t2xKguY9-NO-Om7L-O3hSBHihwI;'))

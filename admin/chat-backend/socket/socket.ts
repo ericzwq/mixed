@@ -22,7 +22,7 @@ export default (server: Server) => {
 
     const cookie = getSession(_cookie)
     const session = JSON.parse(await client.get(cookie) || '{}') as SessionData
-    if (!session.login) return ws.send(JSON.stringify(new SocketResponseSchema({message: '未登录', status: 401, action: ''})))
+    if (!session.login) return ws.send(new SocketResponseSchema({message: '未登录', status: 401, action: ''}).toString())
     console.log('有用户连接', session, wss.clients.size, req.url)
     return socketConnectionRouter.handler(session, cookie, ws, req)
   })

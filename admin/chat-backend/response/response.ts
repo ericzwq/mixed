@@ -26,4 +26,8 @@ export class SocketResponseSchema {
     this.status = status
     this.action = action
   }
+
+  toString() {
+    return JSON.stringify(this)
+  }
 }

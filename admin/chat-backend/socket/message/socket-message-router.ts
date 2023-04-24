@@ -28,7 +28,7 @@ const socketMessageRouter = {
 export async function handleMessage(session: SessionData, cookie: string, ws: WebSocket.WebSocket, req: IncomingMessage) {
   usernameClientMap[session.username] = ws
   const {result} = await getChatData(session)
-  ws.send(JSON.stringify(new SocketResponseSchema({data: result, action: RECEIVE_MSGS})))
+  ws.send(new SocketResponseSchema({data: result, action: RECEIVE_MSGS}).toString())
   ws.on('message', async (_data, isBinary) => {
     let data: Message
     if (isBinary) {
@@ -40,7 +40,7 @@ export async function handleMessage(session: SessionData, cookie: string, ws: We
         return console.log('数据解析失败', e)
       }
       const handler = socketMessageRouter.actionHandlerMap[data.action]
-      if (!handler) return ws.send(JSON.stringify(new SocketResponseSchema({status: 1002, message: '未知的action'})))
+      if (!handler) return ws.send(new SocketResponseSchema({status: 1002, message: '未知的action'}).toString())
       handler(ws, session, data)
     }
   })

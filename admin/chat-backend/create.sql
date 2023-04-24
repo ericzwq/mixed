@@ -30,6 +30,8 @@ values ('eric2', '111111', '/avatar/th(2).jpg', '12345@163.com', '等等');
 insert users(username, password, avatar, email, nickname)
 values ('eric3', '111111', '/avatar/th.jpg', '12346@163.com', '布露妮娅');
 
+insert users(username, password, avatar, email, nickname)
+values ('eric4', '111111', '/avatar/th.jpg', '12346@163.com', '布露妮娅4');
 #修改列
 
 # alter table users
@@ -54,19 +56,20 @@ create table contacts
     id        bigint auto_increment primary key not null,
     master    varchar(20)                       not null,
     sub       varchar(20)                       not null,
-    status    varchar(2)                        not null comment '只有2位，个位为次方操作，十位为主方操作 0正常， 1删除， 2拉黑， 3删除且拉黑',
+    remark    varchar(200),
+    status    tinyint                           not null comment '0正常， 1删除， 2拉黑， 3删除且拉黑',
     createdAt timestamp                         not null default current_timestamp comment '创建时间',
     updatedAt timestamp                         not null default current_timestamp on update current_timestamp comment '修改时间'
 );
 
 insert contacts(master, sub, status)
-values ('eric', 'eric2', '00');
+values ('eric', 'eric2', 0);
 
 insert contacts(master, sub, status)
-values ('eric', 'eric3', '00');
+values ('eric', 'eric3', 0);
 
 insert contacts(master, sub, status)
-values ('eric2', 'eric3', '00');
+values ('eric2', 'eric3', 0);
 
 /*单聊表*/
 drop table if exists single_chat;
@@ -76,8 +79,8 @@ create table single_chat
     `from`    varchar(20)                       not null,
     `to`      varchar(20)                       not null,
     content   varchar(500)                      not null,
-    type      int                               not null comment '0系统消息 1文本 2图片 3音频 4视频',
-    status    int                               not null comment '0正常 1撤回',
+    type      tinyint                           not null comment '0系统消息 1文本 2图片 3音频 4视频',
+    status    tinyint                           not null comment '0正常 1撤回',
     createdAt timestamp                         not null default current_timestamp comment '创建时间'
 );
 
@@ -104,8 +107,8 @@ create table group_chat
     `from`    varchar(20)                       not null,
     `to`      bigint                            not null,
     content   varchar(500)                      not null,
-    type      int                               not null comment '0系统消息 1文本 2图片 3音频 4视频',
-    status    int                               not null comment '0正常 1撤回',
+    type      tinyint                           not null comment '0系统消息 1文本 2图片 3音频 4视频',
+    status    tinyint                           not null comment '0正常 1撤回',
     createdAt timestamp                         not null default current_timestamp comment '创建时间'
 );
 
@@ -116,7 +119,8 @@ create table friend_applications
     id        bigint auto_increment primary key not null,
     `from`    varchar(20)                       not null,
     `to`      varchar(20)                       not null,
-    status    int                               not null comment '0待确认 1同意 2拒绝',
+    reason    varchar(50)                       not null,
+    status    tinyint                           not null comment '0待确认 1同意 2拒绝',
     createdAt timestamp                         not null default current_timestamp comment '创建时间'
 );
 
