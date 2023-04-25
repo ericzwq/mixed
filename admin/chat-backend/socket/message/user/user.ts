@@ -44,7 +44,7 @@ export async function addUser(ws: WebSocket.WebSocket, session: SessionData, dat
   } else {
     await addContactRemark(to, from, remark)
   }
-  usernameClientMap[to]?.send(new SocketResponseSchema({action: RECEIVE_ADD_USER, data: {from}}).toString())
+  usernameClientMap[to]?.send(new SocketResponseSchema({action: RECEIVE_ADD_USER, data: {from, reason, nickname: session.nickname, avatar: session.avatar}}).toString())
   ws.send(new SocketResponseSchema({action: data.action, message: '申请成功'}).toString())
 }
 

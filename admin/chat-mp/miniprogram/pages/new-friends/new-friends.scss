@@ -1,0 +1,44 @@
+.item {
+  display: flex;
+  align-items: center;
+}
+
+.left {
+  width: 80rpx;
+  height: 80rpx;
+  display: block;
+  margin: 0 16rpx;
+  border-radius: 8rpx;
+}
+
+.middle {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+
+  .nickname {
+    font-size: 14px;
+  }
+
+  .reason {
+    font-size: 12px;
+    color: grey;
+  }
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-right: 30rpx;
+  font-size: 13px;
+  color: grey;
+
+  .y {
+    color: green;
+  }
+  .n {
+    color: red;
+  }
+}

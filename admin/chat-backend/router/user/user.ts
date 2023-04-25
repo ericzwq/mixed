@@ -51,10 +51,13 @@ user.post(loginUrl, async ctx => {
   const {result} = await getUserByLogin(ctx)
   if (!result.length) return ctx.body = new ResponseSchema({message: '用户名或密码错误', status: 1010})
   const session = ctx.session!
+  const data = result[0]
   session.username = body.username
+  session.nickname = data.nickname
+  session.avatar = data.avatar
   session.loginTime = formatDate()
   session.login = true
-  ctx.body = new ResponseSchema({message: '登录成功', data: result[0]})
+  ctx.body = new ResponseSchema({message: '登录成功', data})
 })
 
 user.post(logoutUrl, async ctx => {

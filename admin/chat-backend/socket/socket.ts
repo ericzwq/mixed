@@ -4,7 +4,7 @@ import client from '../redis/redis'
 import {SessionData} from '../router/user/user-types'
 import {sessionKey} from '../session/session'
 import socketConnectionRouter from './socket-connection-router'
-import {SocketResponseSchema} from "../response/response";
+import {SocketResponseSchema} from '../response/response'
 
 
 function getSession(cookie?: string) {

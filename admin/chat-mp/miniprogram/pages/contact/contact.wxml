@@ -1,7 +1,7 @@
 <view class="contact-box">
   <view class="contact-item">
     <image class="left" src="../../static/image/add.svg" style="background: #FFC125;"></image>
-    <view class="right">
+    <view class="right" bindtap="toNewFriends">
       新的朋友
       <van-badge info="{{newFriendCount}}" />
     </view>

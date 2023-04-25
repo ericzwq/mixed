@@ -43,6 +43,13 @@
                     "query": "username=eric4&nickname=%E5%B8%83%E9%9C%B2%E5%A6%AE%E5%A8%854",
                     "launchMode": "default",
                     "scene": null
+                },
+                {
+                    "name": "",
+                    "pathName": "pages/new-friends/new-friends",
+                    "query": "",
+                    "launchMode": "default",
+                    "scene": null
                 }
             ]
         }

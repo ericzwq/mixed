@@ -82,6 +82,16 @@ function createSocket() {
       index === undefined ? handlers.push(handler) : handlers[index] = handler
       this._actionSuccessHandlersMap[action] = handlers
     },
+    removeSuccessHandler(action: string, handler: (p: SocketResponse) => void) {
+      const handlers = this._actionSuccessHandlersMap[action] || []
+      const index = handlers.findIndex(_handler => _handler === handler)
+      if (index > -1) handlers.splice(index, 1)
+    },
+    removeErrorHandler(action: string, handler: (p: SocketResponse) => void) {
+      const handlers = this._actionErrorHandlersMap[action] || []
+      const index = handlers.findIndex(_handler => _handler === handler)
+      if (index > -1) handlers.splice(index, 1)
+    },
     _actionErrorHandlersMap: {} as { [key in string]: Array<(p: SocketResponse) => void> },
     _actionSuccessHandlersMap: {} as { [key in string]: Array<(p: SocketResponse) => void> },
     close(reason?: string) {

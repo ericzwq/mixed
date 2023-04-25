@@ -12,11 +12,15 @@ Component({
   },
   lifetimes: {
     attached() {
-      chatSocket.addSuccessHandler(RECE_ADD_USER, () => {
+      chatSocket.addSuccessHandler<FriendApplication>(RECE_ADD_USER, (data) => {
         this.data.list[1].info = (+this.data.list[1].info + 1) + ''
-        this.setData({ list: this.data.list })
-        wx.setStorageSync('friendApplication-' + userStore.user.username, this.data.list[1].info)
-      })
+        this.setData({ list: [...this.data.list] })
+        const { username } = userStore.user
+        wx.setStorageSync('newFriendCount-' + username, this.data.list[1].info)
+        const friendApls: FriendApplication[] = JSON.parse(wx.getStorageSync('friendApplications-' + username) || '[]')
+        friendApls.unshift(data.data)
+        wx.setStorageSync('friendApplications-' + username, JSON.stringify(friendApls))
+      }, 0)
     }
   },
 
@@ -71,7 +75,8 @@ Component({
     },
     init() {
       const page = getCurrentPages().pop()
-      this.setData({ active: this.data.list.findIndex(v => v.url === '/' + page?.route) })
+      this.data.list[1].info = wx.getStorageSync('newFriendCount-' + userStore.user.username)
+      this.setData({ active: this.data.list.findIndex(v => v.url === '/' + page?.route), list: [...this.data.list] })
     }
   }
 })

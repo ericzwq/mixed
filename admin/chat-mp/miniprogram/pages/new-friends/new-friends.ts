@@ -1,32 +1,28 @@
-import { createStoreBindings } from 'mobx-miniprogram-bindings'
 import { STATIC_BASE_URL } from '../../consts/consts'
-import { NewFriendsPath, UserDetailPath } from '../../consts/routes'
 import { chatSocket } from '../../socket/socket'
 import { RECE_ADD_USER } from '../../socket/socket-actions'
-import { userStore } from '../../store/store'
-
+import { userStore } from '../../store/user'
 Page({
+
+  /**
+   * 页面的初始数据
+   */
   data: {
     STATIC_BASE_URL,
-    newFriendCount: ''
+    friendApplications: [] as FriendApplication[]
   },
-  toDetail(e: WechatMiniprogram.CustomEvent) {
-    const data = userStore.contacts[e.currentTarget.dataset.i]
-    wx.navigateTo({ url: UserDetailPath + '?username=' + data.username })
-  },
-  toNewFriends() {
-    wx.navigateTo({ url: NewFriendsPath })
-  },
-  storeBindings: {} as StoreBindings,
+
   receAddUserHandler: null as unknown as () => void,
   onLoad() {
-    this.storeBindings = createStoreBindings(this, {
-      store: userStore,
-      fields: ['contacts', 'contactMap'],
-    })
-    this.receAddUserHandler = () => this.setData({ newFriendCount: wx.getStorageSync('newFriendCount-' + userStore.user.username) })
+    const { username } = userStore.user
+    this.receAddUserHandler = () => {
+      wx.removeStorageSync('newFriendCount-' + username)
+      this.setData({ friendApplications: JSON.parse(wx.getStorageSync('friendApplications-' + username) || '[]') })
+    }
+    this.receAddUserHandler()
     chatSocket.addSuccessHandler(RECE_ADD_USER, this.receAddUserHandler)
   },
+
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
@@ -38,8 +34,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow() {
-    this.getTabBar().init()
-    this.receAddUserHandler()
+
   },
 
   /**
@@ -53,7 +48,6 @@ Page({
    * 生命周期函数--监听页面卸载
    */
   onUnload() {
-    this.storeBindings.destroyStoreBindings()
     chatSocket.removeSuccessHandler(RECE_ADD_USER, this.receAddUserHandler)
   },
 

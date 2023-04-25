@@ -8,7 +8,8 @@
     "pages/add-contact/add-contact",
     "pages/user/user-detail/user-detail",
     "pages/chat-detail/chat-detail",
-    "pages/friend-application/friend-application"
+    "pages/friend-application/friend-application",
+    "pages/new-friends/new-friends"
   ],
   "tabBar": {
     "custom": true,

@@ -13,6 +13,8 @@ export namespace Users {
 // session储存信息
 export interface SessionData extends Session {
 	username: Users.Username
+	nickname: Users.Nickname
+	avatar: Users.Avatar
 	loginTime: string
 	leaveTime: string
 	login: boolean
