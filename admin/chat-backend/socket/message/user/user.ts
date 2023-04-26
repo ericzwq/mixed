@@ -7,7 +7,7 @@ import {
   searchUserByUsername,
   selectFriendAplByAddUser,
   addFriendApl,
-  resetFriendApl,
+  resetFriendAplById,
   updateFriendAplStatus, updateContactStatus, updateContactRemarkAndStatusById
 } from './user-sql'
 import {addUserRetSchema, addUserSchema, searchUserSchema} from './user-schema'
@@ -26,13 +26,16 @@ export async function addUser(ws: ExtWebSocket, session: SessionData, data: Requ
   const {username: to, reason, remark} = data.data
   const from = session.username
   const {result} = await selectFriendAplByAddUser(to, from)
+  let id: number
   if (!result.length) {
-    await addFriendApl(to, from, reason)
+    const {result: res} = await addFriendApl(to, from, reason)
+    id = res.insertId
   } else {
+    id = result[0].id
     const status = result[0].status
     if (status === 0) return ws.json({message: '请勿重复申请', status: 1013})
     if (status === 1) return ws.json({message: '目标用户已是您的好友', status: 1014})
-    await resetFriendApl(to, from, reason)
+    await resetFriendAplById(id, reason)
   }
   const result2 = (await selectContactByAddUser(to, from)).result
   if (result2.length) {
@@ -41,7 +44,7 @@ export async function addUser(ws: ExtWebSocket, session: SessionData, data: Requ
   } else {
     await addContactRemark(to, from, remark)
   }
-  usernameClientMap[to]?.json({action: data.action, data: {from, reason, nickname: session.nickname, avatar: session.avatar}})
+  usernameClientMap[to]?.json({action: data.action, data: {id, from, reason, nickname: session.nickname, avatar: session.avatar}})
   ws.json({action: data.action, message: '申请成功', data: {from}})
 }
 

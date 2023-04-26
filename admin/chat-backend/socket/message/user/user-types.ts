@@ -2,6 +2,7 @@ import {Users} from '../../../router/user/user-types'
 import {Contacts} from '../contact/contact-types'
 
 export namespace FriendApls {
+  export type Id = number
   export type Reason = string
   export type Remark = string
   export type Status = 0 | 1 | 2
