@@ -12,9 +12,9 @@ export function voice(session: SessionData, cookie: string, ws: WebSocket.WebSoc
   voiceClientMap.set(session.username, ws)
   if (!voiceClientMap.has(username)) { // 对方未连接
     console.log(username, !!usernameClientMap[username])
-    usernameClientMap[username]?.send(new SocketResponseSchema({action: CONN_VOICE, data: {from: session.username, to: username}}).toString())
+    usernameClientMap[username]?.json({action: CONN_VOICE, data: {from: session.username, to: username}})
   } else { // 对方已连接
-    usernameClientMap[username]?.send(new SocketResponseSchema({action: VOICE_RESULT, data: {from: session.username, to: username, agree: true}}).toString())
+    usernameClientMap[username]?.json({action: VOICE_RESULT, data: {from: session.username, to: username, agree: true}})
   }
   ws.on('message', async (data, isBinary) => {
     if (!isBinary) return ws.send('请发送二进制数据')

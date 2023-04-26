@@ -2,13 +2,13 @@ import * as WebSocket from "ws";
 import fs = require('fs')
 import path = require('path')
 import {SessionData} from "../../../router/user/user-types";
-import {Group, Groups, Message} from "../../socket-types";
+import {ExtWebSocket, Message} from "../../socket-types";
 import {checkMessageParams, formatDate} from "../../../common/utils";
 import {SocketResponseSchema} from "../../../response/response";
-import {addGroupMessage, addSingleMessage, selectGroupById} from "../../socket-sql";
-import {RECEIVE_MSGS} from "../../socket-actions";
+import {addGroupMessage, addSingleMessage} from "./chat-sql";
+import {REC_MSGS} from "../../socket-actions";
 import Joi = require('joi')
-import client from "../../../redis/redis";
+import {getGroupById, isUserInGroup} from "../group/group";
 
 const schemas = {
   target: Joi.string().required(),
@@ -28,13 +28,12 @@ const MessageSchema = Joi.object({
   ext: schemas.ext
 })
 
-export const usernameClientMap = {} as { [key in string]: WebSocket.WebSocket }
-export const groupClientsMap = {} as { [key in string]: Group }
+export const usernameClientMap = {} as { [key in string]: ExtWebSocket }
 
-export async function sendMessage(ws: WebSocket.WebSocket, session: SessionData, data: Message) {
+export async function sendMessage(ws: ExtWebSocket, session: SessionData, data: Message) {
   await checkMessageParams(ws, MessageSchema, data, 1001)
   const [type, to] = data.target.split('-')
-  if (!type || !to) return ws.send(new SocketResponseSchema({message: '参数target非法', status: 1002, action: ''}).toString())
+  if (!type || !to) return ws.json({message: '参数target非法', status: 1002, action: ''})
   data.from = session.username
   data.to = to
   switch (type) {
@@ -45,7 +44,7 @@ export async function sendMessage(ws: WebSocket.WebSocket, session: SessionData,
       groupChat(ws, data, session)
       break
     default:
-      return ws.send(new SocketResponseSchema({message: '参数target非法', status: 1003, action: ''}).toString())
+      return ws.json({message: '参数target非法', status: 1003, action: ''})
   }
 }
 
@@ -61,52 +60,32 @@ function handleAudio(message: Message, createdAt: string) {
   message.content = urlDir + filename // 文件内容保存为地址
 }
 
-async function singleChat(ws: WebSocket, message: Message, session: SessionData) { // 单聊
+async function singleChat(ws: ExtWebSocket, message: Message, session: SessionData) { // 单聊
   const createdAt = formatDate()
   if (message.type === 3) handleAudio(message, createdAt) // 音频
   message.createdAt = createdAt
   await addSingleMessage(message)
-  const data = new SocketResponseSchema({
+  const data = {
     data: [{data: message.content, type: message.type, fakeId: message.fakeId, from: session.username, to: message.to, createdAt}],
-    action: RECEIVE_MSGS
-  }).toString()
-  ws.send(data) // 给自己返回消息
-  usernameClientMap[message.to]?.send(data) // 给好友发送消息
+    action: REC_MSGS
+  }
+  ws.json(data) // 给自己返回消息
+  usernameClientMap[message.to]?.json(data) // 给好友发送消息
 }
 
-async function getGroupClient(ws: WebSocket, id: Groups.Id) {
-  const {result} = await selectGroupById(id)
-  if (!result.length) {
-    ws.send(new SocketResponseSchema({status: 1004, message: '未知的群聊id：' + id}).toString())
-    return Promise.reject()
-  }
-  const groupClient = result[0]
-  groupClient.managers = new Set(groupClient.manager!.split(','))
-  groupClient.members = new Set(groupClient.member!.split(','))
-  delete groupClient.manager
-  delete groupClient.member
-  return groupClient
-}
-
-async function groupChat(ws: WebSocket, message: Message, session: SessionData) { // 群聊
-  let groupClient = groupClientsMap[message.to]
-  if (!groupClient) {
-    groupClient = await getGroupClient(ws, message.to)
-    groupClientsMap[message.to] = groupClient
-  }
+async function groupChat(ws: ExtWebSocket, message: Message, session: SessionData) { // 群聊
+  const group = await getGroupById(ws, message.to)
   const {username} = session
-  if (username !== groupClient.leader && !groupClient.managers.has(username) && !groupClient.members.has(username)) {
-    return ws.send(new SocketResponseSchema({status: 1005, message: '您不在群内'}).toString())
-  }
+  if (!isUserInGroup(username, group)) return ws.json({status: 1005, message: '您不在群内'})
   const createdAt = formatDate()
   if (message.type === 3) handleAudio(message, createdAt) // 音频
   message.createdAt = createdAt
-  const data = new SocketResponseSchema({
+  const data = {
     data: [{data: message.content, type: message.type, fakeId: message.fakeId, from: session.username, to: message.to, createdAt}],
-    action: RECEIVE_MSGS
-  }).toString()
+    action: REC_MSGS
+  }
   await addGroupMessage(message)
-  usernameClientMap[groupClient.leader]?.send(data)
-  groupClient.managers.forEach(manager => usernameClientMap[manager]?.send(data))
-  groupClient.members.forEach(member => usernameClientMap[member]?.send(data))
+  usernameClientMap[group.leader]?.json(data)
+  group.managers.forEach(manager => usernameClientMap[manager]?.json(data))
+  group.members.forEach(member => usernameClientMap[member]?.json(data))
 }

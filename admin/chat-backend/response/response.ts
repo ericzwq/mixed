@@ -13,6 +13,12 @@ export class ResponseSchema {
   }
 }
 
+export interface SocketResponseOptions {
+  data?: any,
+  message?: string,
+  status?: number,
+  action?: string
+}
 
 export class SocketResponseSchema {
   data
@@ -20,14 +26,10 @@ export class SocketResponseSchema {
   status
   action
 
-  constructor({data, message = '', status = 0, action}: { data?: any, message?: string, status?: number, action?: string }) {
+  constructor({data, message = '', status = 0, action}: SocketResponseOptions) {
     this.data = data
     this.message = message
     this.status = status
     this.action = action
-  }
-
-  toString() {
-    return JSON.stringify(this)
   }
 }

@@ -4,7 +4,8 @@ import client from '../redis/redis'
 import {SessionData} from '../router/user/user-types'
 import {sessionKey} from '../session/session'
 import socketConnectionRouter from './socket-connection-router'
-import {SocketResponseSchema} from '../response/response'
+import {SocketResponseOptions, SocketResponseSchema} from '../response/response'
+import {ExtWebSocket} from "./socket-types";
 
 
 function getSession(cookie?: string) {
@@ -14,7 +15,9 @@ function getSession(cookie?: string) {
 /*export const phoneMap = {} as { [key in string]: WebSocket }*/ // todo
 export default (server: Server) => {
   const wss = new WebSocket.WebSocketServer({server})
-  wss.on('connection', async (ws, req) => {
+  wss.on('connection', async (ws: ExtWebSocket, req) => {
+    // 扩展方法
+    ws.json = (socketResponseOptions: SocketResponseOptions, options, cb) => ws.send(JSON.stringify(new SocketResponseSchema(socketResponseOptions)), options, cb)
     let _cookie = req.headers.cookie || decodeURIComponent(req.url?.match(/cookie=(.+?)&?$/)?.[1] || '')
     // todo phone
     /*let phone = req.url?.match(/phone=(.+?)&?$/)?.[1] || ''
@@ -22,7 +25,7 @@ export default (server: Server) => {
 
     const cookie = getSession(_cookie)
     const session = JSON.parse(await client.get(cookie) || '{}') as SessionData
-    if (!session.login) return ws.send(new SocketResponseSchema({message: '未登录', status: 401, action: ''}).toString())
+    if (!session.login) return ws.json({message: '未登录', status: 401, action: ''})
     console.log('有用户连接', session, wss.clients.size, req.url)
     return socketConnectionRouter.handler(session, cookie, ws, req)
   })

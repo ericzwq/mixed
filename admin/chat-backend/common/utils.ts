@@ -1,9 +1,7 @@
 import {Context} from 'koa'
-import WebSocket = require('ws')
 import {AnySchema} from 'joi'
-import {ResponseSchema, SocketResponseSchema} from '../response/response'
-import exp = require('constants')
-import {Message} from '../socket/socket-types'
+import {ResponseSchema} from '../response/response'
+import {ExtWebSocket} from '../socket/socket-types'
 
 export const setExcelType = function (res: any) {
   // res.setHeader('Content-Type', 'application/vnd.ms-excel') // application/vnd.openxmlformats
@@ -35,11 +33,11 @@ export function checkParams(ctx: Context, schema: AnySchema, params: any, status
   return Promise.resolve(validation)
 }
 
-export function checkMessageParams(ws: WebSocket.WebSocket, schema: AnySchema, params: unknown, status: number = 999) {
+export function checkMessageParams(ws: ExtWebSocket, schema: AnySchema, params: unknown, status: number = 999) {
   const validation = schema.validate(params)
   if (validation.error) {
     // if (params.type === 3) params.content = '' // 删除音频数据
-    ws.send(JSON.stringify(new SocketResponseSchema({message: validation.error.message, status, action: '', data: params})))
+    ws.json({message: validation.error.message, status, action: '', data: params})
     console.log('params error:', validation.error.message)
     return Promise.reject(validation)
   }

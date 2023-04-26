@@ -1,17 +1,16 @@
-import {MessageHandler, ActionHandlerMap, Message} from '../socket-types'
+import {MessageHandler, ActionHandlerMap, Message, ExtWebSocket} from '../socket-types'
 import {SessionData} from '../../router/user/user-types'
 import {IncomingMessage} from 'http'
-import {getChatData} from '../socket-sql'
-import {SocketResponseSchema} from '../../response/response'
-import {ADD_USER, ADD_USER_RET, ANSWER, GET_CONTACTS, OFFER, RECEIVE_MSGS, SEARCH_USERS, VOICE_RESULT} from '../socket-actions'
+import {getChatData} from './chat/chat-sql'
+import {ADD_GROUP, ADD_GROUP_RET, ADD_USER, ADD_USER_RET, ANSWER, GET_CONTACTS, OFFER, REC_MSGS, SEARCH_USERS, VOICE_RESULT} from '../socket-actions'
 import {formatDate} from '../../common/utils'
 import client from '../../redis/redis'
-import WebSocket = require('ws')
 import {usernameClientMap, sendMessage} from './chat/chat'
 import {getContacts} from './contact/contact'
 import {answer, candidate, offer, voiceResult} from './mediaCall/mediaCall'
 import {CANCELLED} from 'dns'
 import {addUser, addUserRet, searchUsers} from './user/user'
+import {addGroup, addGroupRet} from "./group/group";
 
 const socketMessageRouter = {
   actionHandlerMap: {} as ActionHandlerMap,
@@ -25,10 +24,10 @@ const socketMessageRouter = {
   }
 }
 
-export async function handleMessage(session: SessionData, cookie: string, ws: WebSocket.WebSocket, req: IncomingMessage) {
+export async function handleMessage(session: SessionData, cookie: string, ws: ExtWebSocket, req: IncomingMessage) {
   usernameClientMap[session.username] = ws
   const {result} = await getChatData(session)
-  ws.send(new SocketResponseSchema({data: result, action: RECEIVE_MSGS}).toString())
+  ws.json({data: result, action: REC_MSGS})
   ws.on('message', async (_data, isBinary) => {
     let data: Message
     if (isBinary) {
@@ -40,7 +39,7 @@ export async function handleMessage(session: SessionData, cookie: string, ws: We
         return console.log('数据解析失败', e)
       }
       const handler = socketMessageRouter.actionHandlerMap[data.action]
-      if (!handler) return ws.send(new SocketResponseSchema({status: 1002, message: '未知的action'}).toString())
+      if (!handler) return ws.json({status: 1002, message: '未知的action'})
       handler(ws, session, data)
     }
   })
@@ -90,4 +89,8 @@ socketMessageRouter.addHandlers([
   {action: ADD_USER, handler: addUser},
   {action: SEARCH_USERS, handler: searchUsers},
   {action: ADD_USER_RET, handler: addUserRet}
+])
+socketMessageRouter.addHandlers([
+  {action: ADD_GROUP, handler: addGroup},
+  {action: ADD_GROUP_RET, handler: addGroupRet}
 ])

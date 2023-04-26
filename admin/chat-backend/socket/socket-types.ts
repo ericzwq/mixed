@@ -1,6 +1,7 @@
 import {SessionData, Users} from '../router/user/user-types'
 import * as WebSocket from 'ws'
 import {IncomingMessage} from 'http'
+import {SocketResponseOptions} from "../response/response";
 
 export namespace Messages {
   export type Target = string // '1-2'
@@ -24,6 +25,10 @@ export namespace Groups {
   export type Member = string
   export type Members = Set<string>
   export type CreatedAt = string
+}
+
+export interface ExtWebSocket extends WebSocket.WebSocket {
+  json: (socketResponseOptions: SocketResponseOptions, options?: any, cb?: any) => void
 }
 
 export interface RequestMessage<T = null> {
@@ -109,13 +114,13 @@ export interface VoiceResult {
   }
 }
 
-export type MessageHandler = (ws: WebSocket.WebSocket, session: SessionData, data: any) => void
+export type MessageHandler = (ws: ExtWebSocket, session: SessionData, data: any) => void
 
 export interface ActionHandlerMap {
   [key: string]: MessageHandler
 }
 
-export type ConnectionHandler = (session: SessionData, cookie: string, ws: WebSocket.WebSocket, req: IncomingMessage, params: any) => void
+export type ConnectionHandler = (session: SessionData, cookie: string, ws: ExtWebSocket, req: IncomingMessage, params: any) => void
 
 export interface ConnectionHandlerMap {
   [key: string]: ConnectionHandler

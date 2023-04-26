@@ -1,15 +1,13 @@
 import {IncomingMessage} from 'http'
-import WebSocket = require('ws')
-import {SocketResponseSchema} from '../response/response'
 import {SessionData} from '../router/user/user-types'
-import {ConnectionHandler, ConnectionHandlerMap} from './socket-types'
+import {ConnectionHandler, ConnectionHandlerMap, ExtWebSocket} from './socket-types'
 import {handleMessage} from "./message/socket-message-router";
 import {voice} from "./voice/socket-voice-router";
 
 
 const socketConnectionRouter = {
   connectionHandlerMap: {} as ConnectionHandlerMap,
-  handler(session: SessionData, cookie: string, ws: WebSocket.WebSocket, req: IncomingMessage) {
+  handler(session: SessionData, cookie: string, ws: ExtWebSocket, req: IncomingMessage) {
     const [pathname, query] = req.url!.split('?')
     const params = query ? query.split('&').reduce((acc, cur) => {
       const [name, value] = cur.split('=')
@@ -19,7 +17,7 @@ const socketConnectionRouter = {
     console.log(pathname, params)
     const handler = this.connectionHandlerMap[pathname.slice(1)]
     if (handler) handler?.(session, cookie, ws, req, params)
-    else ws.send(new SocketResponseSchema({status: 1001, message: '未知的请求地址'}).toString())
+    else ws.json({status: 1001, message: '未知的请求地址'})
   },
   addHandler(connection: string, handler: ConnectionHandler) {
     this.connectionHandlerMap[connection] = handler

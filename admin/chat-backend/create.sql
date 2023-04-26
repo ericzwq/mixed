@@ -93,8 +93,10 @@ create table `groups`
     avatar    varchar(20)                       not null,
     leader    varchar(20)                       not null,
     manager   varchar(400),
-    member    varchar(15800)                    not null,
-    createdAt timestamp                         not null default current_timestamp comment '创建时间'
+    member    varchar(15800),
+    createdAt timestamp                         not null default current_timestamp comment '创建时间',
+    updatedAt timestamp                         not null default current_timestamp on update current_timestamp comment '修改时间',
+    updatedBy varchar(20) comment '修改人'
 );
 insert `groups`(name, avatar, leader, manager, member)
 values ('群聊1', '/avatar/th.jpg', 'eric', 'eric2', 'eric3');
@@ -119,6 +121,18 @@ create table friend_applications
     id        bigint auto_increment primary key not null,
     `from`    varchar(20)                       not null,
     `to`      varchar(20)                       not null,
+    reason    varchar(50)                       not null,
+    status    tinyint                           not null comment '0待确认 1同意 2拒绝',
+    createdAt timestamp                         not null default current_timestamp comment '创建时间'
+);
+
+/*群申请表*/
+drop table if exists group_applications;
+create table group_applications
+(
+    id        bigint auto_increment primary key not null,
+    `from`    varchar(20)                       not null,
+    `to`      bigint                            not null,
     reason    varchar(50)                       not null,
     status    tinyint                           not null comment '0待确认 1同意 2拒绝',
     createdAt timestamp                         not null default current_timestamp comment '创建时间'

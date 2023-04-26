@@ -1,7 +1,7 @@
-import { executeSocketSql } from "../db";
-import { SessionData } from "../router/user/user-types";
-import { InsertModal } from "../types/sql-types";
-import {Group, Groups, Message, SocketData} from "./socket-types";
+import { executeSocketSql } from "../../../db";
+import { SessionData } from "../../../router/user/user-types";
+import { InsertModal } from "../../../types/sql-types";
+import {Group, Groups, Message, SocketData} from "../../socket-types";
 
 export function addSingleMessage(data: Message) {
 	const { from, to, content, type, createdAt } = data
@@ -16,8 +16,4 @@ export function getChatData(user: SessionData) {
 
 export function addGroupMessage(data: Message) {
 
-}
-
-export function selectGroupById(id: Groups.Id) {
-	return executeSocketSql<Group[]>('select * from `groups` where id = ?;', [id])
 }
