@@ -1,5 +1,5 @@
 import { chatSocket } from "../../socket/socket"
-import { ADD_USER } from "../../socket/socket-actions"
+import { ADD_USER, REC_ADD_USER } from "../../socket/socket-actions"
 import { valueModel } from '../../common/utils'
 import { userStore } from "../../store/user"
 
@@ -27,7 +27,7 @@ Page({
   onLoad(query: { username: Users.Username; nickname: Users.Nickname }) {
     let { username, nickname } = query
     nickname = decodeURIComponent(nickname)
-    this.setData({ target: { username, nickname }, formData: { reason: '你好，我是' + userStore.user.username, remark: nickname } })
+    this.setData({ target: { username, nickname }, formData: { reason: '你好，我是' + userStore.user.nickname, remark: nickname } })
   },
   reasonChange(e: WechatMiniprogram.CustomEvent) {
     this.setData({ 'formData.reason': e.detail })
@@ -39,7 +39,18 @@ Page({
   },
   addUser() {
     chatSocket.send({ action: ADD_USER, data: { username: this.data.target.username, ...this.data.formData } })
-    chatSocket.addSuccessHandler(ADD_USER, (data) => wx.showToast({ title: data.message }))
+    const { username } = userStore.user
+    const saveFriendApls = (data: SocketResponse<FriendApl>) => {
+      const friendApls: FriendApl[] = JSON.parse(wx.getStorageSync('friendApplications-' + username) || '[]')
+      friendApls.unshift(data.data)
+      wx.setStorageSync('friendApplications-' + username, JSON.stringify(friendApls))
+    }
+    chatSocket.addSuccessHandler<FriendApl>(ADD_USER, (data) => {
+      saveFriendApls(data)
+      wx.showToast({ title: data.message })
+      setTimeout(() => wx.navigateBack({ delta: 1 }), 1000);
+    })
+    chatSocket.addSuccessHandler<FriendApl>(REC_ADD_USER, saveFriendApls)
   },
   /**
    * 生命周期函数--监听页面初次渲染完成

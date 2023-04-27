@@ -2,7 +2,7 @@ import { createStoreBindings } from 'mobx-miniprogram-bindings'
 import { STATIC_BASE_URL } from '../../consts/consts'
 import { NewFriendsPath, UserDetailPath } from '../../consts/routes'
 import { chatSocket } from '../../socket/socket'
-import { RECE_ADD_USER } from '../../socket/socket-actions'
+import { ADD_USER, REC_ADD_USER } from '../../socket/socket-actions'
 import { userStore } from '../../store/store'
 
 Page({
@@ -18,14 +18,14 @@ Page({
     wx.navigateTo({ url: NewFriendsPath })
   },
   storeBindings: {} as StoreBindings,
-  receAddUserHandler: null as unknown as () => void,
+  receAddUserHandler: null as any,
   onLoad() {
     this.storeBindings = createStoreBindings(this, {
       store: userStore,
       fields: ['contacts', 'contactMap'],
     })
     this.receAddUserHandler = () => this.setData({ newFriendCount: wx.getStorageSync('newFriendCount-' + userStore.user.username) })
-    chatSocket.addSuccessHandler(RECE_ADD_USER, this.receAddUserHandler)
+    chatSocket.addSuccessHandler(REC_ADD_USER, this.receAddUserHandler)
   },
   /**
    * 生命周期函数--监听页面初次渲染完成
@@ -54,7 +54,7 @@ Page({
    */
   onUnload() {
     this.storeBindings.destroyStoreBindings()
-    chatSocket.removeSuccessHandler(RECE_ADD_USER, this.receAddUserHandler)
+    chatSocket.removeSuccessHandler(REC_ADD_USER, this.receAddUserHandler)
   },
 
   /**

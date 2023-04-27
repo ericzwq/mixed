@@ -9,7 +9,8 @@
     "pages/user/user-detail/user-detail",
     "pages/chat-detail/chat-detail",
     "pages/friend-application/friend-application",
-    "pages/new-friends/new-friends"
+    "pages/new-friends/new-friends",
+    "pages/friend-setting/friend-setting"
   ],
   "tabBar": {
     "custom": true,

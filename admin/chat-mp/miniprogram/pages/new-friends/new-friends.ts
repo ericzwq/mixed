@@ -1,6 +1,8 @@
+import { createStoreBindings } from 'mobx-miniprogram-bindings'
 import { STATIC_BASE_URL } from '../../consts/consts'
+import { FriendSettingPath } from '../../consts/routes'
 import { chatSocket } from '../../socket/socket'
-import { RECE_ADD_USER } from '../../socket/socket-actions'
+import { ADD_USER_RET, REC_ADD_USER } from '../../socket/socket-actions'
 import { userStore } from '../../store/user'
 Page({
 
@@ -9,23 +11,38 @@ Page({
    */
   data: {
     STATIC_BASE_URL,
-    friendApplications: [] as FriendApplication[]
+    friendApls: [] as FriendApl[]
   },
 
-  receAddUserHandler: null as unknown as () => void,
+  receAddUserHandler: null as any,
+  storeBindings: {} as StoreBindings,
   onLoad() {
     const { username } = userStore.user
+    this.storeBindings = createStoreBindings(this, {
+      store: userStore,
+      fields: ['user']
+    })
     this.receAddUserHandler = () => {
       wx.removeStorageSync('newFriendCount-' + username)
-      this.setData({ friendApplications: JSON.parse(wx.getStorageSync('friendApplications-' + username) || '[]') })
+      this.setData({ friendApls: JSON.parse(wx.getStorageSync('friendApplications-' + username) || '[]') })
     }
     this.receAddUserHandler()
-    chatSocket.addSuccessHandler(RECE_ADD_USER, this.receAddUserHandler)
+    chatSocket.addSuccessHandler(REC_ADD_USER, this.receAddUserHandler)
   },
-
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
+  accept(e: WechatMiniprogram.CustomEvent) {
+    const friendApl = this.data.friendApls[e.currentTarget.dataset.i]
+    wx.navigateTo({ url: FriendSettingPath + '?data=' + encodeURIComponent(JSON.stringify(friendApl)) })
+  },
+  reject(e: WechatMiniprogram.CustomEvent) {
+    const friendApl = this.data.friendApls[e.currentTarget.dataset.i]
+    const data = {
+      friendAplId: friendApl.friendAplId,
+      contactId: friendApl.contactId,
+      to: friendApl.from,
+      status: 2
+    }
+    chatSocket.send({ action: ADD_USER_RET, data })
+  },
   onReady() {
 
   },
@@ -48,7 +65,8 @@ Page({
    * 生命周期函数--监听页面卸载
    */
   onUnload() {
-    chatSocket.removeSuccessHandler(RECE_ADD_USER, this.receAddUserHandler)
+    this.storeBindings.destroyStoreBindings()
+    chatSocket.removeSuccessHandler(REC_ADD_USER, this.receAddUserHandler)
   },
 
   /**

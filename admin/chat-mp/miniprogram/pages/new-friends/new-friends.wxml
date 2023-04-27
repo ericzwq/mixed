@@ -1,15 +1,23 @@
-<view>
-  <view wx:for="{{friendApplications}}" wx:key="from" class="item">
-    <image src="{{STATIC_BASE_URL + item.avatar}}" class="left"></image>
-    <view class="middle">
-      <view class="nickname">{{item.nickname}}</view>
-      <view class="reason">{{item.reason}}</view>
-    </view>
-    <view class="right">
-      <view class="btn y">接受</view>
-      <view class="btn n">拒绝</view>
-      <!-- <view>已添加</view> -->
-      <!-- <view>2021:23:33</view> -->
-    </view>
+<!-- <view> -->
+<view wx:for="{{friendApls}}" wx:key="from" class="item">
+  <image src="{{STATIC_BASE_URL + item.avatar}}" class="left"></image>
+  <view class="middle">
+    <view class="nickname">{{item.nickname}}</view>
+    <view class="reason">{{item.reason}}</view>
+  </view>
+  <view wx:if="{{item.status === 0}}" class="right">
+    <block wx:if="{{item.from === user.username}}">
+      <view>验证中</view>
+    </block>
+    <block wx:else>
+      <view class="btn y" bindtap="accept" data-i="{{index}}">接受</view>
+      <view class="btn n" bindtap="reject" data-i="{{index}}">拒绝</view>
+    </block>
+  </view>
+  <view wx:else>
+    <view wx:if="{{item.from === user.username}}">已添加</view>
+    <view wx:else>已同意</view>
+    <view>{{item.updatedAt}}</view>
   </view>
 </view>
+<!-- </view> -->

@@ -1,4 +1,4 @@
-import {checkMessageParams} from '../../../common/utils'
+import {checkMessageParams, formatDate} from '../../../common/utils'
 import {SessionData} from '../../../router/user/user-types'
 import {AddUserBody, AddUserRetBody, FriendApls, SearchUserQuery} from './user-types'
 import {
@@ -13,8 +13,8 @@ import {
 import {addUserRetSchema, addUserSchema, searchUserSchema} from './user-schema'
 import {ExtWebSocket, RequestMessage} from '../../socket-types'
 import {usernameClientMap} from '../chat/chat'
-import {REC_ADD_USER, REC_ADD_USER_RET} from "../../socket-actions";
-import {Contacts} from "../contact/contact-types";
+import {REC_ADD_USER, REC_ADD_USER_RET} from '../../socket-actions'
+import {Contacts} from '../contact/contact-types'
 
 
 export async function searchUsers(ws: ExtWebSocket, session: SessionData, data: RequestMessage<SearchUserQuery>) {
@@ -51,21 +51,24 @@ export async function addUser(ws: ExtWebSocket, session: SessionData, data: Requ
     const {result: {insertId}} = await addContactByMasterAndSub(to, from, Contacts.Status.delete, remark)
     contactId = insertId
   }
-  usernameClientMap[to]?.json({action: REC_ADD_USER, data: {friendAplId, contactId, from, reason, nickname: session.nickname, avatar: session.avatar}})
-  const {nickname, avatar} = users[0]
-  ws.json({action: data.action, message: '申请成功', data: {friendAplId, from, nickname, avatar, reason}})
+  const status = FriendApls.Status.pending
+  let {nickname, avatar} = session
+  usernameClientMap[to]?.json({action: REC_ADD_USER, data: {friendAplId, contactId, from, reason, nickname, avatar, status}});
+  ({nickname, avatar} = users[0])
+  ws.json({action: data.action, message: '申请成功', data: {friendAplId, from, nickname, avatar, reason, status}})
 }
 
 export async function addUserRet(ws: ExtWebSocket, session: SessionData, data: RequestMessage<AddUserRetBody>) {
   await checkMessageParams(ws, addUserRetSchema, data.data, 1015)
   const {friendAplId, contactId, to, status, remark} = data.data
   const from = session.username
-  const {result} = await updateFriendAplStatus(friendAplId, from, to, status)
+  const updatedAt = formatDate()
+  const {result} = await updateFriendAplStatus(friendAplId, from, to, status, updatedAt)
   if (!result.affectedRows) return ws.json({message: '无申请记录或已修改该记录', status: 1016})
-  if (status === FriendApls.Status.reject) return // 拒绝
+  if (status === FriendApls.Status.reject) return // 拒绝 todo
   const {result: {affectedRows}} = await updateContactStatus(contactId, from, to, Contacts.Status.normal)
   if (!affectedRows) return ws.json({status: 1019, message: 'contactId不匹配'})
   await addContactByMasterAndSub(to, from, Contacts.Status.normal, remark)
-  ws.json({action: data.action, data: {friendAplId, from, status}})
-  usernameClientMap[to]?.json({action: REC_ADD_USER_RET, data: {friendAplId, from, to, status}})
+  ws.json({action: data.action, data: {friendAplId, from, status, updatedAt}})
+  usernameClientMap[to]?.json({action: REC_ADD_USER_RET, data: {friendAplId, from, to, status, updatedAt}})
 }

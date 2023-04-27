@@ -1,0 +1,5 @@
+<van-cell-group>
+  <text class="title">备注：</text>
+  <van-field value="{{ formData.remark }}" bind:input="remarkChange" placeholder="请输入备注" error-message="{{errors.remark}}" required />
+  <button type="primary" class="btn" bindtap="addUserRet">完成</button>
+</van-cell-group>

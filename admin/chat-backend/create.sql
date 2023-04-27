@@ -123,7 +123,8 @@ create table friend_applications
     `to`      varchar(20)                       not null,
     reason    varchar(50)                       not null,
     status    tinyint                           not null comment '0待确认 1同意 2拒绝',
-    createdAt timestamp                         not null default current_timestamp comment '创建时间'
+    createdAt timestamp                         not null default current_timestamp comment '创建时间',
+    updatedAt timestamp comment '修改时间'
 );
 
 /*群申请表*/
@@ -135,7 +136,8 @@ create table group_applications
     `to`      bigint                            not null,
     reason    varchar(50)                       not null,
     status    tinyint                           not null comment '0待确认 1同意 2拒绝',
-    createdAt timestamp                         not null default current_timestamp comment '创建时间'
+    createdAt timestamp                         not null default current_timestamp comment '创建时间',
+    updatedAt timestamp comment '修改时间'
 );
 
 /*帖子表*/

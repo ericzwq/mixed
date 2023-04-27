@@ -3,7 +3,7 @@ import {executeSocketSql} from '../../../db'
 import {Contacts} from '../contact/contact-types'
 import {InsertModal, UpdateModal} from '../../../types/sql-types'
 import {FriendApls} from './user-types'
-import Status = FriendApls.Status;
+import Status = FriendApls.Status
 
 export function getUserByUsername(username: Users.Username) {
   return executeSocketSql<{
@@ -39,6 +39,8 @@ export function resetFriendAplById(id: FriendApls.Id, reason: FriendApls.Reason)
   return executeSocketSql<UpdateModal>('update friend_applications set status = ?, reason = ? where id = ?;', [Status.pending, reason, id])
 }
 
-export function updateFriendAplStatus(id: FriendApls.Id, to: Users.Username, from: Users.Username, status: FriendApls.Status) { // 顺便校验from、to、status的正确性
-  return executeSocketSql<InsertModal>('update friend_applications set status = ? where id = ? and `from` = ? and `to` = ? and status = ?;', [status, id, from, to, Status.pending])
+export function updateFriendAplStatus(id: FriendApls.Id, to: Users.Username, from: Users.Username, status: FriendApls.Status, updatedAt: string) { // 顺便校验from、to、status的正确性
+  return executeSocketSql<InsertModal>(
+    'update friend_applications set status = ?, updatedAt = ? where id = ? and `from` = ? and `to` = ? and status = ?;',
+    [status, updatedAt, id, from, to, Status.pending])
 }

@@ -1,6 +1,6 @@
 import { ChatsPath, ContactPath, FoundPath, PersonalPath } from "../consts/routes";
 import { chatSocket } from "../socket/socket";
-import { RECE_ADD_USER } from "../socket/socket-actions";
+import { REC_ADD_USER } from "../socket/socket-actions";
 import { userStore } from "../store/user";
 
 Component({
@@ -12,12 +12,12 @@ Component({
   },
   lifetimes: {
     attached() {
-      chatSocket.addSuccessHandler<FriendApplication>(RECE_ADD_USER, (data) => {
+      chatSocket.addSuccessHandler<FriendApl>(REC_ADD_USER, (data) => {
         this.data.list[1].info = (+this.data.list[1].info + 1) + ''
         this.setData({ list: [...this.data.list] })
         const { username } = userStore.user
         wx.setStorageSync('newFriendCount-' + username, this.data.list[1].info)
-        const friendApls: FriendApplication[] = JSON.parse(wx.getStorageSync('friendApplications-' + username) || '[]')
+        const friendApls: FriendApl[] = JSON.parse(wx.getStorageSync('friendApplications-' + username) || '[]')
         friendApls.unshift(data.data)
         wx.setStorageSync('friendApplications-' + username, JSON.stringify(friendApls))
       }, 0)

@@ -1,9 +1,9 @@
 import * as Joi from 'joi'
 import {userSchemas} from '../../../router/user/user-schema'
-import {friendAplSchemas} from "../message-schemas";
-import {contactSchemas} from "../contact/contact-schema";
-import {FriendApls} from "./user-types";
-import Status = FriendApls.Status;
+import {friendAplSchemas} from '../message-schemas'
+import {contactSchemas} from '../contact/contact-schema'
+import {FriendApls} from './user-types'
+import Status = FriendApls.Status
 
 export const searchUserSchema = Joi.object({
   username: userSchemas.username
@@ -12,7 +12,7 @@ export const searchUserSchema = Joi.object({
 export const addUserSchema = Joi.object({
   username: userSchemas.username,
   reason: friendAplSchemas.reason,
-  remark: friendAplSchemas.remark
+  remark: friendAplSchemas.remark.required()
 }).required()
 
 export const addUserRetSchema = Joi.object({
