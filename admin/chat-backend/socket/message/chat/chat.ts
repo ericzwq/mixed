@@ -4,7 +4,6 @@ import path = require('path')
 import {SessionData} from "../../../router/user/user-types";
 import {ExtWebSocket, Message} from "../../socket-types";
 import {checkMessageParams, formatDate} from "../../../common/utils";
-import {SocketResponseSchema} from "../../../response/response";
 import {addGroupMessage, addSingleMessage} from "./chat-sql";
 import {REC_MSGS} from "../../socket-actions";
 import Joi = require('joi')

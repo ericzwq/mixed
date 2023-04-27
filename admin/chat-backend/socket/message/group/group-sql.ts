@@ -3,13 +3,14 @@ import {Group, Groups} from "../../socket-types";
 import {Users} from "../../../router/user/user-types";
 import {GroupApls} from "./group-types";
 import {InsertModal, UpdateModal} from "../../../types/sql-types";
+import Status = GroupApls.Status;
 
 export function selectGroupById(id: Groups.Id) {
   return executeSocketSql<Group[]>('select * from `groups` where id = ?;', [id])
 }
 
 export function selectGroupAplByAddGroup(to: Groups.Id, from: Users.Username) {
-  return executeSocketSql<{ status: number }[]>('select status from group_applications where `from` = ? and  `to` = ?;', [from, to])
+  return executeSocketSql<{ status: GroupApls.Status }[]>('select status from group_applications where `from` = ? and  `to` = ?;', [from, to])
 }
 
 export function resetGroupApl(to: Groups.Id, from: Users.Username, reason: GroupApls.Reason) {
@@ -17,5 +18,5 @@ export function resetGroupApl(to: Groups.Id, from: Users.Username, reason: Group
 }
 
 export function addGroupApl(to: Groups.Id, from: Users.Username, reason: GroupApls.Reason) {
-  return executeSocketSql<InsertModal>('insert group_applications(`from`, `to`, reason, status) values(?, ?, ?, 0);', [from, to, reason])
+  return executeSocketSql<InsertModal>('insert group_applications(`from`, `to`, reason, status) values(?, ?, ?, ?);', [from, to, reason, Status.pending])
 }

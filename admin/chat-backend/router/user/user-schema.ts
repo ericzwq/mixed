@@ -1,7 +1,7 @@
 import Joi = require('joi')
 
 export const userSchemas = {
-	id: Joi.number().required(),
+	friendAplId: Joi.number().required(),
 	username: Joi.string().max(18).min(2).required(),
 	password: Joi.string().max(18).min(2).required(),
 	nickname: Joi.string().max(18).min(2).required(),

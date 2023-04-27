@@ -36,7 +36,8 @@ export async function handleMessage(session: SessionData, cookie: string, ws: Ex
       try {
         data = JSON.parse(_data.toString())
       } catch (e) {
-        return console.log('数据解析失败', e)
+        console.log('数据格式错误', e)
+        return ws.json({status: 1001, message: '数据格式错误'})
       }
       const handler = socketMessageRouter.actionHandlerMap[data.action]
       if (!handler) return ws.json({status: 1002, message: '未知的action'})

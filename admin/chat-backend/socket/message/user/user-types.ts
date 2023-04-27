@@ -5,7 +5,12 @@ export namespace FriendApls {
   export type Id = number
   export type Reason = string
   export type Remark = string
-  export type Status = 0 | 1 | 2
+
+  export enum Status {
+    pending = 0, // 待确认
+    accept = 1, // 同意
+    reject = 2 // 拒绝
+  }
 }
 
 export interface SearchUserQuery {
@@ -19,6 +24,9 @@ export interface AddUserBody {
 }
 
 export interface AddUserRetBody {
+  friendAplId: FriendApls.Id
+  contactId: Contacts.Id
   to: Users.Username
-  status: FriendApls.Status // 0待确认 1同意 2拒绝
+  status: FriendApls.Status
+  remark: FriendApls.Remark
 }

@@ -3,7 +3,12 @@ import {Users} from "../../../router/user/user-types";
 
 export namespace GroupApls {
   export type  Reason = string
-  export type  Status = 0 | 1 | 2
+
+  export enum Status {
+    pending = 0,  // 待确认
+    accept = 1, // 同意
+    reject = 2 // 拒绝
+  }
 }
 
 export interface AddGroupBody {
@@ -13,5 +18,5 @@ export interface AddGroupBody {
 
 export interface AddGroupRetBody {
   to: Users.Username
-  status: GroupApls.Status // 0待确认 1同意 2拒绝
+  status: GroupApls.Status
 }
