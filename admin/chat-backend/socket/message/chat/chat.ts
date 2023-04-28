@@ -63,7 +63,7 @@ async function singleChat(ws: ExtWebSocket, message: Message, session: SessionDa
   const createdAt = formatDate()
   if (message.type === 3) handleAudio(message, createdAt) // 音频
   message.createdAt = createdAt
-  await addSingleMessage(message)
+  await addSingleMessage(ws, message)
   const data = {
     data: [{data: message.content, type: message.type, fakeId: message.fakeId, from: session.username, to: message.to, createdAt}],
     action: REC_MSGS

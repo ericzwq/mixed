@@ -20,5 +20,5 @@ export const addUserRetSchema = Joi.object({
   contactId: contactSchemas.id,
   to: userSchemas.username,
   status: Joi.valid(Status.accept, Status.reject).required(),
-  remark: friendAplSchemas.remark
+  remark: friendAplSchemas.remark.when('status', {is: Status.accept, then: Joi.required()})
 }).required()

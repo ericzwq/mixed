@@ -8,6 +8,7 @@ import client from "../../../redis/redis";
 import {usernameClientMap} from "../chat/chat";
 import {addFriendApl} from "../user/user-sql";
 import {REC_ADD_GROUP} from "../../socket-actions";
+import {beginSocketSql} from "../../../db";
 
 export async function createGroup() {
 
@@ -16,7 +17,7 @@ export async function createGroup() {
 export async function getGroupById(ws: ExtWebSocket, id: Groups.Id): Promise<Group> {
   const _group = await client.get('group-' + id)
   if (_group) return JSON.parse(_group)
-  const {result} = await selectGroupById(id)
+  const {result} = await selectGroupById(ws, id)
   if (!result.length) {
     ws.json({status: 1004, message: '未知的群聊id：' + id})
     return Promise.reject()
@@ -40,14 +41,15 @@ export async function addGroup(ws: ExtWebSocket, session: SessionData, data: Req
   const group = await getGroupById(ws, to)
   if (isUserInGroup(session.username, group)) return ws.json({message: '你已在群里', status: 1002})
   const {username: from, nickname, avatar} = session
-  const {result} = await selectGroupAplByAddGroup(to, from)
+  const {result} = await selectGroupAplByAddGroup(ws, to, from)
+  await beginSocketSql(ws)
   if (result.length) {
     const status = result[0].status
     if (status === GroupApls.Status.pending) return ws.json({message: '请勿重复申请', status: 1003})
     // if (status === GroupApls.Status.accept) return ws.json({message: '你已在群里', status: 1004})
-    await resetGroupApl(to, from, reason)
+    await resetGroupApl(ws, to, from, reason)
   } else {
-    await addFriendApl(to, from, reason)
+    await addFriendApl(ws, to, from, reason)
   }
   ws.json({message: '申请成功', action: data.action, data: {from}})
   const res = JSON.stringify({action: REC_ADD_GROUP, data: {from, nickname, avatar}})

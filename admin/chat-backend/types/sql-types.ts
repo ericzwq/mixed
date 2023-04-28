@@ -1,17 +1,15 @@
 import {ParsedUrlQuery} from 'querystring'
 import {FieldInfo, OkPacket, Query, QueryOptions} from 'mysql'
 import {Context} from 'koa'
+import {ExtWebSocket} from "../socket/socket-types";
 
 export type PageIndex = string
 export type PageSize = string
 
 export class SqlConfig {
-  errorRollback: boolean
-  errorMessage: string
 
-  constructor({errorRollback = false, errorMessage = '数据库连接失败'}: { errorRollback?: boolean, errorMessage?: string } = {}) {
-    this.errorRollback = errorRollback
-    this.errorMessage = errorMessage
+  constructor() {
+
   }
 }
 
@@ -30,11 +28,11 @@ export interface CustomQueryFunction {
 }
 
 export interface CustomSocketQueryFunction {
-  <T = any>(query: Query, config?: SqlConfig): Promise<SqlReturn<T>>;
+  <T = any>(ws: ExtWebSocket, query: Query, config?: SqlConfig): Promise<SqlReturn<T>>;
 
-  <T = any>(options: string | QueryOptions, config?: SqlConfig): Promise<SqlReturn<T>>;
+  <T = any>(ws: ExtWebSocket, options: string | QueryOptions, config?: SqlConfig): Promise<SqlReturn<T>>;
 
-  <T = any>(options: string | QueryOptions, values: any, config?: SqlConfig): Promise<SqlReturn<T>>;
+  <T = any>(ws: ExtWebSocket, options: string | QueryOptions, values: any, config?: SqlConfig): Promise<SqlReturn<T>>;
 }
 
 export interface PageParameter extends ParsedUrlQuery {

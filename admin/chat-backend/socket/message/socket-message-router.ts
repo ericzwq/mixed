@@ -11,6 +11,7 @@ import {answer, candidate, offer, voiceResult} from './mediaCall/mediaCall'
 import {CANCELLED} from 'dns'
 import {addUser, addUserRet, searchUsers} from './user/user'
 import {addGroup, addGroupRet} from "./group/group";
+import {commitSocketSql, socketSqlMiddleware} from "../../db";
 
 const socketMessageRouter = {
   actionHandlerMap: {} as ActionHandlerMap,
@@ -25,9 +26,13 @@ const socketMessageRouter = {
 }
 
 export async function handleMessage(session: SessionData, cookie: string, ws: ExtWebSocket, req: IncomingMessage) {
+  await socketSqlMiddleware(ws)
   usernameClientMap[session.username] = ws
-  const {result} = await getChatData(session)
+  const {result} = await getChatData(ws, session)
+  ws.connection.release()
+
   ws.json({data: result, action: REC_MSGS})
+
   ws.on('message', async (_data, isBinary) => {
     let data: Message
     if (isBinary) {
@@ -41,7 +46,10 @@ export async function handleMessage(session: SessionData, cookie: string, ws: Ex
       }
       const handler = socketMessageRouter.actionHandlerMap[data.action]
       if (!handler) return ws.json({status: 1002, message: '未知的action'})
-      handler(ws, session, data)
+      await socketSqlMiddleware(ws)
+      await handler(ws, session, data)
+      if (ws.sqlCommit) await commitSocketSql(ws)
+      ws.connection.release()
     }
   })
 

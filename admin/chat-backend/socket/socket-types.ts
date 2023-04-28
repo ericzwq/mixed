@@ -2,6 +2,7 @@ import {SessionData, Users} from '../router/user/user-types'
 import * as WebSocket from 'ws'
 import {IncomingMessage} from 'http'
 import {SocketResponseOptions} from "../response/response";
+import {PoolConnection} from "mysql";
 
 export namespace Messages {
   export type Target = string // '1-2'
@@ -28,7 +29,9 @@ export namespace Groups {
 }
 
 export interface ExtWebSocket extends WebSocket.WebSocket {
+  connection: PoolConnection
   json: (socketResponseOptions: SocketResponseOptions, options?: any, cb?: any) => void
+  sqlCommit: boolean
 }
 
 export interface RequestMessage<T = null> {
