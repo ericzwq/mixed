@@ -1,7 +1,7 @@
 import {getEmailCodeSchema, loginSchema, registerSchema} from './user-schema'
 import Router = require('koa-router')
 import {addUser, getEmailByUsernameOrEmail, getUserByLogin} from './user-sql'
-import {GetEmailCodeQuery, LoginReqBody, RegisterBody, SessionData} from './user-types'
+import {GetEmailCodeQuery, LoginReqBody, RegisterBody, User} from './user-types'
 import client from '../../redis/redis'
 import {checkParams, formatDate} from '../../common/utils'
 import {getEmailCodeUrl, loginUrl, logoutUrl, registerUrl} from '../urls'
@@ -18,7 +18,7 @@ user.post(registerUrl, async ctx => {
   await checkParams(ctx, registerSchema, body, 1001)
   let emailCode, sessionData
   try {
-    sessionData = JSON.parse(await client.get(body.email) as string) as SessionData
+    sessionData = JSON.parse(await client.get(body.email) as string) as User
     emailCode = sessionData.emailCode
   } catch (e) {
     return ctx.body = new ResponseSchema({message: '请先获取验证码', status: 1002})
@@ -50,14 +50,9 @@ user.post(loginUrl, async ctx => {
   await checkParams(ctx, loginSchema, body, 1009)
   const {result} = await getUserByLogin(ctx)
   if (!result.length) return ctx.body = new ResponseSchema({message: '用户名或密码错误', status: 1010})
-  const session = ctx.session!
-  const data = result[0]
-  session.username = body.username
-  session.nickname = data.nickname
-  session.avatar = data.avatar
-  session.loginTime = formatDate()
-  session.login = true
-  ctx.body = new ResponseSchema({message: '登录成功', data})
+  const user = ctx.session!
+  Object.assign(user, result[0], {username: body.username, loginTime: formatDate(), login: true})
+  ctx.body = new ResponseSchema({message: '登录成功', data: result[0]})
 })
 
 user.post(logoutUrl, async ctx => {

@@ -12,13 +12,15 @@ set global time_zone = '+8:00';
 drop table if exists users;
 create table users
 (
-    username  varchar(20) primary key not null,
-    password  varchar(20)             not null,
-    avatar    varchar(20)             not null,
-    nickname  varchar(20)             not null,
-    email     varchar(20)             not null,
-    createdAt timestamp               not null default current_timestamp comment '创建时间',
-    updatedAt timestamp               not null default current_timestamp on update current_timestamp comment '修改时间'
+    username           varchar(20) primary key not null,
+    password           varchar(20)             not null,
+    avatar             varchar(20)             not null,
+    nickname           varchar(20)             not null,
+    email              varchar(20)             not null,
+    last_friend_apl_id bigint comment '与用户有关的最后一条好友申请表id',
+    last_group_apl_id  bigint comment '与用户有关的最后一条群聊申请表id',
+    createdAt          timestamp               not null default current_timestamp comment '创建时间',
+    updatedAt          timestamp               not null default current_timestamp on update current_timestamp comment '修改时间'
 );
 
 insert users(username, password, avatar, email, nickname)
@@ -76,6 +78,7 @@ drop table if exists single_chat;
 create table single_chat
 (
     id        bigint auto_increment primary key not null,
+    next      bigint,
     `from`    varchar(20)                       not null,
     `to`      varchar(20)                       not null,
     content   varchar(500)                      not null,
@@ -106,6 +109,7 @@ drop table if exists group_chat;
 create table group_chat
 (
     id        bigint auto_increment primary key not null,
+    next      bigint,
     `from`    varchar(20)                       not null,
     `to`      bigint                            not null,
     content   varchar(500)                      not null,

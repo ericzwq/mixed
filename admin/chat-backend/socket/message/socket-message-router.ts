@@ -1,15 +1,15 @@
 import {MessageHandler, ActionHandlerMap, Message, ExtWebSocket} from '../socket-types'
-import {SessionData} from '../../router/user/user-types'
+import {User} from '../../router/user/user-types'
 import {IncomingMessage} from 'http'
 import {getChatData} from './chat/chat-sql'
-import {ADD_GROUP, ADD_GROUP_RET, ADD_USER, ADD_USER_RET, ANSWER, GET_CONTACTS, OFFER, REC_MSGS, SEARCH_USERS, VOICE_RESULT} from '../socket-actions'
+import {ADD_GROUP, ADD_GROUP_RET, ADD_USER, ADD_USER_RET, ANSWER, GET_CONTACTS, GET_FRIEND_APLS, OFFER, REC_MSGS, SEARCH_USERS, VOICE_RESULT} from '../socket-actions'
 import {formatDate} from '../../common/utils'
 import client from '../../redis/redis'
 import {usernameClientMap, sendMessage} from './chat/chat'
 import {getContacts} from './contact/contact'
 import {answer, candidate, offer, voiceResult} from './mediaCall/mediaCall'
 import {CANCELLED} from 'dns'
-import {addUser, addUserRet, searchUsers} from './user/user'
+import {addUser, addUserRet, getFriendApls, searchUsers} from './user/user'
 import {addGroup, addGroupRet} from "./group/group";
 import {commitSocketSql, socketSqlMiddleware} from "../../db";
 
@@ -25,7 +25,7 @@ const socketMessageRouter = {
   }
 }
 
-export async function handleMessage(session: SessionData, cookie: string, ws: ExtWebSocket, req: IncomingMessage) {
+export async function handleMessage(session: User, cookie: string, ws: ExtWebSocket, req: IncomingMessage) {
   await socketSqlMiddleware(ws)
   usernameClientMap[session.username] = ws
   const {result} = await getChatData(ws, session)
@@ -95,6 +95,7 @@ socketMessageRouter.addHandlers([
   {action: ANSWER, handler: answer}
 ])
 socketMessageRouter.addHandlers([
+  {action: GET_FRIEND_APLS, handler: getFriendApls},
   {action: ADD_USER, handler: addUser},
   {action: SEARCH_USERS, handler: searchUsers},
   {action: ADD_USER_RET, handler: addUserRet}

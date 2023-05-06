@@ -1,5 +1,5 @@
 import {executeSocketSql} from '../../../db'
-import {SessionData, Users} from '../../../router/user/user-types'
+import {User, Users} from '../../../router/user/user-types'
 import {Contacts} from "./contact-types";
 import Status = Contacts.Status;
 import {ExtWebSocket} from "../../socket-types";
@@ -13,7 +13,7 @@ interface Contact {
 }
 
 // 获取通讯录
-export function getContactsByUsername(ws: ExtWebSocket, session: SessionData) {
+export function getContactsByUsername(ws: ExtWebSocket, session: User) {
   return executeSocketSql<Contact[]>(
     ws, 'select u.username, u.nickname, u.avatar, c.remark, c.status from contacts c left join users u on c.sub = u.username where c.master = ? and status in (?, ?);',
     [session.username, Status.normal, Status.blackList])

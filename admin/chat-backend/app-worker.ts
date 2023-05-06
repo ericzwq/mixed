@@ -10,7 +10,7 @@ import session = require('koa-session')
 import assets = require('koa-static')
 import https = require('https')
 import sessionConfig from './session/session'
-import {SessionData} from './router/user/user-types'
+import {User} from './router/user/user-types'
 import {noLoginUrlSet} from './router/urls'
 import {UPLOAD_PATH} from './common/consts'
 import {sqlMiddleware} from './db'
@@ -53,7 +53,7 @@ export default (port: number) => {
   })
   // 登录校验
   app.use(async (context, next) => {
-    if (!(context.session as SessionData).login && !noLoginUrlSet.has(context.request.path.slice(1))) return context.body = {message: '未登录', status: 401, data: false}
+    if (!(context.session as User).login && !noLoginUrlSet.has(context.request.path.slice(1))) return context.body = {message: '未登录', status: 401, data: false}
     await next()
   })
 

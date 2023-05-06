@@ -1,5 +1,5 @@
 import {IncomingMessage} from 'http'
-import {SessionData} from '../router/user/user-types'
+import {User} from '../router/user/user-types'
 import {ConnectionHandler, ConnectionHandlerMap, ExtWebSocket} from './socket-types'
 import {handleMessage} from "./message/socket-message-router";
 import {voice} from "./voice/socket-voice-router";
@@ -7,7 +7,7 @@ import {voice} from "./voice/socket-voice-router";
 
 const socketConnectionRouter = {
   connectionHandlerMap: {} as ConnectionHandlerMap,
-  handler(session: SessionData, cookie: string, ws: ExtWebSocket, req: IncomingMessage) {
+  handler(session: User, cookie: string, ws: ExtWebSocket, req: IncomingMessage) {
     const [pathname, query] = req.url!.split('?')
     const params = query ? query.split('&').reduce((acc, cur) => {
       const [name, value] = cur.split('=')

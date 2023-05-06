@@ -3,7 +3,7 @@ fetch(
   {body: JSON.stringify({username: 'eric', password: '111111'}), method: 'POST', headers: {'Content-Type': 'application/json'}})
 
 let ws = new WebSocket('wss://localhost:5001/?cookie='
-  + encodeURIComponent('session-id=0ea6bae4-f2e4-49c2-b12a-8c7e55192737;session-id.sig=mb7q02rf9YBKPygTvi9DHBwip5s;'))
+  + encodeURIComponent('session-id=8a26f64a-deda-41bc-bd9d-ed3b3b8b155a;session-id.sig=touujJwSSR27s-7OpCAxFqVS_j8;'))
 ws.json = (data) => ws.send(JSON.stringify(data))
 
 
@@ -12,6 +12,6 @@ fetch(
   'https://localhost:5001/login',
   {body: JSON.stringify({username: 'eric4', password: '111111'}), method: 'POST', headers: {'Content-Type': 'application/json'}})
 
-let ws2 = new WebSocket('wss://localhost:5001/?cookie='
-  + encodeURIComponent('session-id=9446be9f-7c1a-4bd4-8bfc-3d60cee2a6a4;session-id.sig=fZV6wEI7DfUZF761yUBKGETP3Ng;'))
-ws2.json = (data) => ws2.send(JSON.stringify(data))
+let ws4 = new WebSocket('wss://localhost:5001/?cookie='
+  + encodeURIComponent('session-id=2e318b63-ccfb-44a4-a50e-aa1f59fe6348;session-id.sig=AGyV2CRFDVR89wIQnVo6rTgy5Mk;'))
+ws4.json = (data) => ws4.send(JSON.stringify(data))

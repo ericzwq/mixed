@@ -1,7 +1,7 @@
 import * as WebSocket from "ws";
 import fs = require('fs')
 import path = require('path')
-import {SessionData} from "../../../router/user/user-types";
+import {User} from "../../../router/user/user-types";
 import {ExtWebSocket, Message} from "../../socket-types";
 import {checkMessageParams, formatDate} from "../../../common/utils";
 import {addGroupMessage, addSingleMessage} from "./chat-sql";
@@ -29,7 +29,7 @@ const MessageSchema = Joi.object({
 
 export const usernameClientMap = {} as { [key in string]: ExtWebSocket }
 
-export async function sendMessage(ws: ExtWebSocket, session: SessionData, data: Message) {
+export async function sendMessage(ws: ExtWebSocket, session: User, data: Message) {
   await checkMessageParams(ws, MessageSchema, data, 1001)
   const [type, to] = data.target.split('-')
   if (!type || !to) return ws.json({message: '参数target非法', status: 1002, action: ''})
@@ -59,7 +59,7 @@ function handleAudio(message: Message, createdAt: string) {
   message.content = urlDir + filename // 文件内容保存为地址
 }
 
-async function singleChat(ws: ExtWebSocket, message: Message, session: SessionData) { // 单聊
+async function singleChat(ws: ExtWebSocket, message: Message, session: User) { // 单聊
   const createdAt = formatDate()
   if (message.type === 3) handleAudio(message, createdAt) // 音频
   message.createdAt = createdAt
@@ -72,7 +72,7 @@ async function singleChat(ws: ExtWebSocket, message: Message, session: SessionDa
   usernameClientMap[message.to]?.json(data) // 给好友发送消息
 }
 
-async function groupChat(ws: ExtWebSocket, message: Message, session: SessionData) { // 群聊
+async function groupChat(ws: ExtWebSocket, message: Message, session: User) { // 群聊
   const group = await getGroupById(ws, message.to)
   const {username} = session
   if (!isUserInGroup(username, group)) return ws.json({status: 1005, message: '您不在群内'})

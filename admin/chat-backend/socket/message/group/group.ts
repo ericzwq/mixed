@@ -1,5 +1,5 @@
 import {checkMessageParams} from "../../../common/utils";
-import {SessionData, Users} from "../../../router/user/user-types";
+import {User, Users} from "../../../router/user/user-types";
 import {ExtWebSocket, Group, Groups, RequestMessage} from "../../socket-types";
 import {addGroupRetSchema, addGroupSchema} from "./group-schema";
 import {resetGroupApl, selectGroupAplByAddGroup, selectGroupById} from "./group-sql";
@@ -35,7 +35,7 @@ export function isUserInGroup(username: Users.Username, group: Group) {
   return username === group.leader || group.managers.has(username) || group.members.has(username)
 }
 
-export async function addGroup(ws: ExtWebSocket, session: SessionData, data: RequestMessage<AddGroupBody>) {
+export async function addGroup(ws: ExtWebSocket, session: User, data: RequestMessage<AddGroupBody>) {
   await checkMessageParams(ws, addGroupSchema, data.data, 1001)
   const {id: to, reason} = data.data
   const group = await getGroupById(ws, to)
@@ -57,7 +57,7 @@ export async function addGroup(ws: ExtWebSocket, session: SessionData, data: Req
   group.managers.forEach(manager => usernameClientMap[manager]?.send(res))
 }
 
-export async function addGroupRet(ws: ExtWebSocket, session: SessionData, data: RequestMessage<AddGroupRetBody>) {
+export async function addGroupRet(ws: ExtWebSocket, session: User, data: RequestMessage<AddGroupRetBody>) {
   await checkMessageParams(ws, addGroupRetSchema, 1005)
   const body = data.data
   const {to, status} = body

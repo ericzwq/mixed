@@ -36,6 +36,15 @@ export function addFriendApl(ws: ExtWebSocket, to: Users.Username, from: Users.U
   return executeSocketSql<InsertModal>(ws, 'insert friend_applications(`from`, `to`, reason, status) values(?, ?, ?, 0);', [from, to, reason])
 }
 
+export function selectFriendAplsById(ws: ExtWebSocket, username: Users.Username, id: Users.LastFriendAplId) {
+  const join = id === null ? '>=' : '=' // 传空则只取一条
+  return executeSocketSql(ws, 'select * from friend_applications where id ' + join + ' ? and (`from` = ? or `to` = ?);', [id, username, username])
+}
+
+export function updateLastFriendAplId(ws: ExtWebSocket, usernames: Users.Username[], id: Users.LastFriendAplId) {
+  return executeSocketSql<UpdateModal>(ws, 'update users set last_friend_apl_id = ? where username in (?);', [id, usernames])
+}
+
 export function resetFriendAplById(ws: ExtWebSocket, id: FriendApls.Id, reason: FriendApls.Reason) {
   return executeSocketSql<UpdateModal>(ws, 'update friend_applications set status = ?, reason = ? where id = ?;', [Status.pending, reason, id])
 }

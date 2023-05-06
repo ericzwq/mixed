@@ -1,4 +1,4 @@
-import {SessionData, Users} from "../../router/user/user-types";
+import {User, Users} from "../../router/user/user-types";
 import {IncomingMessage} from "http";
 import {SocketResponseSchema} from "../../response/response";
 import {CONN_VOICE, VOICE_RESULT} from "../socket-actions";
@@ -7,7 +7,7 @@ import {usernameClientMap} from "../message/chat/chat";
 
 export const voiceClientMap = new Map<Users.Username, WebSocket.WebSocket>()
 
-export function voice(session: SessionData, cookie: string, ws: WebSocket.WebSocket, req: IncomingMessage, params: any) {
+export function voice(session: User, cookie: string, ws: WebSocket.WebSocket, req: IncomingMessage, params: any) {
   const username = params.username
   voiceClientMap.set(session.username, ws)
   if (!voiceClientMap.has(username)) { // 对方未连接

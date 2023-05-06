@@ -1,7 +1,7 @@
 import {Server} from 'https'
 import WebSocket = require('ws')
 import client from '../redis/redis'
-import {SessionData} from '../router/user/user-types'
+import {User} from '../router/user/user-types'
 import {sessionKey} from '../session/session'
 import socketConnectionRouter from './socket-connection-router'
 import {SocketResponseOptions, SocketResponseSchema} from '../response/response'
@@ -24,7 +24,7 @@ export default (server: Server) => {
     phoneMap[phone] = ws*/
 
     const cookie = getSession(_cookie)
-    const session = JSON.parse(await client.get(cookie) || '{}') as SessionData
+    const session = JSON.parse(await client.get(cookie) || '{}') as User
     if (!session.login) return ws.json({message: '未登录', status: 401, action: ''})
     console.log('有用户连接', session, wss.clients.size, req.url)
     return socketConnectionRouter.handler(session, cookie, ws, req)

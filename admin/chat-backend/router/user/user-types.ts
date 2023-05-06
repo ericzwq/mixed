@@ -1,42 +1,46 @@
-import { ParsedUrlQuery } from 'querystring'
-import { Session } from 'koa-session'
+import {ParsedUrlQuery} from 'querystring'
+import {Session} from 'koa-session'
 
 export namespace Users {
-	export type Username = string
-	export type Password = string
-	export type Nickname = string
-	export type Avatar = string
-	export type Email = string
-	export type Code = string
+  export type Username = string
+  export type Password = string
+  export type Nickname = string
+  export type Avatar = string
+  export type Email = string
+  export type Code = string
+  export type LastFriendAplId = number
+  export type LastGroupAplId = number
 }
 
 // session储存信息
-export interface SessionData extends Session {
-	username: Users.Username
-	nickname: Users.Nickname
-	avatar: Users.Avatar
-	loginTime: string
-	leaveTime: string
-	login: boolean
-	email: Users.Email
-	emailCode?: Users.Code
-	emailCodeTime?: number
+export interface User extends Session {
+  username: Users.Username
+  nickname: Users.Nickname
+  avatar: Users.Avatar
+  loginTime: string
+  leaveTime: string
+  login: boolean
+  email: Users.Email
+  emailCode?: Users.Code
+  emailCodeTime?: number
+  lastFriendAplId: number
+  lastGroupAplId: number
 }
 
 export interface RegisterBody {
-	username: Users.Username
-	password: Users.Password
-	nickname: Users.Nickname
-	avatar: Users.Avatar
-	email: Users.Email
-	code: Users.Code
+  username: Users.Username
+  password: Users.Password
+  nickname: Users.Nickname
+  avatar: Users.Avatar
+  email: Users.Email
+  code: Users.Code
 }
 
 export interface GetEmailCodeQuery extends ParsedUrlQuery {
-	email: Users.Email
+  email: Users.Email
 }
 
 export interface LoginReqBody {
-	username: Users.Username
-	password: Users.Password
+  username: Users.Username
+  password: Users.Password
 }

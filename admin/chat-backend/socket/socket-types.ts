@@ -1,4 +1,4 @@
-import {SessionData, Users} from '../router/user/user-types'
+import {User, Users} from '../router/user/user-types'
 import * as WebSocket from 'ws'
 import {IncomingMessage} from 'http'
 import {SocketResponseOptions} from "../response/response";
@@ -117,13 +117,13 @@ export interface VoiceResult {
   }
 }
 
-export type MessageHandler = (ws: ExtWebSocket, session: SessionData, data: any) => void
+export type MessageHandler = (ws: ExtWebSocket, session: User, data: any) => void
 
 export interface ActionHandlerMap {
   [key: string]: MessageHandler
 }
 
-export type ConnectionHandler = (session: SessionData, cookie: string, ws: ExtWebSocket, req: IncomingMessage, params: any) => void
+export type ConnectionHandler = (session: User, cookie: string, ws: ExtWebSocket, req: IncomingMessage, params: any) => void
 
 export interface ConnectionHandlerMap {
   [key: string]: ConnectionHandler
