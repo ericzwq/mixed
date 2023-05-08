@@ -2,7 +2,7 @@ import { createStoreBindings } from 'mobx-miniprogram-bindings'
 import { formatDate } from './common/utils'
 import { ChatDetailPath, LoginPath } from './consts/routes'
 import { chatSocket } from "./socket/socket"
-import { RECE_MSGS } from './socket/socket-actions'
+import { GET_CONTACTS, GET_FRIEND_APLS, RECE_MSGS } from './socket/socket-actions'
 import { userStore } from "./store/store"
 
 App<IAppOption>({
@@ -17,7 +17,17 @@ App<IAppOption>({
     })
     this.addReceMsgsListener()
     if (!this.getUser()) return
-    chatSocket.connect().then(() => userStore.getContacts())
+    chatSocket.connect().then(() => {
+      userStore.getContacts()
+      const friendApls: FriendApl[] = JSON.parse(wx.getStorageSync('friendApplications-' + userStore.user.username) || '[]')
+      chatSocket.send({ action: GET_FRIEND_APLS, data: { lastFriendAplId: friendApls[0].friendAplId || null } })
+      chatSocket.addSuccessHandler<FriendApl[]>(GET_FRIEND_APLS, data => {
+          data.data.forEach(friendApl => {
+            const id = friendApl.friendAplId
+            
+          })
+      })
+    })
     userStore.getChats()
   },
   // 获取用户信息

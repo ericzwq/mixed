@@ -30,7 +30,9 @@ const store = observable({
       if (!contacts) {
         chatSocket.addSuccessHandler<Contact[]>(GET_CONTACTS, (r) => {
           const data = store.user
-          if (data.username) r.data.push({ avatar: data.avatar, username: data.username, nickname: data.nickname, remark: data.nickname, status: 0 }) // 已获取用户信息
+          if (data.username && !r.data.find(c => c.username === data.username)) { // 已获取用户信息
+            r.data.push({ avatar: data.avatar, username: data.username, nickname: data.nickname, remark: data.nickname, status: 0 })
+          }
           wx.setStorageSync('contacts-' + this.user.username, JSON.stringify(r.data))
           this.setContacts(r.data)
           resolve()

@@ -49,7 +49,7 @@ export async function addGroup(ws: ExtWebSocket, session: User, data: RequestMes
     // if (status === GroupApls.Status.accept) return ws.json({message: '你已在群里', status: 1004})
     await resetGroupApl(ws, to, from, reason)
   } else {
-    await addFriendApl(ws, to, from, reason)
+    // await addFriendApl(ws, to, from, reason)
   }
   ws.json({message: '申请成功', action: data.action, data: {from}})
   const res = JSON.stringify({action: REC_ADD_GROUP, data: {from, nickname, avatar}})
