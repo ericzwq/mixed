@@ -25,15 +25,24 @@ const socketMessageRouter = {
   }
 }
 
-export async function handleMessage(session: User, cookie: string, ws: ExtWebSocket, req: IncomingMessage) {
+export async function handleMessage(user: User, cookie: string, ws: ExtWebSocket, req: IncomingMessage) {
   await socketSqlMiddleware(ws)
-  usernameClientMap[session.username] = ws
-  const {result} = await getChatData(ws, session)
+  usernameClientMap[user.username] = ws
+  const {result} = await getChatData(ws, user)
   ws.connection.release()
 
   ws.json({data: result, action: REC_MSGS})
 
   ws.on('message', async (_data, isBinary) => {
+    if (ws.shouldUpdateUser) {
+      ws.shouldUpdateUser = false
+      const newValue = await client.get(cookie)
+      if (!newValue) {
+        user.login = false
+        return ws.json({message: '未登录', status: 401, action: ''})
+      }
+      Object.assign(user, JSON.parse(newValue))
+    }
     let data: Message
     if (isBinary) {
 
@@ -47,21 +56,21 @@ export async function handleMessage(session: User, cookie: string, ws: ExtWebSoc
       const handler = socketMessageRouter.actionHandlerMap[data.action]
       if (!handler) return ws.json({status: 1002, message: '未知的action'})
       await socketSqlMiddleware(ws)
-      await handler(ws, session, data)
+      await handler(ws, user, data)
       if (ws.sqlCommit) await commitSocketSql(ws)
       ws.connection.release()
     }
   })
 
   ws.on('error', e => {
-    session.leaveTime = formatDate()
-    client.set(cookie, JSON.stringify(session))
+    user.leaveTime = formatDate()
+    client.set(cookie, JSON.stringify(user))
     console.log('error', e)
   })
 
   ws.on('close', (e) => {
-    session.leaveTime = formatDate()
-    client.set(cookie, JSON.stringify(session))
+    user.leaveTime = formatDate()
+    client.set(cookie, JSON.stringify(user))
     console.log('close', e)
   })
 }

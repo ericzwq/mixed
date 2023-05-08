@@ -16,5 +16,9 @@ export function addUser(ctx: Context) {
 
 export function getUserByLogin(ctx: Context) {
   const {username, password} = ctx.request.body as LoginReqBody
-  return executeSql<User[]>(ctx, 'select username,nickname,avatar,email,last_friend_apl_id,last_group_apl_id from users where username = ? and password = ?', [username, password])
+  return executeSql<User[]>(ctx,
+    `select username, nickname, avatar, email, last_friend_apl_id as lastFriendAplId, last_group_apl_id as lastGroupAplId
+     from users
+     where username = ?
+       and password = ?`, [username, password])
 }

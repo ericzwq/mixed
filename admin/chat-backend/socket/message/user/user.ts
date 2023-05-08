@@ -1,4 +1,4 @@
-import {checkMessageParams, formatDate} from '../../../common/utils'
+import {checkMessageParams, formatDate, notifyUpdateUser} from '../../../common/utils'
 import {User, Users} from '../../../router/user/user-types'
 import {AddUserBody, AddUserRetBody, FriendApls, SearchUserQuery} from './user-types'
 import {
@@ -44,9 +44,16 @@ export async function addUser(ws: ExtWebSocket, user: User, data: RequestMessage
   if (!result.length) {
     const {result: {insertId}} = await addFriendApl(ws, to, from, reason)
     friendAplId = insertId
-    user.lastFriendAplId = friendAplId
-    await client.set(from, JSON.stringify(user))
     await updateLastFriendAplId(ws, [from, to], friendAplId)
+    user.lastFriendAplId = friendAplId
+    await client.set((await client.get(from))!, JSON.stringify(user))
+    const sessionId = await client.get(to)
+    if (sessionId) {
+      const toUser: User = JSON.parse((await client.get(sessionId)) || JSON.stringify({login: false}))
+      toUser.lastFriendAplId = friendAplId
+      await client.set(sessionId, JSON.stringify(toUser))
+    }
+    notifyUpdateUser(to)
   } else {
     friendAplId = result[0].id
     const status = result[0].status

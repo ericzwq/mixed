@@ -2,6 +2,8 @@ import {Context} from 'koa'
 import {AnySchema} from 'joi'
 import {ResponseSchema} from '../response/response'
 import {ExtWebSocket} from '../socket/socket-types'
+import {usernameClientMap} from "../socket/message/chat/chat";
+import {Users} from "../router/user/user-types";
 
 export const setExcelType = function (res: any) {
   // res.setHeader('Content-Type', 'application/vnd.ms-excel') // application/vnd.openxmlformats
@@ -42,4 +44,9 @@ export function checkMessageParams(ws: ExtWebSocket, schema: AnySchema, params: 
     return Promise.reject(validation)
   }
   return Promise.resolve(validation)
+}
+
+export function notifyUpdateUser(username: Users.Username) {
+  const toClient = usernameClientMap[username]
+  toClient && (toClient.shouldUpdateUser = true)
 }

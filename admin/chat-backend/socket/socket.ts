@@ -22,7 +22,6 @@ export default (server: Server) => {
     // todo phone
     /*let phone = req.url?.match(/phone=(.+?)&?$/)?.[1] || ''
     phoneMap[phone] = ws*/
-
     const cookie = getSession(_cookie)
     const session = JSON.parse(await client.get(cookie) || '{}') as User
     if (!session.login) return ws.json({message: '未登录', status: 401, action: ''})

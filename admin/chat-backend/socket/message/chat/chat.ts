@@ -1,4 +1,3 @@
-import * as WebSocket from "ws";
 import fs = require('fs')
 import path = require('path')
 import {User} from "../../../router/user/user-types";
@@ -27,7 +26,7 @@ const MessageSchema = Joi.object({
   ext: schemas.ext
 })
 
-export const usernameClientMap = {} as { [key in string]: ExtWebSocket }
+export const usernameClientMap = {} as { [key in string]?: ExtWebSocket }
 
 export async function sendMessage(ws: ExtWebSocket, session: User, data: Message) {
   await checkMessageParams(ws, MessageSchema, data, 1001)

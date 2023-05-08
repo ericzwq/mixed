@@ -3,7 +3,7 @@ import Router = require('koa-router')
 import {addUser, getEmailByUsernameOrEmail, getUserByLogin} from './user-sql'
 import {GetEmailCodeQuery, LoginReqBody, RegisterBody, User} from './user-types'
 import client from '../../redis/redis'
-import {checkParams, formatDate} from '../../common/utils'
+import {checkParams, formatDate, notifyUpdateUser} from '../../common/utils'
 import {getEmailCodeUrl, loginUrl, logoutUrl, registerUrl} from '../urls'
 import {ResponseSchema} from '../../response/response'
 
@@ -52,6 +52,7 @@ user.post(loginUrl, async ctx => {
   if (!result.length) return ctx.body = new ResponseSchema({message: '用户名或密码错误', status: 1010})
   const user = ctx.session!
   Object.assign(user, result[0], {username: body.username, loginTime: formatDate(), login: true})
+  notifyUpdateUser(body.username)
   ctx.body = new ResponseSchema({message: '登录成功', data: result[0]})
 })
 

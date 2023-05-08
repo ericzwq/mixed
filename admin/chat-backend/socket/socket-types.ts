@@ -32,6 +32,7 @@ export interface ExtWebSocket extends WebSocket.WebSocket {
   connection: PoolConnection
   json: (socketResponseOptions: SocketResponseOptions, options?: any, cb?: any) => void
   sqlCommit: boolean
+  shouldUpdateUser: boolean // 是否需要更新用户数据
 }
 
 export interface RequestMessage<T = null> {
