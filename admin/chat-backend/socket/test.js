@@ -11,6 +11,17 @@ ws.json({action: 'addUser', data: {username: 'eric4', reason: 'reason', remark: 
 
 fetch(
   'https://localhost:5001/login',
+  {body: JSON.stringify({username: 'eric2', password: '111111'}), method: 'POST', headers: {'Content-Type': 'application/json'}})
+
+let ws2 = new WebSocket('wss://localhost:5001/?cookie='
+  + encodeURIComponent('session-id=a7eb6e3f-2ce6-4a67-b407-48b833e42ac1;session-id.sig=FxyrDMk7Vx-dg2lo9gnjZPUf6CQ;'))
+ws2.json = (data) => ws2.send(JSON.stringify(data))
+
+ws2.json({action: 'addUser', data: {username: 'eric4', reason: 'reason', remark: 'remark'}})
+
+
+fetch(
+  'https://localhost:5001/login',
   {body: JSON.stringify({username: 'eric4', password: '111111'}), method: 'POST', headers: {'Content-Type': 'application/json'}})
 
 let ws4 = new WebSocket('wss://localhost:5001/?cookie='

@@ -3,6 +3,7 @@ import {Middleware} from 'koa'
 import {CustomQueryFunction, CustomSocketQueryFunction, PageParameter, SqlConfig} from './types/sql-types'
 import {ResponseSchema} from './response/response'
 import {ExtWebSocket} from "./socket/socket-types";
+import {log} from "./common/utils";
 
 const mysql = require('mysql')
 const pool = mysql.createPool({
@@ -27,7 +28,7 @@ export const sqlMiddleware: Middleware = (context, next) => {
   return new Promise<void>((resolve, reject) => {
     pool.getConnection(async (err: MysqlError, connection: PoolConnection) => {
       if (err) {
-        console.log('数据库连接失败2：', err)
+        log('数据库连接失败2：', err)
         reject(err)
         return context.body = new ResponseSchema({message: '数据库连接失败', status: 1000})
       }
@@ -53,7 +54,7 @@ export const executeSql: CustomQueryFunction = function (ctx, options, values?, 
   return new Promise((resolve, reject) => {
     const query = ctx.connection.query(options, values, (error: MysqlError | null, result: any, fields: FieldInfo[] | undefined) => {
       if (error) {
-        console.log('数据库执行失败2:', error)
+        log('数据库执行失败2:', error)
         ctx.connection.query('rollback;')
         ctx.body = new ResponseSchema({message: '数据库执行失败', status: 999})
         reject({query, error, fields})
@@ -68,7 +69,7 @@ export const socketSqlMiddleware = (ws: ExtWebSocket) => {
   return new Promise<void>((resolve, reject) => {
     pool.getConnection((err: MysqlError, connection: PoolConnection) => {
       if (err) {
-        console.log('数据库连接失败：', err)
+        log('数据库连接失败：', err)
         reject(err)
         return ws.json({message: '数据库连接失败', status: 1001})
       }
@@ -92,13 +93,14 @@ export const executeSocketSql: CustomSocketQueryFunction = function (ws: ExtWebS
   return new Promise((resolve, reject) => {
     const query = ws.connection.query(options, values, (error: MysqlError | null, result: any, fields: FieldInfo[] | undefined) => {
       if (error) {
-        console.log('数据库执行失败:', error)
+        log('数据库执行失败:', error)
         ws.connection.query('rollback;')
         ws.json({message: '数据库执行失败', status: 998})
         reject({query, error, fields})
       } else {
         resolve({query, result, fields})
       }
+      // log(query.sql)
     })
   })
 }

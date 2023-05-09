@@ -78,6 +78,7 @@ drop table if exists single_chat;
 create table single_chat
 (
     id        bigint auto_increment primary key not null,
+    fakeId    varchar(50)                       not null,
     next      bigint,
     `from`    varchar(20)                       not null,
     `to`      varchar(20)                       not null,
@@ -86,6 +87,7 @@ create table single_chat
     status    tinyint                           not null comment '0正常 1撤回',
     createdAt timestamp                         not null default current_timestamp comment '创建时间'
 );
+create index fakeId_index on single_chat (fakeId);
 
 /*群表*/
 drop table if exists `groups`;

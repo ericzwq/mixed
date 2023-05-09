@@ -1,5 +1,28 @@
-import {Groups} from "../../socket-types";
 import {Users} from "../../../router/user/user-types";
+
+export namespace Groups {
+  export type Id = string
+  export type Name = string
+  export type Avatar = string
+  export type Leader = string
+  export type Manager = string
+  export type Managers = Set<string>
+  export type Member = string
+  export type Members = Set<string>
+  export type CreatedAt = string
+}
+
+export interface Group {
+  id: Groups.Id
+  name: Groups.Name
+  avatar: Groups.Avatar
+  leader: Groups.Leader
+  manager?: Groups.Manager
+  managers: Groups.Managers
+  member?: Groups.Member
+  members: Groups.Members
+  createdAt: Groups.CreatedAt
+}
 
 export namespace GroupApls {
   export type  Reason = string

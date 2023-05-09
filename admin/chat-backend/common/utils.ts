@@ -50,3 +50,7 @@ export function notifyUpdateUser(username: Users.Username) {
   const toClient = usernameClientMap[username]
   toClient && (toClient.shouldUpdateUser = true)
 }
+
+export function log(...data: any) {
+  console.log(formatDate() + '：', ...data)
+}

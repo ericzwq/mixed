@@ -1,9 +1,9 @@
-import {MessageHandler, ActionHandlerMap, Message, ExtWebSocket} from '../socket-types'
+import {MessageHandler, ActionHandlerMap, ExtWebSocket, RequestMessage} from '../socket-types'
 import {User} from '../../router/user/user-types'
 import {IncomingMessage} from 'http'
 import {getChatData} from './chat/chat-sql'
 import {ADD_GROUP, ADD_GROUP_RET, ADD_USER, ADD_USER_RET, ANSWER, GET_CONTACTS, GET_FRIEND_APLS, OFFER, REC_MSGS, SEARCH_USERS, VOICE_RESULT} from '../socket-actions'
-import {formatDate} from '../../common/utils'
+import {formatDate, log} from '../../common/utils'
 import client from '../../redis/redis'
 import {usernameClientMap, sendMessage} from './chat/chat'
 import {getContacts} from './contact/contact'
@@ -12,6 +12,7 @@ import {CANCELLED} from 'dns'
 import {addUser, addUserRet, getFriendApls, searchUsers} from './user/user'
 import {addGroup, addGroupRet} from "./group/group";
 import {commitSocketSql, socketSqlMiddleware} from "../../db";
+import {SgMsgReq} from "./chat/chat-types";
 
 const socketMessageRouter = {
   actionHandlerMap: {} as ActionHandlerMap,
@@ -39,20 +40,22 @@ export async function handleMessage(user: User, cookie: string, ws: ExtWebSocket
       const newValue = await client.get(cookie)
       if (!newValue) {
         user.login = false
+        log('未登录', user.username, cookie)
         return ws.json({message: '未登录', status: 401, action: ''})
       }
       Object.assign(user, JSON.parse(newValue))
     }
-    let data: Message
+    let data: RequestMessage<SgMsgReq>
     if (isBinary) {
 
     } else {
       try {
         data = JSON.parse(_data.toString())
       } catch (e) {
-        console.log('数据格式错误', e)
+        log('数据格式错误', e)
         return ws.json({status: 1001, message: '数据格式错误'})
       }
+      log('action：' + data.action)
       const handler = socketMessageRouter.actionHandlerMap[data.action]
       if (!handler) return ws.json({status: 1002, message: '未知的action'})
       await socketSqlMiddleware(ws)
@@ -65,13 +68,13 @@ export async function handleMessage(user: User, cookie: string, ws: ExtWebSocket
   ws.on('error', e => {
     user.leaveTime = formatDate()
     client.set(cookie, JSON.stringify(user))
-    console.log('error', e)
+    log('error', e)
   })
 
   ws.on('close', (e) => {
     user.leaveTime = formatDate()
     client.set(cookie, JSON.stringify(user))
-    console.log('close', e)
+    log('close', e)
   })
 }
 

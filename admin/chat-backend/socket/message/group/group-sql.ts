@@ -1,7 +1,7 @@
 import {executeSocketSql} from "../../../db";
-import {ExtWebSocket, Group, Groups} from "../../socket-types";
+import {ExtWebSocket} from "../../socket-types";
 import {Users} from "../../../router/user/user-types";
-import {GroupApls} from "./group-types";
+import {Group, GroupApls, Groups} from "./group-types";
 import {InsertModal, UpdateModal} from "../../../types/sql-types";
 import Status = GroupApls.Status;
 

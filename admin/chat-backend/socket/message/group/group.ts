@@ -1,9 +1,9 @@
 import {checkMessageParams} from "../../../common/utils";
 import {User, Users} from "../../../router/user/user-types";
-import {ExtWebSocket, Group, Groups, RequestMessage} from "../../socket-types";
+import {ExtWebSocket, RequestMessage} from "../../socket-types";
 import {addGroupRetSchema, addGroupSchema} from "./group-schema";
 import {resetGroupApl, selectGroupAplByAddGroup, selectGroupById} from "./group-sql";
-import {AddGroupBody, AddGroupRetBody, GroupApls} from "./group-types";
+import {AddGroupBody, AddGroupRetBody, Group, GroupApls, Groups} from "./group-types";
 import client from "../../../redis/redis";
 import {usernameClientMap} from "../chat/chat";
 import {addFriendApl} from "../user/user-sql";

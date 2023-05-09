@@ -3,6 +3,7 @@ import {User} from '../router/user/user-types'
 import {ConnectionHandler, ConnectionHandlerMap, ExtWebSocket} from './socket-types'
 import {handleMessage} from "./message/socket-message-router";
 import {voice} from "./voice/socket-voice-router";
+import {log} from "../common/utils";
 
 
 const socketConnectionRouter = {
@@ -14,7 +15,7 @@ const socketConnectionRouter = {
       acc[name] = value
       return acc
     }, {} as { [key in string]: string }) : {}
-    console.log(pathname, params)
+    // log(pathname, params)
     const handler = this.connectionHandlerMap[pathname.slice(1)]
     if (handler) handler?.(session, cookie, ws, req, params)
     else ws.json({status: 1001, message: '未知的请求地址'})

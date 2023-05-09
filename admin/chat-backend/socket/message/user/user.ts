@@ -28,8 +28,7 @@ export async function searchUsers(ws: ExtWebSocket, user: User, data: RequestMes
 // 获取好友申请记录
 export async function getFriendApls(ws: ExtWebSocket, user: User, data: RequestMessage<{ lastFriendAplId: Users.LastFriendAplId }>) {
   await checkMessageParams(ws, getFriendAplsSchema, data.data, 1019)
-  const {result, query} = await selectFriendAplsById(ws, user.username, data.data.lastFriendAplId, user.lastFriendAplId)
-  console.log(query.sql)
+  const {result} = await selectFriendAplsById(ws, user.username, data.data.lastFriendAplId, user.lastFriendAplId)
   ws.json({action: data.action, message: '查询成功', data: result.reverse()})
 }
 
@@ -41,6 +40,7 @@ export async function addUser(ws: ExtWebSocket, user: User, data: RequestMessage
   const from = user.username
   const result2 = (await selectContactByAddUser(ws, to, from)).result
   let contactId: number
+  await beginSocketSql(ws)
   if (result2.length) {
     if (result2[0].status !== Contacts.Status.delete) return ws.json({action: data.action, message: '他已是您的好友', status: 1017})
     contactId = result2[0].id
@@ -51,7 +51,6 @@ export async function addUser(ws: ExtWebSocket, user: User, data: RequestMessage
   }
   const {result} = await selectFriendAplByAddUser(ws, to, from)
   let friendAplId: number
-  await beginSocketSql(ws)
   if (!result.length) {
     const {result: {insertId}} = await addFriendApl(ws, contactId, reason)
     friendAplId = insertId
@@ -76,7 +75,7 @@ export async function addUser(ws: ExtWebSocket, user: User, data: RequestMessage
   let {nickname, avatar} = user
   usernameClientMap[to]?.json({action: REC_ADD_USER, data: {friendAplId, contactId, from, reason, nickname, avatar, status}});
   ({nickname, avatar} = users[0])
-  ws.json({action: data.action, message: '申请成功', data: {friendAplId, from, nickname, avatar, reason, status}})
+  ws.json({action: data.action, message: '申请成功', data: {friendAplId, contactId, from, nickname, avatar, reason, status}})
 }
 
 export async function addUserRet(ws: ExtWebSocket, user: User, data: RequestMessage<AddUserRetBody>) {
@@ -85,8 +84,7 @@ export async function addUserRet(ws: ExtWebSocket, user: User, data: RequestMess
   const from = user.username
   const updatedAt = formatDate()
   await beginSocketSql(ws)
-  const {result,query} = await updateFriendAplStatus(ws, friendAplId, contactId, to, from, status, updatedAt)
-  console.log(query.sql)
+  const {result} = await updateFriendAplStatus(ws, friendAplId, contactId, to, from, status, updatedAt)
   if (!result.affectedRows) return ws.json({message: '无申请记录或已修改该记录', status: 1016})
   if (status === FriendApls.Status.accept) { // 接受
     const {result: {affectedRows}} = await updateContactStatus(ws, contactId, from, to, Contacts.Status.normal)

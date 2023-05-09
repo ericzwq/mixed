@@ -6,6 +6,7 @@ import {sessionKey} from '../session/session'
 import socketConnectionRouter from './socket-connection-router'
 import {SocketResponseOptions, SocketResponseSchema} from '../response/response'
 import {ExtWebSocket} from "./socket-types";
+import {log} from "../common/utils";
 
 
 function getSession(cookie?: string) {
@@ -25,7 +26,7 @@ export default (server: Server) => {
     const cookie = getSession(_cookie)
     const session = JSON.parse(await client.get(cookie) || '{}') as User
     if (!session.login) return ws.json({message: '未登录', status: 401, action: ''})
-    console.log('有用户连接', session, wss.clients.size, req.url)
+    log('有用户连接', session, wss.clients.size)
     return socketConnectionRouter.handler(session, cookie, ws, req)
   })
   return wss
