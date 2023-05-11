@@ -7,7 +7,7 @@ const sgMsgSchemas = {
   type: Joi.number().required(),
   action: Joi.string().required(),
   ext: Joi.string().allow(null, ''),
-  preId: Joi.number().required()
+  preId: Joi.number().allow(null)
 }
 
 export const sgMsgSchema = Joi.object({
@@ -15,7 +15,6 @@ export const sgMsgSchema = Joi.object({
   content: sgMsgSchemas.content,
   fakeId: sgMsgSchemas.fakeId,
   type: sgMsgSchemas.type,
-  action: sgMsgSchemas.action,
   ext: sgMsgSchemas.ext,
   preId: sgMsgSchemas.preId
 })

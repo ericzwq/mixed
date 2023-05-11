@@ -1,28 +1,30 @@
 import fs = require('fs')
 import path = require('path')
 import {User} from "../../../router/user/user-types";
-import {ExtWebSocket} from "../../socket-types";
-import {checkMessageParams, formatDate} from "../../../common/utils";
-import {addGroupMessage, addSgMsg, selectSgMsgByFakeId, selectSgMsgById, updateSgMsgNext} from "./chat-sql";
+import {ExtWebSocket, RequestMessage} from "../../socket-types";
+import {checkMessageParams, formatDate, log} from "../../../common/utils";
+import {addGroupMessage, addSgMsg, selectNewSgMsgsById, selectSgMsgByFakeId, selectLastSgMsg, updateSgMsgNext} from "./chat-sql";
 import {REC_MSGS} from "../../socket-actions";
 import {getGroupById, isUserInGroup} from "../group/group";
 import {sgMsgSchema} from "./chat-schema";
-import {SgMsgReq} from "./chat-types";
+import {SgMsgs, SgMsgReq, SgMsgRes} from "./chat-types";
+import {beginSocketSql} from "../../../db";
 
 export const usernameClientMap = {} as { [key in string]?: ExtWebSocket }
 
-export async function sendMessage(ws: ExtWebSocket, session: User, data: SgMsgReq) {
-  await checkMessageParams(ws, sgMsgSchema, data, 1001)
-  const [type, to] = data.target.split('-')
+export async function sendMessage(ws: ExtWebSocket, session: User, data: RequestMessage<SgMsgReq>) {
+  await checkMessageParams(ws, sgMsgSchema, data.data, 1001)
+  const body = data.data
+  const [type, to] = body.target.split('-')
   if (!type || !to) return ws.json({message: '参数target非法', status: 1002, action: ''})
-  data.from = session.username
-  data.to = to
+  body.from = session.username
+  body.to = to
   switch (type) {
     case '1': // 单聊
-      singleChat(ws, data, session)
+      await singleChat(ws, body, session)
       break
     case '2': // 群聊
-      groupChat(ws, data, session)
+      await groupChat(ws, body, session)
       break
     default:
       return ws.json({message: '参数target非法', status: 1003, action: ''})
@@ -47,20 +49,30 @@ async function singleChat(ws: ExtWebSocket, message: SgMsgReq, session: User) { 
   message.createdAt = createdAt
   const {result} = await selectSgMsgByFakeId(ws, message.fakeId)
   if (result.length) return ws.json({status: 1004, message: 'fakeId重复'})
-  const {result: result2} = await selectSgMsgById(ws, message.preId)
+  const {result: result2, query} = await selectLastSgMsg(ws, message.preId, message.from, message.to)
   if (!result2.length) return ws.json({status: 1005, message: 'preId错误'})
-  let msg = result2[0]
-  const messages = []
-  while (msg) {
-    messages.push(msg);
-    ({result: [msg]} = await selectSgMsgById(ws, msg.next))
-  }
-  messages.reverse()
+  let lastMsg = result2[0]
+  const messages: SgMsgRes[] = JSON.parse((await selectNewSgMsgsById(ws, lastMsg.next)).result[0][0].messages)
+  if (messages.length > 0) lastMsg = messages[messages.length - 1]
+  await beginSocketSql(ws)
+  message.pre = lastMsg.id
   const {result: {insertId}} = await addSgMsg(ws, message)
-  // todo
-  await updateSgMsgNext(ws, insertId, messages[0].id)
+  await updateSgMsgNext(ws, insertId, lastMsg.id)
+  if (messages.length > 0) lastMsg.next = insertId
+  messages.push({
+    id: insertId,
+    pre: message.pre,
+    next: null,
+    status: SgMsgs.Status.normal,
+    content: message.content,
+    type: message.type,
+    fakeId: message.fakeId,
+    from: session.username,
+    to: message.to,
+    createdAt
+  })
   const data = {
-    data: [{content: message.content, type: message.type, fakeId: message.fakeId, from: session.username, to: message.to, createdAt}],
+    data: messages,
     action: REC_MSGS
   }
   ws.json(data) // 给自己返回消息

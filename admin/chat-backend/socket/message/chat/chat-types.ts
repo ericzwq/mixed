@@ -1,6 +1,6 @@
 import {Users} from "../../../router/user/user-types";
 
-export namespace SgMessages {
+export namespace SgMsgs {
   export type Id = number
   export type Target = string // '1-2'
   export type Content = string | number[]
@@ -9,32 +9,37 @@ export namespace SgMessages {
   export type Type = number // 消息类型
   export type FakeId = string // 前端消息id
   export type CreatedAt = string
-  export type Status = number
+  export enum Status {
+    normal= 0,
+    revert = 1
+  }
   export type Ext = string
   export type Next = Id | null
+  export type Pre = Id | null
 }
 
 export interface SgMsgReq {
-  id: SgMessages.Id
-  target: SgMessages.Target
-  from: SgMessages.From
-  to: SgMessages.To
-  type: SgMessages.Type
-  content: SgMessages.Content
-  fakeId: SgMessages.FakeId
-  createdAt: SgMessages.CreatedAt
-  ext: SgMessages.Ext
-  preId: SgMessages.Id
+  target: SgMsgs.Target
+  from: SgMsgs.From
+  to: SgMsgs.To
+  type: SgMsgs.Type
+  content: SgMsgs.Content
+  fakeId: SgMsgs.FakeId
+  createdAt: SgMsgs.CreatedAt
+  ext: SgMsgs.Ext
+  preId: SgMsgs.Id
+  pre: SgMsgs.Pre
 }
 
 export interface SgMsgRes {
-  id: SgMessages.Id
-  type: SgMessages.Type // 1普通消息 2系统消息 3撤回消息
-  fakeId?: SgMessages.FakeId // 前端消息id
-  from: SgMessages.From
-  to: SgMessages.To
-  createdAt?: SgMessages.CreatedAt
-  content: SgMessages.Content
-  status: SgMessages.Status
-  next: SgMessages.Next
+  id: SgMsgs.Id
+  type: SgMsgs.Type // 1普通消息 2系统消息 3撤回消息
+  fakeId?: SgMsgs.FakeId // 前端消息id
+  from: SgMsgs.From
+  to: SgMsgs.To
+  createdAt?: SgMsgs.CreatedAt
+  content: SgMsgs.Content
+  status: SgMsgs.Status
+  next: SgMsgs.Next
+  pre: SgMsgs.Pre
 }

@@ -2,23 +2,37 @@ import {executeSocketSql} from "../../../db";
 import {User} from "../../../router/user/user-types";
 import {InsertModal} from "../../../types/sql-types";
 import {ExtWebSocket} from "../../socket-types";
-import {SgMsgReq, SgMessages, SgMsgRes} from "./chat-types";
+import {SgMsgReq, SgMsgs, SgMsgRes} from "./chat-types";
 
-export function selectSgMsgByFakeId(ws: ExtWebSocket, fakeId: SgMessages.FakeId) {
+export function selectSgMsgByFakeId(ws: ExtWebSocket, fakeId: SgMsgs.FakeId) {
   return executeSocketSql<[]>(ws,
     `select id
      from single_chat
      where fakeId = ?;`, [fakeId])
 }
 
-export function selectSgMsgById(ws: ExtWebSocket, id: SgMessages.Id | null) {
-  return executeSocketSql<SgMsgRes[]>(ws,
-    `select *
-     from single_chat
-     where id = ?;`, [id])
+export function selectNewSgMsgsById(ws: ExtWebSocket, id: SgMsgs.Id | null) {
+  return executeSocketSql<[[{ messages: string }]]>(ws, `call selectNewSgMsgsById(?);`, [id])
 }
 
-export function updateSgMsgNext(ws: ExtWebSocket, next: SgMessages.Next, id: SgMessages.Id) {
+// 根据preId获取当前客户端最后一条消息
+export function selectLastSgMsg(ws: ExtWebSocket, preId: SgMsgs.Id | null, from: SgMsgs.From, to: SgMsgs.To) {
+  if (preId !== null) {
+    return executeSocketSql<SgMsgRes[]>(ws,
+      `select *
+       from single_chat
+       where id = ?;`, [preId])
+  } else {
+    return executeSocketSql<SgMsgRes[]>(ws,
+      `select *
+       from single_chat
+       where \`from\` = ?
+         and \`to\` = ?
+         and next is null;`, [from, to])
+  }
+}
+
+export function updateSgMsgNext(ws: ExtWebSocket, next: SgMsgs.Next, id: SgMsgs.Id) {
   return executeSocketSql(ws,
     `update single_chat
      set next = ?
@@ -26,9 +40,9 @@ export function updateSgMsgNext(ws: ExtWebSocket, next: SgMessages.Next, id: SgM
 }
 
 export function addSgMsg(ws: ExtWebSocket, data: SgMsgReq) {
-  const {fakeId, from, to, content, type, createdAt} = data
+  const {fakeId, from, to, content, type, createdAt, pre} = data
   return executeSocketSql<InsertModal>(ws,
-    'insert single_chat(fakeId, `from`, `to`, content, type, createdAt, status) values(?, ?, ?, ?, ?, ?, 0);', [fakeId, from, to, content, type, createdAt])
+    'insert single_chat(fakeId, pre, `from`, `to`, content, type, createdAt, status) values(?, ?, ?, ?, ?, ?, ?, 0);', [fakeId, pre, from, to, content, type, createdAt])
 }
 
 export function getChatData(ws: ExtWebSocket, user: User) {

@@ -79,6 +79,7 @@ create table single_chat
 (
     id        bigint auto_increment primary key not null,
     fakeId    varchar(50)                       not null,
+    pre       bigint,
     next      bigint,
     `from`    varchar(20)                       not null,
     `to`      varchar(20)                       not null,
@@ -88,6 +89,56 @@ create table single_chat
     createdAt timestamp                         not null default current_timestamp comment '创建时间'
 );
 create index fakeId_index on single_chat (fakeId);
+create index next_index on single_chat (next);
+
+drop procedure if exists selectNewSgMsgsById;
+delimiter $$
+create procedure selectNewSgMsgsById(in cNext int, in maxCount int)
+begin
+    declare messages json default json_array();
+    declare message json;
+    declare _id int;
+    declare ids json default json_array();
+    declare i int default 0;
+    declare len int default 0;
+    _while:
+    while true
+        do
+            set cNext = (select id from single_chat where id = cNext);
+            if cNext is null then leave _while; end if;
+            set ids = json_array_append(ids, '$', cNext);
+        end while;
+    set len = json_length(ids);
+    set i = len - maxCount - 1;
+    while i > -1
+        do
+            set ids = json_array_remove(ids, concat('$[', i, ']'));
+            set i = i - 1;
+        end while;
+    set len = json_length(ids);
+    set i = 0;
+    _while2:
+    while i < len
+        do
+            set message = (
+                select json_object('id', id,
+                                   'fakeId', fakeId, 'next', next, 'pre', pre, 'from', `from`, 'to', `to`, 'content', content, 'type', type, 'status', status,
+                                   'createdAt', date_format(createdAt, '%Y-%m-%d %h:%i:%s'))
+                from single_chat
+                where id = cNext
+                limit 1);
+            if message is null then leave _while2; end if;
+            set cNext = (select json_value(message, '$.next'));
+            set messages = (select json_array_append(messages, '$', message));
+        end while;
+    select messages;
+end$$
+delimiter ;
+call getNewMsgById(2, 2);
+
+select *
+from single_chat
+limit 1;
 
 /*群表*/
 drop table if exists `groups`;
