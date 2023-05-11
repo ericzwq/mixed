@@ -558,12 +558,14 @@ Page({
     }
     const messageInfo = userStore.unameMessageInfoMap[target.username]
     chatSocket.send({
-      target: this.data.type + '-' + target.username,
-      content: data,
-      fakeId,
-      type,
-      action: SEND_MSG,
-      ext: type === 3 ? '.aac' : ''
+      data: {
+        target: this.data.type + '-' + target.username,
+        content: data,
+        fakeId,
+        type,
+        ext: type === 3 ? '.aac' : ''
+      },
+      action: SEND_MSG
     }).then(() => {
       messageInfo.fakeIdIndexMap[fakeId] = messageInfo.messages.push(message) - 1
       const length = this.data.viewMessages.push(message)

@@ -1,8 +1,8 @@
-import {executeSocketSql} from "../../../db";
-import {User} from "../../../router/user/user-types";
-import {InsertModal} from "../../../types/sql-types";
-import {ExtWebSocket} from "../../socket-types";
-import {SgMsgReq, SgMsgs, SgMsgRes} from "./chat-types";
+import {executeSocketSql} from '../../../db'
+import {User} from '../../../router/user/user-types'
+import {InsertModal} from '../../../types/sql-types'
+import {ExtWebSocket} from '../../socket-types'
+import {SgMsgReq, SgMsgs, SgMsgRes, GetHisSgMsgReq} from './chat-types'
 
 export function selectSgMsgByFakeId(ws: ExtWebSocket, fakeId: SgMsgs.FakeId) {
   return executeSocketSql<[]>(ws,
@@ -12,12 +12,12 @@ export function selectSgMsgByFakeId(ws: ExtWebSocket, fakeId: SgMsgs.FakeId) {
 }
 
 export function selectNewSgMsgsById(ws: ExtWebSocket, id: SgMsgs.Id | null) {
-  return executeSocketSql<[[{ messages: string }]]>(ws, `call selectNewSgMsgsById(?);`, [id])
+  return executeSocketSql<[[{ messages: string }]]>(ws, `call selectNewSgMsgs(?, 20);`, [id])
 }
 
 // 根据preId获取当前客户端最后一条消息
 export function selectLastSgMsg(ws: ExtWebSocket, preId: SgMsgs.Id | null, from: SgMsgs.From, to: SgMsgs.To) {
-  if (preId !== null) {
+  if (preId != null) {
     return executeSocketSql<SgMsgRes[]>(ws,
       `select *
        from single_chat
@@ -30,6 +30,11 @@ export function selectLastSgMsg(ws: ExtWebSocket, preId: SgMsgs.Id | null, from:
          and \`to\` = ?
          and next is null;`, [from, to])
   }
+}
+
+export function selectHisSgMsgs(ws: ExtWebSocket, data: GetHisSgMsgReq) {
+  const {maxId, maxCount, minId} = data
+  return executeSocketSql(ws, `call selectHisSgMsgs(?, ?, ?);`, [maxId, maxCount, minId])
 }
 
 export function updateSgMsgNext(ws: ExtWebSocket, next: SgMsgs.Next, id: SgMsgs.Id) {

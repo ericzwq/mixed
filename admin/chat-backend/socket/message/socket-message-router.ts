@@ -2,17 +2,17 @@ import {MessageHandler, ActionHandlerMap, ExtWebSocket, RequestMessage} from '..
 import {User} from '../../router/user/user-types'
 import {IncomingMessage} from 'http'
 import {getChatData} from './chat/chat-sql'
-import {ADD_GROUP, ADD_GROUP_RET, ADD_USER, ADD_USER_RET, ANSWER, GET_CONTACTS, GET_FRIEND_APLS, OFFER, REC_MSGS, SEARCH_USERS, VOICE_RESULT} from '../socket-actions'
+import {ADD_GROUP, ADD_GROUP_RET, ADD_USER, ADD_USER_RET, ANSWER, GET_CONTACTS, GET_FRIEND_APLS, GET_HIS_SG_MSGS, OFFER, REC_MSGS, SEARCH_USERS, SEND_MSG, VOICE_RESULT} from '../socket-actions'
 import {formatDate, log} from '../../common/utils'
 import client from '../../redis/redis'
-import {usernameClientMap, sendMessage} from './chat/chat'
+import {usernameClientMap, sendMessage, getHisSgMsgs} from './chat/chat'
 import {getContacts} from './contact/contact'
 import {answer, candidate, offer, voiceResult} from './mediaCall/mediaCall'
 import {CANCELLED} from 'dns'
 import {addUser, addUserRet, getFriendApls, searchUsers} from './user/user'
-import {addGroup, addGroupRet} from "./group/group";
-import {commitSocketSql, socketSqlMiddleware} from "../../db";
-import {SgMsgReq} from "./chat/chat-types";
+import {addGroup, addGroupRet} from './group/group'
+import {commitSocketSql, socketSqlMiddleware} from '../../db'
+import {SgMsgReq} from './chat/chat-types'
 
 const socketMessageRouter = {
   actionHandlerMap: {} as ActionHandlerMap,
@@ -98,7 +98,10 @@ socketMessageRouter.addHandler('stop', function (ws: WebSocket, session: Session
   toClient.send(JSON.stringify(new SocketResponseSchema({action: 'stop'})))
 })*/
 
-socketMessageRouter.addHandler('sendMessage', sendMessage)
+socketMessageRouter.addHandlers([
+  {action: SEND_MSG, handler: sendMessage},
+  {action: GET_HIS_SG_MSGS, handler: getHisSgMsgs}
+])
 socketMessageRouter.addHandlers([{action: GET_CONTACTS, handler: getContacts}])
 socketMessageRouter.addHandlers([
   {action: VOICE_RESULT, handler: voiceResult},

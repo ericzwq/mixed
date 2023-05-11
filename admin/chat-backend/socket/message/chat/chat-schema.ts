@@ -1,6 +1,7 @@
-import * as Joi from "joi";
+import * as Joi from 'joi'
 
 const sgMsgSchemas = {
+  id: Joi.number(),
   target: Joi.string().required(),
   content: Joi.required(),
   fakeId: Joi.string().required(), // 前端消息id
@@ -17,4 +18,10 @@ export const sgMsgSchema = Joi.object({
   type: sgMsgSchemas.type,
   ext: sgMsgSchemas.ext,
   preId: sgMsgSchemas.preId
-})
+}).unknown().required()
+
+export const getHisSgMsgsSchema = Joi.object({
+  maxId: sgMsgSchemas.id.required(),
+  maxCount: Joi.number().allow(null),
+  minId: sgMsgSchemas.id.allow(null)
+}).unknown().required()

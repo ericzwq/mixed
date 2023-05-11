@@ -20,7 +20,7 @@ App<IAppOption>({
     chatSocket.connect().then(() => {
       userStore.getContacts()
       const friendApls: FriendApl[] = JSON.parse(wx.getStorageSync('friendApplications-' + userStore.user.username) || '[]')
-      chatSocket.send({ action: GET_FRIEND_APLS, data: { lastFriendAplId: friendApls[0].friendAplId || null } })
+      chatSocket.send({ action: GET_FRIEND_APLS, data: { lastFriendAplId: friendApls.length ? friendApls[0].friendAplId : null } })
       chatSocket.addSuccessHandler<FriendApl[]>(GET_FRIEND_APLS, data => {
           data.data.forEach(friendApl => {
             const id = friendApl.friendAplId

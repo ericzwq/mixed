@@ -1,14 +1,14 @@
 import fs = require('fs')
 import path = require('path')
-import {User} from "../../../router/user/user-types";
-import {ExtWebSocket, RequestMessage} from "../../socket-types";
-import {checkMessageParams, formatDate, log} from "../../../common/utils";
-import {addGroupMessage, addSgMsg, selectNewSgMsgsById, selectSgMsgByFakeId, selectLastSgMsg, updateSgMsgNext} from "./chat-sql";
-import {REC_MSGS} from "../../socket-actions";
-import {getGroupById, isUserInGroup} from "../group/group";
-import {sgMsgSchema} from "./chat-schema";
-import {SgMsgs, SgMsgReq, SgMsgRes} from "./chat-types";
-import {beginSocketSql} from "../../../db";
+import {User} from '../../../router/user/user-types'
+import {ExtWebSocket, RequestMessage} from '../../socket-types'
+import {checkMessageParams, formatDate, log} from '../../../common/utils'
+import {addGroupMessage, addSgMsg, selectNewSgMsgsById, selectSgMsgByFakeId, selectLastSgMsg, updateSgMsgNext} from './chat-sql'
+import {REC_MSGS} from '../../socket-actions'
+import {getGroupById, isUserInGroup} from '../group/group'
+import {getHisSgMsgsSchema, sgMsgSchema} from './chat-schema'
+import {SgMsgs, SgMsgReq, SgMsgRes, GetHisSgMsgReq} from './chat-types'
+import {beginSocketSql} from '../../../db'
 
 export const usernameClientMap = {} as { [key in string]?: ExtWebSocket }
 
@@ -29,6 +29,12 @@ export async function sendMessage(ws: ExtWebSocket, session: User, data: Request
     default:
       return ws.json({message: '参数target非法', status: 1003, action: ''})
   }
+}
+
+// 获取历史消息
+export async function getHisSgMsgs(ws: ExtWebSocket, session: User, data: RequestMessage<GetHisSgMsgReq>) {
+  await checkMessageParams(ws, getHisSgMsgsSchema, data.data, 1007)
+
 }
 
 function handleAudio(message: SgMsgReq, createdAt: string) {
@@ -82,7 +88,7 @@ async function singleChat(ws: ExtWebSocket, message: SgMsgReq, session: User) { 
 async function groupChat(ws: ExtWebSocket, message: SgMsgReq, session: User) { // 群聊
   const group = await getGroupById(ws, message.to)
   const {username} = session
-  if (!isUserInGroup(username, group)) return ws.json({status: 1005, message: '您不在群内'})
+  if (!isUserInGroup(username, group)) return ws.json({status: 1006, message: '您不在群内'})
   const createdAt = formatDate()
   if (message.type === 3) handleAudio(message, createdAt) // 音频
   message.createdAt = createdAt

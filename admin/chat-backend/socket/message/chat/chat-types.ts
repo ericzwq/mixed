@@ -1,4 +1,4 @@
-import {Users} from "../../../router/user/user-types";
+import {Users} from '../../../router/user/user-types'
 
 export namespace SgMsgs {
   export type Id = number
@@ -9,13 +9,21 @@ export namespace SgMsgs {
   export type Type = number // 消息类型
   export type FakeId = string // 前端消息id
   export type CreatedAt = string
+
   export enum Status {
-    normal= 0,
+    normal = 0,
     revert = 1
   }
+
   export type Ext = string
   export type Next = Id | null
   export type Pre = Id | null
+}
+
+export interface GetHisSgMsgReq {
+  maxCount: number | null
+  maxId: SgMsgs.Id
+  minId: SgMsgs.Id | null
 }
 
 export interface SgMsgReq {
