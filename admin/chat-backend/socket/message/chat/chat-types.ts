@@ -3,16 +3,25 @@ import {Users} from '../../../router/user/user-types'
 export namespace SgMsgs {
   export type Id = number
   export type Target = string // '1-2'
-  export type Content = string | number[]
+  export type Content = string | number[] | number
   export type From = Users.Username
   export type To = Users.Username
-  export type Type = number // 消息类型
+
+  export enum Type { // 消息类型
+    system = 0, // 系统消息
+    text = 1, // 文本
+    pic = 2, // 图片
+    audio = 3, // 音频
+    video = 4, // 视频
+    retract = 5, // 撤回
+  }
+
   export type FakeId = string // 前端消息id
   export type CreatedAt = string
 
   export enum Status {
     normal = 0,
-    revert = 1
+    retract = 1
   }
 
   export type Ext = string
@@ -21,22 +30,22 @@ export namespace SgMsgs {
 }
 
 export interface GetHisSgMsgReq {
-  maxCount: number | null
+  count: number | null
   maxId: SgMsgs.Id
   minId: SgMsgs.Id | null
 }
 
 export interface SgMsgReq {
   target: SgMsgs.Target
-  from: SgMsgs.From
-  to: SgMsgs.To
   type: SgMsgs.Type
   content: SgMsgs.Content
   fakeId: SgMsgs.FakeId
-  createdAt: SgMsgs.CreatedAt
   ext: SgMsgs.Ext
-  preId: SgMsgs.Id
+  lastId: SgMsgs.Id
+  from: SgMsgs.From
+  to: SgMsgs.To
   pre: SgMsgs.Pre
+  createdAt: SgMsgs.CreatedAt
 }
 
 export interface SgMsgRes {

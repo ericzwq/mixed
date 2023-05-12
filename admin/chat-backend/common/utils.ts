@@ -54,3 +54,7 @@ export function notifyUpdateUser(username: Users.Username) {
 export function log(...data: any) {
   console.log(formatDate() + '：', ...data)
 }
+
+export function createFakeId(from: Users.Username, to: Users.Username) {
+  return from + '-' + to + '-' + Date.now().toString(Math.floor(Math.random() * 26 + 11))
+}

@@ -5,10 +5,9 @@ const sgMsgSchemas = {
   target: Joi.string().required(),
   content: Joi.required(),
   fakeId: Joi.string().required(), // 前端消息id
-  type: Joi.number().required(),
+  type: Joi.valid(1, 2, 3, 4, 5),
   action: Joi.string().required(),
   ext: Joi.string().allow(null, ''),
-  preId: Joi.number().allow(null)
 }
 
 export const sgMsgSchema = Joi.object({
@@ -17,11 +16,11 @@ export const sgMsgSchema = Joi.object({
   fakeId: sgMsgSchemas.fakeId,
   type: sgMsgSchemas.type,
   ext: sgMsgSchemas.ext,
-  preId: sgMsgSchemas.preId
+  lastId: sgMsgSchemas.id.allow(null)
 }).unknown().required()
 
 export const getHisSgMsgsSchema = Joi.object({
   maxId: sgMsgSchemas.id.required(),
-  maxCount: Joi.number().allow(null),
+  count: Joi.number().allow(null),
   minId: sgMsgSchemas.id.allow(null)
 }).unknown().required()

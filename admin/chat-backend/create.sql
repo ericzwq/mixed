@@ -78,7 +78,7 @@ drop table if exists single_chat;
 create table single_chat
 (
     id        bigint auto_increment primary key not null,
-    fakeId    varchar(50)                       not null,
+    fakeId    varchar(60)                       not null,
     pre       bigint,
     next      bigint,
     `from`    varchar(20)                       not null,
@@ -90,6 +90,15 @@ create table single_chat
 );
 create index fakeId_index on single_chat (fakeId);
 create index next_index on single_chat (next);
+
+insert single_chat(fakeId, pre, next, `from`, `to`, content, type, status)
+values ('asf', null, null, 'eric', 'eric2', 'c1', 1, 0);
+
+insert single_chat(fakeId, pre, next, `from`, `to`, content, type, status)
+values ('asf2', null, null, 'eric', 'eric3', 'c2', 1, 0);
+
+insert single_chat(fakeId, pre, next, `from`, `to`, content, type, status)
+values ('asf3', null, null, 'eric2', 'eric3', 'c3', 1, 0);
 
 /*群表*/
 drop table if exists `groups`;

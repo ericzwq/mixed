@@ -1,4 +1,4 @@
-import {checkMessageParams, formatDate, notifyUpdateUser} from '../../../common/utils'
+import {checkMessageParams, createFakeId, formatDate, notifyUpdateUser} from '../../../common/utils'
 import {User, Users} from '../../../router/user/user-types'
 import {AddUserBody, AddUserRetBody, FriendApls, SearchUserQuery} from './user-types'
 import {
@@ -13,10 +13,12 @@ import {
 import {addUserRetSchema, addUserSchema, getFriendAplsSchema, searchUserSchema} from './user-schema'
 import {ExtWebSocket, RequestMessage} from '../../socket-types'
 import {usernameClientMap} from '../chat/chat'
-import {REC_ADD_USER, REC_ADD_USER_RET} from '../../socket-actions'
+import {REC_ADD_USER, REC_ADD_USER_RET, REC_MSGS} from '../../socket-actions'
 import {Contacts} from '../contact/contact-types'
 import {beginSocketSql} from '../../../db'
 import client from '../../../redis/redis'
+import {SgMsgReq, SgMsgRes, SgMsgs} from "../chat/chat-types";
+import {addSgMsg} from "../chat/chat-sql";
 
 
 export async function searchUsers(ws: ExtWebSocket, user: User, data: RequestMessage<SearchUserQuery>) {
@@ -91,6 +93,24 @@ export async function addUserRet(ws: ExtWebSocket, user: User, data: RequestMess
     if (!affectedRows) return ws.json({status: 1019, message: 'contactId不匹配'})
     await addContactByMasterAndSub(ws, to, from, Contacts.Status.normal, remark)
   }
+  const message = {
+    pre: null,
+    content: '你们已成为好友，可以一起尬聊了',
+    type: SgMsgs.Type.system,
+    fakeId: createFakeId(from, to),
+    from,
+    to,
+    createdAt: formatDate()
+  } as SgMsgReq
+  const {result: {insertId}} = await addSgMsg(ws, message)
+  const res: SgMsgRes = {
+    ...message,
+    id: insertId,
+    next: null,
+    status: SgMsgs.Status.normal,
+  }
   ws.json({action: data.action, data: {friendAplId, from, status, updatedAt}})
   usernameClientMap[to]?.json({action: REC_ADD_USER_RET, data: {friendAplId, from, to, status, updatedAt}})
+  ws.json({action: REC_MSGS, data: res})
+  usernameClientMap[to]?.json({action: REC_MSGS, data: res})
 }

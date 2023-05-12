@@ -2,12 +2,22 @@ import fs = require('fs')
 import path = require('path')
 import {User} from '../../../router/user/user-types'
 import {ExtWebSocket, RequestMessage} from '../../socket-types'
-import {checkMessageParams, formatDate, log} from '../../../common/utils'
-import {addGroupMessage, addSgMsg, selectNewSgMsgsById, selectSgMsgByFakeId, selectLastSgMsg, updateSgMsgNext} from './chat-sql'
-import {REC_MSGS} from '../../socket-actions'
+import {checkMessageParams, createFakeId, formatDate, log} from '../../../common/utils'
+import {
+  addGroupMessage,
+  addSgMsg,
+  selectNewSgMsgs,
+  selectSgMsgByFakeId,
+  selectLastSgMsg,
+  updateSgMsgNext,
+  selectHisSgMsgs,
+  selectSgMsgByIdAndFrom,
+  updateSgMsgStatus
+} from './chat-sql'
+import {REC_MSGS, SEND_MSG} from '../../socket-actions'
 import {getGroupById, isUserInGroup} from '../group/group'
 import {getHisSgMsgsSchema, sgMsgSchema} from './chat-schema'
-import {SgMsgs, SgMsgReq, SgMsgRes, GetHisSgMsgReq} from './chat-types'
+import {SgMsgs, SgMsgRes, GetHisSgMsgReq, SgMsgReq} from './chat-types'
 import {beginSocketSql} from '../../../db'
 
 export const usernameClientMap = {} as { [key in string]?: ExtWebSocket }
@@ -34,10 +44,12 @@ export async function sendMessage(ws: ExtWebSocket, session: User, data: Request
 // 获取历史消息
 export async function getHisSgMsgs(ws: ExtWebSocket, session: User, data: RequestMessage<GetHisSgMsgReq>) {
   await checkMessageParams(ws, getHisSgMsgsSchema, data.data, 1007)
-
+  const {result} = await selectHisSgMsgs(ws, data.data)
+  ws.json({action: data.action, data: JSON.parse(result[0][0].messages)})
 }
 
-function handleAudio(message: SgMsgReq, createdAt: string) {
+// 处理音频
+function handleAudio(message: SgMsgReq, createdAt: SgMsgs.CreatedAt) {
   const uint8Array = new Uint8Array(message.content as [])
   const urlDir = '/staging/' + createdAt.slice(0, -9) + '/'
   const dir = path.resolve(__dirname, '../public' + urlDir)
@@ -49,16 +61,35 @@ function handleAudio(message: SgMsgReq, createdAt: string) {
   message.content = urlDir + filename // 文件内容保存为地址
 }
 
+// 处理撤回
+async function handleRetract(ws: ExtWebSocket, message: SgMsgReq, from: SgMsgs.From) {
+  const id = message.content as number
+  const {result} = await selectSgMsgByIdAndFrom(ws, id, from)
+  if (!result.length) return ws.json({message: 'id错误', status: 1009})
+  const {createdAt, status, to} = result[0]
+  if (status === SgMsgs.Status.retract) return ws.json({message: '该消息已撤回', status: 1012})
+  if (Date.now() - new Date(createdAt).getTime() > 120000) return ws.json({message: '超过2分钟无法撤回', status: 1010})
+  await beginSocketSql(ws)
+  const {result: result2} = await updateSgMsgStatus(ws, id, SgMsgs.Status.retract)
+  const msg = {fakeId: createFakeId(from, to), from, to, content: '', type: SgMsgs.Type.system, createdAt, pre: null}
+
+  if (result2.changedRows === 0) return ws.json({message: '撤回失败', status: 1011})
+  ws.json({action: SEND_MSG, message: '撤回成功', data: {id}})
+  // usernameClientMap[to]?.json({action: RECE_RETRACT_MSG, message: '对方撤回一条消息', data: {id}})
+}
+
 async function singleChat(ws: ExtWebSocket, message: SgMsgReq, session: User) { // 单聊
   const createdAt = formatDate()
-  if (message.type === 3) handleAudio(message, createdAt) // 音频
+  const {type} = message
+  if (type === SgMsgs.Type.audio) handleAudio(message, createdAt) // 音频
   message.createdAt = createdAt
   const {result} = await selectSgMsgByFakeId(ws, message.fakeId)
   if (result.length) return ws.json({status: 1004, message: 'fakeId重复'})
-  const {result: result2, query} = await selectLastSgMsg(ws, message.preId, message.from, message.to)
-  if (!result2.length) return ws.json({status: 1005, message: 'preId错误'})
+  const {result: result2} = await selectLastSgMsg(ws, message.lastId, message.from, message.to)
+  if (!result2.length) return ws.json({status: 1005, message: 'lastId错误'})
+  if (type === SgMsgs.Type.retract) await handleRetract(ws, message, session.username)
   let lastMsg = result2[0]
-  const messages: SgMsgRes[] = JSON.parse((await selectNewSgMsgsById(ws, lastMsg.next)).result[0][0].messages)
+  const messages: SgMsgRes[] = JSON.parse((await selectNewSgMsgs(ws, lastMsg.id)).result[0][0].messages)
   if (messages.length > 0) lastMsg = messages[messages.length - 1]
   await beginSocketSql(ws)
   message.pre = lastMsg.id
@@ -71,7 +102,7 @@ async function singleChat(ws: ExtWebSocket, message: SgMsgReq, session: User) { 
     next: null,
     status: SgMsgs.Status.normal,
     content: message.content,
-    type: message.type,
+    type,
     fakeId: message.fakeId,
     from: session.username,
     to: message.to,
@@ -90,7 +121,7 @@ async function groupChat(ws: ExtWebSocket, message: SgMsgReq, session: User) { /
   const {username} = session
   if (!isUserInGroup(username, group)) return ws.json({status: 1006, message: '您不在群内'})
   const createdAt = formatDate()
-  if (message.type === 3) handleAudio(message, createdAt) // 音频
+  if (message.type === SgMsgs.Type.audio) handleAudio(message, createdAt) // 音频
   message.createdAt = createdAt
   const data = {
     data: [{data: message.content, type: message.type, fakeId: message.fakeId, from: session.username, to: message.to, createdAt}],

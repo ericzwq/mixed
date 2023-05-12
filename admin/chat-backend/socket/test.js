@@ -7,7 +7,8 @@ let ws = new WebSocket('wss://localhost:5001/?cookie='
 ws.json = (data) => ws.send(JSON.stringify(data))
 
 ws.json({action: 'addUser', data: {username: 'eric4', reason: 'reason', remark: 'remark'}})
-ws.json({action: 'sendMessage', data: {target: '1-eric4', fakeId: Date.now().toString(), type: 1, content: Date.now().toString(36), preId: 0}})
+ws.json({action: 'sendMessage', data: {target: '1-eric4', fakeId: Date.now().toString(), type: 1, content: Date.now().toString(36), lastId: 0}})
+ws.json({action: 'getHisSgMsgs', data: {maxId: 23, count: 20, minId: null}})
 
 
 fetch(
