@@ -17,8 +17,8 @@ import {REC_ADD_USER, REC_ADD_USER_RET, REC_MSGS} from '../../socket-actions'
 import {Contacts} from '../contact/contact-types'
 import {beginSocketSql} from '../../../db'
 import client from '../../../redis/redis'
-import {SgMsgReq, SgMsgRes, SgMsgs} from "../chat/chat-types";
-import {addSgMsg} from "../chat/chat-sql";
+import {SgMsgReq, SgMsgRes, SgMsgs} from '../chat/chat-types'
+import {addSgMsg} from '../chat/chat-sql'
 
 
 export async function searchUsers(ws: ExtWebSocket, user: User, data: RequestMessage<SearchUserQuery>) {
@@ -108,6 +108,7 @@ export async function addUserRet(ws: ExtWebSocket, user: User, data: RequestMess
     id: insertId,
     next: null,
     status: SgMsgs.Status.normal,
+    read: SgMsgs.Read.no
   }
   ws.json({action: data.action, data: {friendAplId, from, status, updatedAt}})
   usernameClientMap[to]?.json({action: REC_ADD_USER_RET, data: {friendAplId, from, to, status, updatedAt}})

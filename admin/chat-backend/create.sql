@@ -86,6 +86,7 @@ create table single_chat
     content   varchar(500)                      not null,
     type      tinyint                           not null comment '0系统消息 1文本 2图片 3音频 4视频',
     status    tinyint                           not null comment '0正常 1撤回',
+    `read`    tinyint                           not null default 0 comment '0未读 1已读',
     createdAt timestamp                         not null default current_timestamp comment '创建时间'
 );
 create index fakeId_index on single_chat (fakeId);

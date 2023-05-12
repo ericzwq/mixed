@@ -27,6 +27,11 @@ export namespace SgMsgs {
   export type Ext = string
   export type Next = Id | null
   export type Pre = Id | null
+
+  export enum Read {
+    no = 0,
+    yes = 1
+  }
 }
 
 export interface GetHisSgMsgReq {
@@ -59,4 +64,5 @@ export interface SgMsgRes {
   status: SgMsgs.Status
   next: SgMsgs.Next
   pre: SgMsgs.Pre
+  read: SgMsgs.Read
 }

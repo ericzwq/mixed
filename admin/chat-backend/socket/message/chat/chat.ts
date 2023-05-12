@@ -2,22 +2,12 @@ import fs = require('fs')
 import path = require('path')
 import {User} from '../../../router/user/user-types'
 import {ExtWebSocket, RequestMessage} from '../../socket-types'
-import {checkMessageParams, createFakeId, formatDate, log} from '../../../common/utils'
-import {
-  addGroupMessage,
-  addSgMsg,
-  selectNewSgMsgs,
-  selectSgMsgByFakeId,
-  selectLastSgMsg,
-  updateSgMsgNext,
-  selectHisSgMsgs,
-  selectSgMsgByIdAndFrom,
-  updateSgMsgStatus
-} from './chat-sql'
-import {REC_MSGS, SEND_MSG} from '../../socket-actions'
+import {checkMessageParams, formatDate} from '../../../common/utils'
+import {addGroupMessage, addSgMsg, selectHisSgMsgs, selectLastSgMsg, selectNewSgMsgs, selectSgMsgByFakeId, selectSgMsgByIdAndFrom, updateSgMsgNext, updateSgMsgStatus} from './chat-sql'
+import {REC_MSGS} from '../../socket-actions'
 import {getGroupById, isUserInGroup} from '../group/group'
 import {getHisSgMsgsSchema, sgMsgSchema} from './chat-schema'
-import {SgMsgs, SgMsgRes, GetHisSgMsgReq, SgMsgReq} from './chat-types'
+import {GetHisSgMsgReq, SgMsgReq, SgMsgRes, SgMsgs} from './chat-types'
 import {beginSocketSql} from '../../../db'
 
 export const usernameClientMap = {} as { [key in string]?: ExtWebSocket }
@@ -65,17 +55,16 @@ function handleAudio(message: SgMsgReq, createdAt: SgMsgs.CreatedAt) {
 async function handleRetract(ws: ExtWebSocket, message: SgMsgReq, from: SgMsgs.From) {
   const id = message.content as number
   const {result} = await selectSgMsgByIdAndFrom(ws, id, from)
-  if (!result.length) return ws.json({message: 'id错误', status: 1009})
-  const {createdAt, status, to} = result[0]
+  if (!result.length) return ws.json({message: 'content不匹配', status: 1009})
+  const {createdAt, status} = result[0]
   if (status === SgMsgs.Status.retract) return ws.json({message: '该消息已撤回', status: 1012})
   if (Date.now() - new Date(createdAt).getTime() > 120000) return ws.json({message: '超过2分钟无法撤回', status: 1010})
   await beginSocketSql(ws)
   const {result: result2} = await updateSgMsgStatus(ws, id, SgMsgs.Status.retract)
-  const msg = {fakeId: createFakeId(from, to), from, to, content: '', type: SgMsgs.Type.system, createdAt, pre: null}
-
-  if (result2.changedRows === 0) return ws.json({message: '撤回失败', status: 1011})
-  ws.json({action: SEND_MSG, message: '撤回成功', data: {id}})
-  // usernameClientMap[to]?.json({action: RECE_RETRACT_MSG, message: '对方撤回一条消息', data: {id}})
+  if (result2.changedRows === 0) {
+    ws.json({message: '撤回失败', status: 1011})
+    return Promise.reject()
+  }
 }
 
 async function singleChat(ws: ExtWebSocket, message: SgMsgReq, session: User) { // 单聊
@@ -106,7 +95,8 @@ async function singleChat(ws: ExtWebSocket, message: SgMsgReq, session: User) { 
     fakeId: message.fakeId,
     from: session.username,
     to: message.to,
-    createdAt
+    createdAt,
+    read: SgMsgs.Read.no
   })
   const data = {
     data: messages,
