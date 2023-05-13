@@ -17,13 +17,13 @@ export interface SearchUserQuery {
   username: Users.Username
 }
 
-export interface AddUserBody {
+export interface AddUserReq {
   username: Users.Username
   reason: FriendApls.Reason
   remark: FriendApls.Remark
 }
 
-export interface AddUserRetBody {
+export interface AddUserRetReq {
   friendAplId: FriendApls.Id
   contactId: Contacts.Id
   to: Users.Username

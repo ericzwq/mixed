@@ -14,7 +14,7 @@ create table users
 (
     username           varchar(20) primary key not null,
     password           varchar(20)             not null,
-    avatar             varchar(20)             not null,
+    avatar             varchar(50)             not null,
     nickname           varchar(20)             not null,
     email              varchar(20)             not null,
     last_friend_apl_id bigint comment '与用户有关的最后一条好友申请表id',
@@ -93,13 +93,13 @@ create index fakeId_index on single_chat (fakeId);
 create index next_index on single_chat (next);
 
 insert single_chat(fakeId, pre, next, `from`, `to`, content, type, status)
-values ('asf', null, null, 'eric', 'eric2', 'c1', 1, 0);
+values ('asf', null, null, 'eric', 'eric2', '你们已是好友，可以一起尬聊了', 1, 0);
 
 insert single_chat(fakeId, pre, next, `from`, `to`, content, type, status)
-values ('asf2', null, null, 'eric', 'eric3', 'c2', 1, 0);
+values ('asf2', null, null, 'eric', 'eric3', '你们已是好友，可以一起尬聊了', 1, 0);
 
 insert single_chat(fakeId, pre, next, `from`, `to`, content, type, status)
-values ('asf3', null, null, 'eric2', 'eric3', 'c3', 1, 0);
+values ('asf3', null, null, 'eric2', 'eric3', '你们已是好友，可以一起尬聊了', 1, 0);
 
 /*群表*/
 drop table if exists `groups`;
@@ -107,7 +107,7 @@ create table `groups`
 (
     id        bigint auto_increment primary key not null,
     name      varchar(20)                       not null,
-    avatar    varchar(20)                       not null,
+    avatar    varchar(50)                       not null,
     leader    varchar(20)                       not null,
     manager   varchar(400),
     member    varchar(15800),
@@ -123,14 +123,18 @@ drop table if exists group_chat;
 create table group_chat
 (
     id        bigint auto_increment primary key not null,
+    fakeId    varchar(60)                       not null,
+    pre       bigint,
     next      bigint,
     `from`    varchar(20)                       not null,
     `to`      bigint                            not null,
     content   varchar(500)                      not null,
     type      tinyint                           not null comment '0系统消息 1文本 2图片 3音频 4视频',
     status    tinyint                           not null comment '0正常 1撤回',
+    `read`    tinyint                           not null default 0 comment '0未读 1已读',
     createdAt timestamp                         not null default current_timestamp comment '创建时间'
 );
+create index fakeId_index on group_chat (fakeId);
 
 /*好友申请表*/
 drop table if exists friend_applications;
@@ -150,9 +154,11 @@ drop table if exists group_applications;
 create table group_applications
 (
     id        bigint auto_increment primary key not null,
-    `from`    varchar(20)                       not null,
-    `to`      bigint                            not null,
-    reason    varchar(50)                       not null,
+    groupId   bigint                            not null,
+    `from`    varchar(20)                       not null comment 'type = 1：申请人；type = 2：邀请人',
+    invitee   varchar(20) comment '被邀请的人，type为2时不为空',
+    type      tinyint                           not null comment '1加群申请 2邀请申请',
+    reason    varchar(50) comment 'type为1时不为空',
     status    tinyint                           not null comment '0待确认 1同意 2拒绝',
     createdAt timestamp                         not null default current_timestamp comment '创建时间',
     updatedAt timestamp comment '修改时间'

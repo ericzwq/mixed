@@ -93,9 +93,9 @@ export const executeSocketSql: CustomSocketQueryFunction = function (ws: ExtWebS
   return new Promise((resolve, reject) => {
     const query = ws.connection.query(options, values, (error: MysqlError | null, result: any, fields: FieldInfo[] | undefined) => {
       if (error) {
-        log('数据库执行失败:', error)
+        log('数据库执行失败：', error)
         ws.connection.query('rollback;')
-        ws.json({message: '数据库执行失败', status: 998})
+        ws.json({message: '数据库执行失败：' + error.message, status: 998})
         reject({query, error, fields})
       } else {
         resolve({query, result, fields})

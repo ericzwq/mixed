@@ -7,11 +7,11 @@ import {
   ADD_GROUP_RET,
   ADD_USER,
   ADD_USER_RET,
-  ANSWER,
+  ANSWER, CREAT_GROUP,
   GET_CONTACTS,
   GET_FRIEND_APLS,
-  GET_HIS_SG_MSGS,
-  OFFER,
+  GET_HIS_SG_MSGS, GROUP_INVITE_RET,
+  OFFER, READ_SG_MSGS,
   REC_MSGS,
   SEARCH_USERS,
   SEND_MSG,
@@ -19,12 +19,12 @@ import {
 } from '../socket-actions'
 import {formatDate, log} from '../../common/utils'
 import client from '../../redis/redis'
-import {usernameClientMap, sendMessage, getHisSgMsgs} from './chat/chat'
+import {usernameClientMap, sendMessage, getHisSgMsgs, readSgMsgs} from './chat/chat'
 import {getContacts} from './contact/contact'
 import {answer, candidate, offer, voiceResult} from './mediaCall/mediaCall'
 import {CANCELLED} from 'dns'
 import {addUser, addUserRet, getFriendApls, searchUsers} from './user/user'
-import {addGroup, addGroupRet} from './group/group'
+import {addGroup, addGroupRet, createGroup, groupInviteRet} from './group/group'
 import {commitSocketSql, socketSqlMiddleware} from '../../db'
 import {SgMsgReq} from './chat/chat-types'
 
@@ -115,6 +115,7 @@ socketMessageRouter.addHandler('stop', function (ws: WebSocket, session: Session
 socketMessageRouter.addHandlers([
   {action: SEND_MSG, handler: sendMessage},
   {action: GET_HIS_SG_MSGS, handler: getHisSgMsgs},
+  {action: READ_SG_MSGS, handler: readSgMsgs},
 ])
 socketMessageRouter.addHandlers([{action: GET_CONTACTS, handler: getContacts}])
 socketMessageRouter.addHandlers([
@@ -130,6 +131,8 @@ socketMessageRouter.addHandlers([
   {action: ADD_USER_RET, handler: addUserRet}
 ])
 socketMessageRouter.addHandlers([
+  {action: CREAT_GROUP, handler: createGroup},
+  {action: GROUP_INVITE_RET, handler: groupInviteRet},
   {action: ADD_GROUP, handler: addGroup},
   {action: ADD_GROUP_RET, handler: addGroupRet}
 ])

@@ -1,7 +1,7 @@
 import {executeSocketSql} from '../../../db'
 import {User} from '../../../router/user/user-types'
 import {InsertModal, UpdateModal} from '../../../types/sql-types'
-import {ExtWebSocket} from '../../socket-types'
+import {ExtWebSocket, MsgRead, MsgStatus} from '../../socket-types'
 import {SgMsgReq, SgMsgs, SgMsgRes, GetHisSgMsgReq} from './chat-types'
 
 export function selectSgMsgByFakeId(ws: ExtWebSocket, fakeId: SgMsgs.FakeId) {
@@ -28,9 +28,9 @@ export function selectLastSgMsg(ws: ExtWebSocket, lastId: SgMsgs.Id | null, from
        from single_chat
        where next is null
          and ((\`from\` = ?
-         and \`to\` = ?)
-          or (\`from\` = ?
-         and \`to\` = ?));`, [from, to, to, from])
+           and \`to\` = ?)
+           or (\`from\` = ?
+               and \`to\` = ?));`, [from, to, to, from])
   }
 }
 
@@ -53,23 +53,24 @@ export function addSgMsg(ws: ExtWebSocket, data: SgMsgReq) {
 }
 
 export function selectSgMsgByIdAndFrom(ws: ExtWebSocket, id: SgMsgs.Id, from: SgMsgs.From) {
-  return executeSocketSql<{ createdAt: SgMsgs.CreatedAt, status: SgMsgs.Status }[]>(ws, `select \`to\`, createdAt, status
+  return executeSocketSql<{ createdAt: SgMsgs.CreatedAt, status: MsgStatus }[]>(ws, `select \`to\`, createdAt, status
                                                                                          from single_chat
                                                                                          where id = ?
                                                                                            and \`from\` = ?;`, [id, from])
 }
 
-export function updateSgMsgStatus(ws: ExtWebSocket, id: SgMsgs.Id, status: SgMsgs.Status) {
+export function updateSgMsgStatus(ws: ExtWebSocket, id: SgMsgs.Id, status: MsgStatus) {
   return executeSocketSql<UpdateModal>(ws, `update single_chat
                                             set status = ?
                                             where id = ?`, [status, id])
 }
 
-export function updateSgMsgsRead(ws: ExtWebSocket, ids: SgMsgs.Id[], to: SgMsgs.To) {
+export function updateSgMsgsRead(ws: ExtWebSocket, ids: SgMsgs.Id[], from: SgMsgs.From, to: SgMsgs.To) {
   return executeSocketSql<UpdateModal>(ws, `update single_chat
-                                            set read = ?
+                                            set \`read\` = ?
                                             where id in (?)
-                                              and \`to\` = ?;`, [SgMsgs.Read.yes, ids, to])
+                                              and \`from\` = ?
+                                              and \`to\` = ?;`, [MsgRead.yes, ids, to, from])
 }
 
 export function getChatData(ws: ExtWebSocket, user: User) {

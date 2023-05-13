@@ -71,3 +71,22 @@ export type ConnectionHandler = (session: User, cookie: string, ws: ExtWebSocket
 export interface ConnectionHandlerMap {
   [key: string]: ConnectionHandler
 }
+
+export enum MsgType { // 消息类型
+  system = 0, // 系统消息
+  text = 1, // 文本
+  pic = 2, // 图片
+  audio = 3, // 音频
+  video = 4, // 视频
+  retract = 5, // 撤回
+}
+
+export enum MsgStatus {
+  normal = 0,
+  retract = 1
+}
+
+export enum MsgRead {
+  no = 0,
+  yes = 1
+}

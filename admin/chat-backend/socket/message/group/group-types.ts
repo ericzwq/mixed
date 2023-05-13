@@ -12,6 +12,19 @@ export namespace Groups {
   export type CreatedAt = string
 }
 
+export namespace GpMsgs {
+  export type Id = number
+  export type Target = string // '1-2'
+  export type Content = string | number[] | number
+  export type From = Users.Username
+  export type To = Groups.Id
+  export type FakeId = string // 前端消息id
+  export type CreatedAt = string
+  export type Ext = string
+  export type Next = Id | null
+  export type Pre = Id | null
+}
+
 export interface Group {
   id: Groups.Id
   name: Groups.Name
@@ -25,7 +38,15 @@ export interface Group {
 }
 
 export namespace GroupApls {
+  export type Id = Groups.Id
   export type  Reason = string
+  export type Pre = number
+  export type Next = number
+
+  export enum Type {
+    active = 1, // 加群申请
+    passive = 2 // 邀请申请
+  }
 
   export enum Status {
     pending = 0,  // 待确认
@@ -34,12 +55,22 @@ export namespace GroupApls {
   }
 }
 
-export interface AddGroupBody {
+export interface AddGroupReq {
   id: Groups.Id
   reason: GroupApls.Reason
 }
 
-export interface AddGroupRetBody {
+export interface GroupInviteRetReq {
+  id: GroupApls.Id
+  status: GroupApls.Status
+}
+
+export interface AddGroupRetReq {
   to: Users.Username
   status: GroupApls.Status
+}
+
+export interface CreateGroupReq {
+  members: Users.Username[]
+  name: Groups.Name
 }
