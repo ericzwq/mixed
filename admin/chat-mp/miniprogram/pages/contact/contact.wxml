@@ -7,6 +7,13 @@
     </view>
   </view>
   <view class="contact-item">
+    <image class="left" src="../../static/image/add.svg" style="background: #FFC125;"></image>
+    <view class="right">
+      群通知
+      <!-- <van-badge info="{{newFriendCount}}" /> -->
+    </view>
+  </view>
+  <view class="contact-item" bindtap="toGroups">
     <image class="left" src="../../static/image/group-chat.svg" style="background: #FFC125;"></image>
     <view class="right"> 群聊 </view>
   </view>

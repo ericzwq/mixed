@@ -3,7 +3,7 @@ import { userStore } from '../../store/store'
 import { LOAD_MESSAGE_COUNT, STATIC_BASE_URL } from '../../consts/consts'
 import { chatSocket, voiceSocket } from '../../socket/socket'
 import { formatDate, formatSimpleDate } from '../../common/utils'
-import { ANSWER, CANDIDATE, OFFER, RECE_MSGS, SEND_MSG, VOICE_RESULT } from '../../socket/socket-actions'
+import { ANSWER, CANDIDATE, OFFER, RECE_SG_MSGS, SEND_SG_MSG, VOICE_RESULT } from '../../socket/socket-actions'
 import { UserDetailPath } from '../../consts/routes'
 
 const app = getApp<IAppOption>()
@@ -435,7 +435,7 @@ Page({
   },
   // 注册socket消息监听
   addMessageListener() {
-    chatSocket.addSuccessHandler(RECE_MSGS, ((data: SocketResponse<Message[]>) => {
+    chatSocket.addSuccessHandler(RECE_SG_MSGS, ((data: SocketResponse<Message[]>) => {
       data.data.forEach((message: Message) => {
         if (message.from === userStore.user.username) { // 自己发的
           const ownMessage = this.data.viewMessages.find(msg => msg.fakeId === message.fakeId)!
@@ -450,7 +450,7 @@ Page({
       this.scrollView()
       app.saveMessages()
     }))
-    chatSocket.addErrorHandler(RECE_MSGS, (data: SocketResponse<Message>) => {
+    chatSocket.addErrorHandler(RECE_SG_MSGS, (data: SocketResponse<Message>) => {
       const messageInfo = userStore.unameMessageInfoMap[data.data.to!]
       const message = messageInfo.messages[messageInfo.fakeIdIndexMap[data.data.fakeId!]]
       message.state = 'error'
@@ -559,13 +559,13 @@ Page({
     const messageInfo = userStore.unameMessageInfoMap[target.username]
     chatSocket.send({
       data: {
-        target: this.data.type + '-' + target.username,
+        to: target.username,
         content: data,
         fakeId,
         type,
         ext: type === 3 ? '.aac' : ''
       },
-      action: SEND_MSG
+      action: SEND_SG_MSG
     }).then(() => {
       messageInfo.fakeIdIndexMap[fakeId] = messageInfo.messages.push(message) - 1
       const length = this.data.viewMessages.push(message)

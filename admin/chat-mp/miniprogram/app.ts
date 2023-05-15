@@ -2,7 +2,7 @@ import { createStoreBindings } from 'mobx-miniprogram-bindings'
 import { formatDate } from './common/utils'
 import { ChatDetailPath, LoginPath } from './consts/routes'
 import { chatSocket } from "./socket/socket"
-import { GET_CONTACTS, GET_FRIEND_APLS, RECE_MSGS } from './socket/socket-actions'
+import { GET_CONTACTS, GET_FRIEND_APLS, RECE_SG_MSGS } from './socket/socket-actions'
 import { userStore } from "./store/store"
 
 App<IAppOption>({
@@ -42,7 +42,7 @@ App<IAppOption>({
     return !!user
   },
   addReceMsgsListener() {
-    chatSocket.addSuccessHandler(RECE_MSGS, ((data: SocketResponse<Message[]>) => {
+    chatSocket.addSuccessHandler(RECE_SG_MSGS, ((data: SocketResponse<Message[]>) => {
       const { unameMessageInfoMap } = userStore
       const msg = data.data[0]
       if (!msg) return
@@ -83,7 +83,7 @@ App<IAppOption>({
       this.saveChat(data.data[data.data.length - 1], userStore.contactMap[targetUname!], data.data.length)
       this.saveMessages()
     }))
-    chatSocket.addErrorHandler(RECE_MSGS, (data: SocketResponse<Message>) => {
+    chatSocket.addErrorHandler(RECE_SG_MSGS, (data: SocketResponse<Message>) => {
       const newMessage = data.data
       const messageInfo = userStore.unameMessageInfoMap[newMessage.to!]
       const message = messageInfo.messages[messageInfo.fakeIdIndexMap[newMessage.fakeId!]]

@@ -1,6 +1,6 @@
 import { createStoreBindings } from 'mobx-miniprogram-bindings'
 import { STATIC_BASE_URL } from '../../consts/consts'
-import { NewFriendsPath, UserDetailPath } from '../../consts/routes'
+import { GroupsPath, NewFriendsPath, UserDetailPath } from '../../consts/routes'
 import { chatSocket } from '../../socket/socket'
 import { ADD_USER, REC_ADD_USER } from '../../socket/socket-actions'
 import { userStore } from '../../store/store'
@@ -16,6 +16,9 @@ Page({
   },
   toNewFriends() {
     wx.navigateTo({ url: NewFriendsPath })
+  },
+  toGroups() {
+    wx.navigateTo({url: GroupsPath})
   },
   storeBindings: {} as StoreBindings,
   receAddUserHandler: null as any,

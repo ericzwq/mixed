@@ -1,0 +1,36 @@
+.group-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 110rpx;
+}
+
+.left {
+  display: block;
+  width: 80rpx;
+  height: 80rpx;
+  margin: 20rpx;
+  border-radius: 8rpx;
+}
+
+.right {
+  display: flex;
+  flex-grow: 1;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  border-bottom: 1px solid #efefef;
+}
+
+.van-badge {
+  background: #fff !important;
+  padding-left: 12px !important;
+
+  &::after {
+    border: transparent !important;
+  }
+}
+
+.van-info {
+  right: 2rpx !important;
+}
