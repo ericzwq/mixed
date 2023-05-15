@@ -3,7 +3,6 @@ import {MsgRead, MsgStatus, MsgType} from "../../socket-types";
 
 export namespace SgMsgs {
   export type Id = number
-  export type Target = string // '1-2'
   export type Content = string | number[] | number
   export type From = Users.Username
   export type To = Users.Username
@@ -21,16 +20,13 @@ export interface GetHisSgMsgReq {
 }
 
 export interface SgMsgReq {
-  target: SgMsgs.Target
   type: MsgType
   content: SgMsgs.Content
   fakeId: SgMsgs.FakeId
-  ext: SgMsgs.Ext
-  lastId: SgMsgs.Id
-  from: SgMsgs.From
+  ext?: SgMsgs.Ext
+  lastId?: SgMsgs.Id
   to: SgMsgs.To
   pre: SgMsgs.Pre
-  createdAt: SgMsgs.CreatedAt
 }
 
 export interface SgMsgRes {

@@ -1,24 +1,25 @@
 import {checkMessageParams, createFakeId, formatDate, notifyUpdateUser} from '../../../common/utils'
 import {User, Users} from '../../../router/user/user-types'
 import {AddUserReq, AddUserRetReq, FriendApls, SearchUserQuery} from './user-types'
-import {
-  addContactByMasterAndSub,
-  selectContactByAddUser,
-  getUserByUsername,
-  selectFriendAplByAddUser,
-  addFriendApl,
-  resetFriendAplById,
-  updateFriendAplStatus, updateContactStatus, resetContactById, updateLastFriendAplId, selectFriendAplsById
-} from './user-sql'
+import {getUserByUsername} from './user-sql'
 import {addUserRetSchema, addUserSchema, getFriendAplsSchema, searchUserSchema} from './user-schema'
 import {ExtWebSocket, MsgRead, MsgStatus, MsgType, RequestMessage} from '../../socket-types'
-import {usernameClientMap} from '../chat/chat'
-import {REC_ADD_USER, REC_ADD_USER_RET, REC_MSGS} from '../../socket-actions'
+import {usernameClientMap} from '../single/single'
+import {REC_ADD_USER, REC_ADD_USER_RET, REC_SG_MSGS} from '../../socket-actions'
 import {Contacts} from '../contact/contact-types'
 import {beginSocketSql} from '../../../db'
 import client from '../../../redis/redis'
-import {SgMsgReq, SgMsgRes} from '../chat/chat-types'
-import {addSgMsg} from '../chat/chat-sql'
+import {SgMsgReq, SgMsgRes} from '../single/single-types'
+import {
+  addFriendApl,
+  addSgMsg,
+  resetFriendAplById,
+  selectFriendAplByAddUser,
+  selectFriendAplsById,
+  updateFriendAplStatus,
+  updateLastFriendAplId
+} from '../single/single-sql'
+import {addContactByMasterAndSub, resetContactById, selectContactByAddUser, updateContactStatus} from "../contact/contact-sql";
 
 
 export async function searchUsers(ws: ExtWebSocket, user: User, data: RequestMessage<SearchUserQuery>) {
@@ -98,13 +99,12 @@ export async function addUserRet(ws: ExtWebSocket, user: User, data: RequestMess
     content: '你们已成为好友，可以一起尬聊了',
     type: MsgType.system,
     fakeId: createFakeId(from, to),
-    from,
-    to,
-    createdAt: formatDate()
+    to
   } as SgMsgReq
-  const {result: {insertId}} = await addSgMsg(ws, message)
+  const {result: {insertId}} = await addSgMsg(ws, from, message, formatDate())
   const res: SgMsgRes = {
     ...message,
+    from,
     id: insertId,
     next: null,
     status: MsgStatus.normal,
@@ -112,6 +112,6 @@ export async function addUserRet(ws: ExtWebSocket, user: User, data: RequestMess
   }
   ws.json({action: data.action, data: {friendAplId, from, status, updatedAt}})
   usernameClientMap[to]?.json({action: REC_ADD_USER_RET, data: {friendAplId, from, to, status, updatedAt}})
-  ws.json({action: REC_MSGS, data: res})
-  usernameClientMap[to]?.json({action: REC_MSGS, data: res})
+  ws.json({action: REC_SG_MSGS, data: res})
+  usernameClientMap[to]?.json({action: REC_SG_MSGS, data: res})
 }

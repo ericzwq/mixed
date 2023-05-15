@@ -3,7 +3,7 @@ import {IncomingMessage} from "http";
 import {SocketResponseSchema} from "../../response/response";
 import {CONN_VOICE, VOICE_RESULT} from "../socket-actions";
 import WebSocket = require("ws");
-import {usernameClientMap} from "../message/chat/chat";
+import {usernameClientMap} from "../message/single/single";
 
 export const voiceClientMap = new Map<Users.Username, WebSocket.WebSocket>()
 

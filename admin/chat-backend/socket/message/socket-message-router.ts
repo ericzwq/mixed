@@ -1,7 +1,7 @@
 import {MessageHandler, ActionHandlerMap, ExtWebSocket, RequestMessage} from '../socket-types'
 import {User} from '../../router/user/user-types'
 import {IncomingMessage} from 'http'
-import {getChatData} from './chat/chat-sql'
+import {getChatData} from './single/single-sql'
 import {
   ADD_GROUP,
   ADD_GROUP_RET,
@@ -12,21 +12,21 @@ import {
   GET_FRIEND_APLS,
   GET_HIS_SG_MSGS, GROUP_INVITE_RET,
   OFFER, READ_SG_MSGS,
-  REC_MSGS,
+  REC_SG_MSGS,
   SEARCH_USERS,
-  SEND_MSG,
+  SEND_SG_MSG,
   VOICE_RESULT
 } from '../socket-actions'
 import {formatDate, log} from '../../common/utils'
 import client from '../../redis/redis'
-import {usernameClientMap, sendMessage, getHisSgMsgs, readSgMsgs} from './chat/chat'
+import {usernameClientMap, sendSgMsg, getHisSgMsgs, readSgMsgs} from './single/single'
 import {getContacts} from './contact/contact'
 import {answer, candidate, offer, voiceResult} from './mediaCall/mediaCall'
 import {CANCELLED} from 'dns'
 import {addUser, addUserRet, getFriendApls, searchUsers} from './user/user'
 import {addGroup, addGroupRet, createGroup, groupInviteRet} from './group/group'
 import {commitSocketSql, socketSqlMiddleware} from '../../db'
-import {SgMsgReq} from './chat/chat-types'
+import {SgMsgReq} from './single/single-types'
 
 const socketMessageRouter = {
   actionHandlerMap: {} as ActionHandlerMap,
@@ -46,7 +46,7 @@ export async function handleMessage(user: User, cookie: string, ws: ExtWebSocket
   const {result} = await getChatData(ws, user)
   ws.connection.release()
 
-  ws.json({data: result, action: REC_MSGS})
+  ws.json({data: result, action: REC_SG_MSGS})
 
   ws.on('message', async (_data, isBinary) => {
     if (ws.shouldUpdateUser) {
@@ -113,7 +113,7 @@ socketMessageRouter.addHandler('stop', function (ws: WebSocket, session: Session
 })*/
 
 socketMessageRouter.addHandlers([
-  {action: SEND_MSG, handler: sendMessage},
+  {action: SEND_SG_MSG, handler: sendSgMsg},
   {action: GET_HIS_SG_MSGS, handler: getHisSgMsgs},
   {action: READ_SG_MSGS, handler: readSgMsgs},
 ])

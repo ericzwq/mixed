@@ -1,6 +1,6 @@
 import {User} from "../../../router/user/user-types";
 import {AnswerMessage, CandidateMessage, ExtWebSocket, OfferMessage, VoiceResult} from "../../socket-types";
-import {usernameClientMap} from "../chat/chat";
+import {usernameClientMap} from "../single/single";
 
 export function voiceResult(ws: ExtWebSocket, session: User, data: VoiceResult) {
   usernameClientMap[data.data.to]?.json(data)

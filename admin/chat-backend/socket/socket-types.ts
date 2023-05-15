@@ -79,6 +79,7 @@ export enum MsgType { // 消息类型
   audio = 3, // 音频
   video = 4, // 视频
   retract = 5, // 撤回
+  dynamicSys = 6, // 动态的系统消息  '#创建了群聊/' + encodeURIComponent(from)
 }
 
 export enum MsgStatus {

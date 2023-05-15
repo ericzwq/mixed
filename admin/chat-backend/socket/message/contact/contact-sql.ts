@@ -3,6 +3,7 @@ import {User, Users} from '../../../router/user/user-types'
 import {Contacts} from "./contact-types";
 import Status = Contacts.Status;
 import {ExtWebSocket} from "../../socket-types";
+import {InsertModal, UpdateModal} from "../../../types/sql-types";
 
 interface Contact {
   username: Users.Username
@@ -17,4 +18,20 @@ export function getContactsByUsername(ws: ExtWebSocket, session: User) {
   return executeSocketSql<Contact[]>(
     ws, 'select u.username, u.nickname, u.avatar, c.remark, c.status from contacts c left join users u on c.sub = u.username where c.master = ? and status in (?, ?);',
     [session.username, Status.normal, Status.blackList])
+}
+
+export function addContactByMasterAndSub(ws: ExtWebSocket, sub: Users.Username, master: Users.Username, status: Contacts.Status, remark: Contacts.Remark) {
+  return executeSocketSql<InsertModal>(ws, `insert into contacts(master, sub, status, remark) values(?, ?, ?, ?);`, [master, sub, status, remark])
+}
+
+export function updateContactStatus(ws: ExtWebSocket, id: Contacts.Id, sub: Users.Username, master: Users.Username, status: Contacts.Status) {
+  return executeSocketSql<UpdateModal>(ws, 'update contacts set status = ? where id = ? and master = ? and sub = ?;', [status, id, master, sub])
+}
+
+export function selectContactByAddUser(ws: ExtWebSocket, to: Users.Username, from: Users.Username) {
+  return executeSocketSql<{ id: Contacts.Id, status: Contacts.Status }[]>(ws, 'select id, status from contacts where (master = ? and sub = ?);', [from, to])
+}
+
+export function resetContactById(ws: ExtWebSocket, id: Contacts.Id, remark: Contacts.Remark) {
+  return executeSocketSql<UpdateModal>(ws, 'update contacts set remark = ?, status = ? where id = ?;', [remark, Contacts.Status.delete, id])
 }

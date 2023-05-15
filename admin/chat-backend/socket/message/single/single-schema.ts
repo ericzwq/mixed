@@ -3,7 +3,6 @@ import {userSchemas} from "../../../router/user/user-schema";
 
 const sgMsgSchemas = {
   id: Joi.number(),
-  target: Joi.string().required(),
   content: Joi.required(),
   fakeId: Joi.string().required(), // 前端消息id
   type: Joi.valid(1, 2, 3, 4, 5),
@@ -12,7 +11,7 @@ const sgMsgSchemas = {
 }
 
 export const sgMsgSchema = Joi.object({
-  target: sgMsgSchemas.target,
+  to: userSchemas.username,
   content: sgMsgSchemas.content,
   fakeId: sgMsgSchemas.fakeId,
   type: sgMsgSchemas.type,

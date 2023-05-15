@@ -1,7 +1,8 @@
 import {Users} from "../../../router/user/user-types";
+import {MsgRead, MsgStatus, MsgType} from "../../socket-types";
 
 export namespace Groups {
-  export type Id = string
+  export type Id = number
   export type Name = string
   export type Avatar = string
   export type Leader = string
@@ -14,7 +15,6 @@ export namespace Groups {
 
 export namespace GpMsgs {
   export type Id = number
-  export type Target = string // '1-2'
   export type Content = string | number[] | number
   export type From = Users.Username
   export type To = Groups.Id
@@ -23,6 +23,40 @@ export namespace GpMsgs {
   export type Ext = string
   export type Next = Id | null
   export type Pre = Id | null
+}
+
+export namespace GpMembers {
+  export type prohibition = number
+}
+
+export enum GpMemberOrigin {
+  author = 0, // 创建者
+  invitee = 1, // 被邀请
+  apply = 2, // 申请
+}
+
+export interface GpMsgReq {
+  type: MsgType
+  content: GpMsgs.Content
+  fakeId: GpMsgs.FakeId
+  ext?: GpMsgs.Ext
+  lastId?: GpMsgs.Id
+  to: GpMsgs.To
+  pre: GpMsgs.Pre
+}
+
+export interface GpMsgRes {
+  id: GpMsgs.Id
+  type: MsgType // 1普通消息 2系统消息 3撤回消息
+  fakeId?: GpMsgs.FakeId // 前端消息id
+  from: GpMsgs.From
+  to: GpMsgs.To
+  createdAt?: GpMsgs.CreatedAt
+  content: GpMsgs.Content
+  status: MsgStatus
+  next: GpMsgs.Next
+  pre: GpMsgs.Pre
+  read: MsgRead
 }
 
 export interface Group {

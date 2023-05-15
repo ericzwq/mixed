@@ -2,8 +2,11 @@ import {Context} from 'koa'
 import {AnySchema} from 'joi'
 import {ResponseSchema} from '../response/response'
 import {ExtWebSocket} from '../socket/socket-types'
-import {usernameClientMap} from "../socket/message/chat/chat";
+import {usernameClientMap} from "../socket/message/single/single";
 import {Users} from "../router/user/user-types";
+import {SgMsgReq, SgMsgs} from "../socket/message/single/single-types";
+import fs = require("fs");
+import path = require("path");
 
 export const setExcelType = function (res: any) {
   // res.setHeader('Content-Type', 'application/vnd.ms-excel') // application/vnd.openxmlformats
@@ -55,6 +58,19 @@ export function log(...data: any) {
   console.log(formatDate() + '：', ...data)
 }
 
-export function createFakeId(from: Users.Username, to: Users.Username) {
+export function createFakeId(from: Users.Username, to: Users.Username | number) {
   return from + '-' + to + '-' + Date.now().toString(Math.floor(Math.random() * 26 + 11))
+}
+
+// 处理音频
+export function handleAudio(message: Pick<SgMsgReq, 'content' | 'ext'>, createdAt: SgMsgs.CreatedAt) {
+  const uint8Array = new Uint8Array(message.content as [])
+  const urlDir = '/staging/' + createdAt.slice(0, -9) + '/'
+  const dir = path.resolve(__dirname, '../public' + urlDir)
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir)
+  }
+  const filename = Date.now() + '' + Math.random() + (message.ext || '.webm')
+  fs.writeFileSync(path.resolve(dir, filename), uint8Array)
+  message.content = urlDir + filename // 文件内容保存为地址
 }

@@ -164,6 +164,19 @@ create table group_applications
     updatedAt timestamp comment '修改时间'
 );
 
+/*群成员信息表*/
+drop table if exists group_member;
+create table group_member
+(
+    id          bigint auto_increment primary key not null,
+    username    varchar(20)                       not null,
+    prohibition int                               not null comment '禁言时长 0则未禁言',
+    joinAt      timestamp                         not null default current_timestamp comment '加入时间',
+    origin      tinyint                           not null comment '加入来源：0创建者 1被邀请 2主动申请',
+    inviter     varchar(20) comment '邀请人，origin为1时不为空',
+    checker     varchar(20) comment '审核人，origin为2时不为空'
+);
+
 /*帖子表*/
 drop table if exists posts;
 create table posts
