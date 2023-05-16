@@ -13,3 +13,7 @@ interface IAppOption {
   addReceMsgsListener: () => void
   // userInfoReadyCallback?: WechatMiniprogram.GetUserInfoSuccessCallback,
 }
+
+interface VanInputEvent<T> {
+  detail: T
+}

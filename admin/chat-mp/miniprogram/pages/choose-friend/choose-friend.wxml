@@ -1,8 +1,20 @@
 <view class="box">
-  <input class="search" placeholder="搜索" />
-  <van-cell value-class="item" wx:for="{{contacts}}" wx:key="username" clickable data-index="{{index}}" bind:click="toggle">
-    <van-checkbox value="{{selectedMap[index]}}" checked-color="{{primaryColor}}"/>
-    <image class="left" src="{{STATIC_BASE_URL + item.avatar}}"></image>
-    <view class="right"> {{item.nickname}} </view>
-  </van-cell>
+  <scroll-view scroll-x enable-flex class="header">
+    <image class="img" wx:for="{{selecteds}}" wx:key="index" src="{{STATIC_BASE_URL + item.avatar}}" data-u="{{item.username}}" bindtap="unselect"></image>
+    <van-field class="search" left-icon="search" placeholder="搜索" bind:input="search" focus></van-field>
+  </scroll-view>
+  <view class="main">
+    <wxs module="wxs" src="./choose-friend.wxs"></wxs>
+    <van-cell value-class="item" wx:for="{{curContacts}}" wx:key="username" clickable data-index="{{index}}" bind:click="toggle">
+      <van-checkbox value="{{wxs.isSelected(item.username, selecteds)}}" class="c" checked-color="{{primaryColor}}" />
+      <image class="left" src="{{STATIC_BASE_URL + item.avatar}}"></image>
+      <view class="right">
+        <text class="nickname"> {{item.nickname}} </text>
+        <text class="username" hidden="{{wxs.isUsernameHidden(item.username, keyword)}}"> {{item.username}} </text>
+      </view>
+    </van-cell>
+  </view>
+  <view class="footer" hidden="{{!selecteds.length}}">
+    <button type="primary" class="btn" size="mini">完成({{selecteds.length}})</button>
+  </view>
 </view>

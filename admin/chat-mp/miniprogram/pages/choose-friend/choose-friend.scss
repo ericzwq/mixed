@@ -1,5 +1,46 @@
+.box {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  padding: 20rpx 0;
+  margin: 0 30rpx;
+  border-bottom: 1px solid #efefef;
+
+  .img {
+    display: block;
+    width: 80rpx;
+    height: 80rpx;
+    border-radius: 8rpx;
+    flex-shrink: 0;
+    margin: 4rpx;
+  }
+}
+
 .search {
-  margin-left: 30rpx;
+  display: flex;
+  height: 88rpx;
+  align-items: center;
+  flex: 1;
+  min-width: 200rpx;
+
+
+  .van-cell {
+    padding-left: 0 !important;
+  }
+}
+
+.main {
+  flex: 1;
+}
+
+.van-icon-search::before {
+  font-size: 16px !important;
+  margin-top: 2px;
 }
 
 
@@ -29,9 +70,30 @@
 
 .right {
   display: flex;
+  flex-direction: column;
   flex-grow: 1;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: space-around;
+  align-items: flex-start;
   height: 100%;
   border-bottom: 1px solid #efefef;
+  padding: 16rpx 0;
+  box-sizing: border-box;
+
+  .nickname {
+    color: #000;
+  }
+  .username {
+    font-size: 11px;
+  }
+}
+
+.footer {
+  padding: 20rpx 30rpx;
+  text-align: right;
+  background: #efefef;
+
+  .btn {
+    font-weight: 400;
+    font-size: 13px;
+  }
 }

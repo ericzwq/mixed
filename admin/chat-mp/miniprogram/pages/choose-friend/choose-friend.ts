@@ -1,24 +1,39 @@
 import { createStoreBindings } from "mobx-miniprogram-bindings";
 import { userStore } from "../../store/user";
-import {STATIC_BASE_URL, primaryColor} from '../../consts/consts'
+import { STATIC_BASE_URL, primaryColor } from '../../consts/consts'
 
-const selecteds = new Set<number>()
 Page({
   data: {
-    selectedMap: [] as boolean[],
+    selecteds: [] as Contact[],
     STATIC_BASE_URL,
-    primaryColor
+    primaryColor,
+    curContacts: [] as Contact[],
+    keyword: ''
   },
   toggle(event: WechatMiniprogram.CustomEvent) {
     const { index } = event.currentTarget.dataset
-    const selected = this.data.selectedMap[index]
-    if (!selected && selecteds.size >= 10) {
-      wx.showToast({ title: '最多选10个', icon: 'error' })
+    const { selecteds } = this.data
+    const contact = this.data.curContacts[index]
+    const selected = selecteds.findIndex(c => c.username === contact.username) > -1
+    if (!selected && selecteds.length >= 100) {
+      wx.showToast({ title: '最多选100个', icon: 'error' })
       return
     }
-    this.data.selectedMap[index] = !selected
-    selected ? selecteds.delete(index) : selecteds.add(index)
-    this.setData({ selectedMap: [...this.data.selectedMap] })
+    if (selected) {
+      selecteds.splice(selecteds.findIndex(c => c.username === contact.username), 1)
+    } else {
+      selecteds.push(contact)
+    }
+    this.setData({ selecteds: [...selecteds] })
+  },
+  search(e: VanInputEvent<string>) {
+    this.setData({ keyword: e.detail, curContacts: userStore.contacts.filter(c => c.nickname.includes(e.detail) || c.username.includes(e.detail)) })
+  },
+  unselect(e: WechatMiniprogram.CustomEvent) {
+    const username: Users.Username = e.currentTarget.dataset.u
+    const { selecteds } = this.data
+    selecteds.splice(selecteds.findIndex(c => c.username === username), 1)
+    this.setData({ selecteds: [...selecteds] })
   },
   storeBindings: {} as StoreBindings,
   onLoad() {
@@ -26,6 +41,7 @@ Page({
       store: userStore,
       fields: ['contacts']
     })
+    this.setData({ curContacts: userStore.contacts })
   },
 
   /**
