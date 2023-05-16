@@ -3,8 +3,8 @@ import {User} from '../../router/user/user-types'
 import {IncomingMessage} from 'http'
 import {getChatData} from './single/single-sql'
 import {
-  ADD_GROUP,
-  ADD_GROUP_RET,
+  JOIN_GROUP,
+  JOIN_GROUP_RET,
   ADD_USER,
   ADD_USER_RET,
   ANSWER, CREAT_GROUP,
@@ -15,7 +15,7 @@ import {
   REC_SG_MSGS,
   SEARCH_USERS,
   SEND_SG_MSG,
-  VOICE_RESULT
+  VOICE_RESULT, GET_GROUP_APLS, READ_GP_MSGS
 } from '../socket-actions'
 import {formatDate, log} from '../../common/utils'
 import client from '../../redis/redis'
@@ -24,8 +24,8 @@ import {getContacts} from './contact/contact'
 import {answer, candidate, offer, voiceResult} from './mediaCall/mediaCall'
 import {CANCELLED} from 'dns'
 import {addUser, addUserRet, getFriendApls, searchUsers} from './user/user'
-import {addGroup, addGroupRet, createGroup, groupInviteRet} from './group/group'
-import {commitSocketSql, socketSqlMiddleware} from '../../db'
+import {joinGroup, joinGroupRet, createGroup, groupInviteRet, getGroupApls, readGpMsgs} from './group/group'
+import {commitSocketSql, rollbackSocketSql, socketSqlMiddleware} from '../../db'
 import {SgMsgReq} from './single/single-types'
 
 const socketMessageRouter = {
@@ -73,8 +73,13 @@ export async function handleMessage(user: User, cookie: string, ws: ExtWebSocket
       const handler = socketMessageRouter.actionHandlerMap[data.action]
       if (!handler) return ws.json({status: 1002, message: '未知的action'})
       await socketSqlMiddleware(ws)
-      await handler(ws, user, data)
-      if (ws.sqlCommit) await commitSocketSql(ws)
+      try {
+        await handler(ws, user, data)
+        if (ws.sqlCommit) await commitSocketSql(ws)
+      } catch (e) {
+        log('【handler error】', e)
+        if (ws.sqlCommit) await rollbackSocketSql(ws)
+      }
       ws.connection.release()
     }
   })
@@ -133,6 +138,8 @@ socketMessageRouter.addHandlers([
 socketMessageRouter.addHandlers([
   {action: CREAT_GROUP, handler: createGroup},
   {action: GROUP_INVITE_RET, handler: groupInviteRet},
-  {action: ADD_GROUP, handler: addGroup},
-  {action: ADD_GROUP_RET, handler: addGroupRet}
+  {action: JOIN_GROUP, handler: joinGroup},
+  {action: JOIN_GROUP_RET, handler: joinGroupRet},
+  {action: GET_GROUP_APLS, handler: getGroupApls},
+  {action: READ_GP_MSGS, handler: readGpMsgs},
 ])

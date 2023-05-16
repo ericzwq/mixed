@@ -115,5 +115,10 @@ export const commitSocketSql = async (ws: ExtWebSocket) => {
   ws.sqlCommit = false
 }
 
+export const rollbackSocketSql = async (ws: ExtWebSocket) => {
+  await executeSocketSql(ws, 'rollback;')
+  ws.sqlCommit = false
+}
+
 export const totalRows = 'SQL_CALC_FOUND_ROWS'
 export const selectTotal = 'SELECT FOUND_ROWS() as totalCount;'

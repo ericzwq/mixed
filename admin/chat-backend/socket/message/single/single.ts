@@ -18,10 +18,10 @@ import {beginSocketSql} from '../../../db'
 
 export const usernameClientMap = {} as { [key in string]?: ExtWebSocket }
 
-export async function sendSgMsg(ws: ExtWebSocket, session: User, data: RequestMessage<SgMsgReq>) {
+export async function sendSgMsg(ws: ExtWebSocket, user: User, data: RequestMessage<SgMsgReq>) {
   await checkMessageParams(ws, sgMsgSchema, data.data, 1001)
   const body = data.data
-  const from = session.username
+  const from = user.username
   const createdAt = formatDate()
   const {type} = body
   if (type === MsgType.audio) handleAudio(body, createdAt) // 音频
@@ -30,7 +30,7 @@ export async function sendSgMsg(ws: ExtWebSocket, session: User, data: RequestMe
   const {result: result2} = await selectLastSgMsg(ws, body.lastId!, from, body.to)
   if (!result2.length) return ws.json({status: 1005, message: 'lastId错误'})
   await beginSocketSql(ws)
-  if (type === MsgType.retract) await handleRetract(ws, body, session.username)
+  if (type === MsgType.retract) await handleRetract(ws, body, user.username)
   let lastMsg = result2[0]
   const messages: SgMsgRes[] = JSON.parse((await selectNewSgMsgs(ws, lastMsg.id)).result[0][0].messages)
   if (messages.length > 0) lastMsg = messages[messages.length - 1]
@@ -60,7 +60,7 @@ export async function sendSgMsg(ws: ExtWebSocket, session: User, data: RequestMe
 }
 
 // 获取历史消息
-export async function getHisSgMsgs(ws: ExtWebSocket, session: User, data: RequestMessage<GetHisSgMsgReq>) {
+export async function getHisSgMsgs(ws: ExtWebSocket, user: User, data: RequestMessage<GetHisSgMsgReq>) {
   await checkMessageParams(ws, getHisSgMsgsSchema, data.data, 1007)
   const {result} = await selectHisSgMsgs(ws, data.data)
   ws.json({action: data.action, data: JSON.parse(result[0][0].messages)})
@@ -83,10 +83,11 @@ async function handleRetract(ws: ExtWebSocket, message: SgMsgReq, from: SgMsgs.F
 }
 
 // 消息已读
-export async function readSgMsgs(ws: ExtWebSocket, session: User, data: RequestMessage<ReadSgMsg>) {
+export async function readSgMsgs(ws: ExtWebSocket, user: User, data: RequestMessage<ReadSgMsg>) {
   await checkMessageParams(ws, readSgMsgSchema, data.data, 1013)
   const {ids, to} = data.data
-  const {result} = await updateSgMsgsRead(ws, ids, session.username, to)
-  ws.json({action: data.action, data: {ids, count: result.changedRows}})
-  result.changedRows > 0 && usernameClientMap[to]?.json({action: REC_READ_SG_MSGS, data: {ids, count: result.changedRows}})
+  const {result} = await updateSgMsgsRead(ws, ids, user.username, to)
+  const from = user.username
+  ws.json({action: data.action, data: {ids, count: result.changedRows, from}})
+  result.changedRows > 0 && usernameClientMap[to]?.json({action: REC_READ_SG_MSGS, data: {ids, count: result.changedRows, from}})
 }

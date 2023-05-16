@@ -110,13 +110,13 @@ create table `groups`
     avatar    varchar(50)                       not null,
     leader    varchar(20)                       not null,
     manager   varchar(400),
-    member    varchar(15800),
+    member    text,
     createdAt timestamp                         not null default current_timestamp comment '创建时间',
     updatedAt timestamp                         not null default current_timestamp on update current_timestamp comment '修改时间',
     updatedBy varchar(20) comment '修改人'
 );
-insert `groups`(name, avatar, leader, manager, member)
-values ('群聊1', '/avatar/th.jpg', 'eric', 'eric2', 'eric3');
+# insert `groups`(name, avatar, leader, manager, member)
+# values ('群聊1', '/avatar/th.jpg', 'eric', 'eric2', 'eric3');
 
 /*群聊表*/
 drop table if exists group_chat;
@@ -131,7 +131,7 @@ create table group_chat
     content   varchar(500)                      not null,
     type      tinyint                           not null comment '0系统消息 1文本 2图片 3音频 4视频',
     status    tinyint                           not null comment '0正常 1撤回',
-    `read`    tinyint                           not null default 0 comment '0未读 1已读',
+    `reads`   text                              not null comment '已读的用户',
     createdAt timestamp                         not null default current_timestamp comment '创建时间'
 );
 create index fakeId_index on group_chat (fakeId);
@@ -169,6 +169,7 @@ drop table if exists group_member;
 create table group_member
 (
     id          bigint auto_increment primary key not null,
+    groupId     bigint                            not null,
     username    varchar(20)                       not null,
     prohibition int                               not null comment '禁言时长 0则未禁言',
     joinAt      timestamp                         not null default current_timestamp comment '加入时间',

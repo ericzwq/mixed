@@ -6,7 +6,6 @@ const sgMsgSchemas = {
   content: Joi.required(),
   fakeId: Joi.string().required(), // 前端消息id
   type: Joi.valid(1, 2, 3, 4, 5),
-  action: Joi.string().required(),
   ext: Joi.string().allow(null, ''),
 }
 
@@ -26,6 +25,6 @@ export const getHisSgMsgsSchema = Joi.object({
 }).unknown().required()
 
 export const readSgMsgSchema = Joi.object({
-  ids: Joi.array(),
+  ids: Joi.array().required().min(1).max(100),
   to: userSchemas.username
 }).unknown().required()

@@ -1,5 +1,5 @@
 import {Users} from "../../../router/user/user-types";
-import {MsgRead, MsgStatus, MsgType} from "../../socket-types";
+import {MsgStatus, MsgType} from "../../socket-types";
 
 export namespace Groups {
   export type Id = number
@@ -23,6 +23,7 @@ export namespace GpMsgs {
   export type Ext = string
   export type Next = Id | null
   export type Pre = Id | null
+  export type Reads = string
 }
 
 export namespace GpMembers {
@@ -56,7 +57,7 @@ export interface GpMsgRes {
   status: MsgStatus
   next: GpMsgs.Next
   pre: GpMsgs.Pre
-  read: MsgRead
+  reads: GpMsgs.Reads
 }
 
 export interface Group {
@@ -74,8 +75,11 @@ export interface Group {
 export namespace GroupApls {
   export type Id = Groups.Id
   export type  Reason = string
-  export type Pre = number
-  export type Next = number
+  export type Pre = Id
+  export type Next = Id
+  export type Invitee = Users.Username
+  export type From = Users.Username
+  export type CreatedAt = string
 
   export enum Type {
     active = 1, // 加群申请
@@ -99,6 +103,12 @@ export interface GroupInviteRetReq {
   status: GroupApls.Status
 }
 
+export interface GroupInviteRetRes {
+  id: GroupApls.Id
+  status: GroupApls.Status
+  createdAt: GroupApls.CreatedAt
+}
+
 export interface AddGroupRetReq {
   to: Users.Username
   status: GroupApls.Status
@@ -107,4 +117,13 @@ export interface AddGroupRetReq {
 export interface CreateGroupReq {
   members: Users.Username[]
   name: Groups.Name
+}
+
+export interface GetGroupAplsReq {
+  lastGroupAplId?: GroupApls.Id
+}
+
+export interface ReadGpMsgsReq {
+  ids: GpMsgs.Id[]
+  to: GpMsgs.To
 }

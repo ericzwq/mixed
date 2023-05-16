@@ -20,13 +20,13 @@ export function addFriendApl(ws: ExtWebSocket, contactId: Contacts.Id, reason: F
     'insert into friend_applications(contactId, reason, status) values (?, ?, 0);', [contactId, reason])
 }
 
-export function selectFriendAplsById(ws: ExtWebSocket, username: Users.Username, id: Users.LastFriendAplId, lastFriendAplId: Users.LastFriendAplId) {
-  const join = id === null ? '=' : '>=' // 传空则只取一条
+export function selectFriendAplsById(ws: ExtWebSocket, username: Users.Username, preId: Users.LastFriendAplId, lastFriendAplId: Users.LastFriendAplId) {
+  const join = preId == null ? '=' : '>=' // 传空则只取一条
   return executeSocketSql<[]>(ws,
     `select f.id friendAplId, contactId, c.master "from", c.sub "to", f.status, f.createdAt
      from friend_applications f
               left join contacts c on f.contactId = c.id
-     where f.id ${join} ? and (c.master = ? or c.sub = ?);`, [id || lastFriendAplId, username, username])
+     where f.id ${join} ? and (c.master = ? or c.sub = ?);`, [preId || lastFriendAplId, username, username])
 }
 
 export function updateLastFriendAplId(ws: ExtWebSocket, usernames: Users.Username[], id: Users.LastFriendAplId) {

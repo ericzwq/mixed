@@ -62,7 +62,7 @@ export async function addUser(ws: ExtWebSocket, user: User, data: RequestMessage
     await client.set((await client.get(from))!, JSON.stringify(user))
     const sessionId = await client.get(to)
     if (sessionId) {
-      const toUser: User = JSON.parse((await client.get(sessionId)) || JSON.stringify({login: false}))
+      const toUser: User = JSON.parse((await client.get(sessionId))!)
       toUser.lastFriendAplId = friendAplId
       await client.set(sessionId, JSON.stringify(toUser))
     }
