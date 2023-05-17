@@ -3,12 +3,11 @@ import {ExtWebSocket, MsgStatus} from "../../socket-types";
 import {Users} from "../../../router/user/user-types";
 import {CreateGroupReq, GpMemberOrigin, GpMembers, GpMsgReq, GpMsgRes, GpMsgs, Group, GroupApls, Groups} from "./group-types";
 import {InsertModal, UpdateModal} from "../../../types/sql-types";
-import Status = GroupApls.Status;
 
 export function addGroup(ws: ExtWebSocket, from: Users.Username, data: CreateGroupReq, createdAt: Groups.CreatedAt) {
-  const {name} = data
+  const {name, avatar} = data
   return executeSocketSql<InsertModal>(ws, 'insert into `groups`(name, avatar, leader, createdAt) values(?, ?, ?, ?);',
-    [name, '/avatar/group-default.png', from, createdAt])
+    [name, avatar, from, createdAt])
 }
 
 export function addGroupMember(ws: ExtWebSocket, from: Users.Username, groupId: Groups.Id, prohibition: GpMembers.prohibition,
@@ -80,12 +79,12 @@ export function selectGroupAplsById(ws: ExtWebSocket, from: Users.Username, preI
     [from, GroupApls.Type.active, from, preId || lastGroupAplId])
 }
 
-export function selectGpMsgReadsById(ws: ExtWebSocket, id: GpMsgs.Id) {
-  return executeSocketSql<{ reads: GpMsgs.Reads }[]>(ws, 'select `reads` from group_chat where id = ?;', [id])
+export function selectGpMsgReadsById(ws: ExtWebSocket, id: GpMsgs.Id, to: GpMsgs.To) {
+  return executeSocketSql<{ reads: GpMsgs.Reads }[]>(ws, 'select `reads` from group_chat where id = ? and `to` = ?;', [id, to])
 }
 
-export function updateGpMsgReads(ws: ExtWebSocket, to: GpMsgs.To, reads: GpMsgs.Reads) {
-  return executeSocketSql<UpdateModal>(ws, 'update group_chat set `reads` = ? where id = ? and `to` = ?;', [reads, to])
+export function updateGpMsgReads(ws: ExtWebSocket, id: GpMsgs.Id, to: GpMsgs.To, reads: GpMsgs.Reads) {
+  return executeSocketSql<UpdateModal>(ws, 'update group_chat set `reads` = ?, readCount = readCount + 1 where id = ? and `to` = ?;', [reads, id, to])
 }
 
 // export function addGroupApl(ws: ExtWebSocket, to: GroupApls.Id, from: Users.Username, reason: GroupApls.Reason) {

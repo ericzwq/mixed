@@ -8,18 +8,20 @@ import {
   selectNewSgMsgs,
   selectSgMsgByFakeId,
   selectSgMsgByIdAndFrom,
-  updateSgMsgNext, updateSgMsgsRead,
+  selectSgMsgReadsById,
+  updateSgMsgNext,
+  updateSgMsgRead,
   updateSgMsgStatus
 } from './single-sql'
-import {REC_SG_MSGS, REC_READ_SG_MSGS} from '../../socket-actions'
-import {getHisSgMsgsSchema, readSgMsgSchema, sgMsgSchema} from './single-schema'
+import {REC_READ_SG_MSGS, REC_SG_MSGS} from '../../socket-actions'
+import {getHisSgMsgsSchema, readSgMsgSchema, sendSgMsgSchema} from './single-schema'
 import {GetHisSgMsgReq, ReadSgMsg, SgMsgReq, SgMsgRes, SgMsgs} from './single-types'
 import {beginSocketSql} from '../../../db'
 
 export const usernameClientMap = {} as { [key in string]?: ExtWebSocket }
 
 export async function sendSgMsg(ws: ExtWebSocket, user: User, data: RequestMessage<SgMsgReq>) {
-  await checkMessageParams(ws, sgMsgSchema, data.data, 1001)
+  await checkMessageParams(ws, sendSgMsgSchema, data.data, 1001)
   const body = data.data
   const from = user.username
   const createdAt = formatDate()
@@ -86,8 +88,14 @@ async function handleRetract(ws: ExtWebSocket, message: SgMsgReq, from: SgMsgs.F
 export async function readSgMsgs(ws: ExtWebSocket, user: User, data: RequestMessage<ReadSgMsg>) {
   await checkMessageParams(ws, readSgMsgSchema, data.data, 1013)
   const {ids, to} = data.data
-  const {result} = await updateSgMsgsRead(ws, ids, user.username, to)
   const from = user.username
-  ws.json({action: data.action, data: {ids, count: result.changedRows, from}})
-  result.changedRows > 0 && usernameClientMap[to]?.json({action: REC_READ_SG_MSGS, data: {ids, count: result.changedRows, from}})
+  const readIds: SgMsgs.Id[] = []
+  for (const id of ids) {
+    const {result} = await selectSgMsgReadsById(ws, id, from, to)
+    if (!result.length || result[0].read === MsgRead.yes) continue
+    await updateSgMsgRead(ws, id, from)
+    readIds.push(id)
+  }
+  ws.json({action: data.action, data: {ids: readIds, from}})
+  usernameClientMap[to]?.json({action: REC_READ_SG_MSGS, data: {ids: readIds, from}})
 }

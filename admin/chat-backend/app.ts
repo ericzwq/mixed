@@ -20,8 +20,8 @@ if ((cluster as any).isMaster) {
   const app = master()
   // const handle = (net as any)._createServerHandle('127.0.0.1', 3000)
   net.createServer(function (socket) {
-    console.log(arguments)
-    workers[0].send('hello', socket)
+    // console.log(arguments)
+    // workers[0].send('hello2', socket)
   }).listen(PORT)
   for (let i = 0, l = isProd ? os.cpus().length : 1; i < l; i++) {
     workers.push((cluster as any).fork())

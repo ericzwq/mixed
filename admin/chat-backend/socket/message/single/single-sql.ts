@@ -98,16 +98,16 @@ export function updateSgMsgStatus(ws: ExtWebSocket, id: SgMsgs.Id, status: MsgSt
   return executeSocketSql<UpdateModal>(ws, 'update single_chat set status = ? where id = ?', [status, id])
 }
 
-export function updateSgMsgsRead(ws: ExtWebSocket, ids: SgMsgs.Id[], from: SgMsgs.From, to: SgMsgs.To) {
-  return executeSocketSql<UpdateModal>(ws, 'update single_chat set `read` = ? where id in (?) and `from` = ? and `to` = ?;', [MsgRead.yes, ids, to, from])
+export function selectSgMsgReadsById(ws: ExtWebSocket, id: SgMsgs.Id, to: SgMsgs.To, from: SgMsgs.From) {
+  return executeSocketSql<{ read: MsgRead }[]>(ws, 'select `read` from single_chat where id = ? and `to` = ? and `from` = ?;', [id, to, from])
+}
+
+export function updateSgMsgRead(ws: ExtWebSocket, id: SgMsgs.Id, from: SgMsgs.To) {
+  return executeSocketSql<UpdateModal>(ws, 'update single_chat set `read` = ? where id = ? and `to` = ?;', [MsgRead.yes, id, from])
 }
 
 export function getChatData(ws: ExtWebSocket, user: User) {
   const {username, leaveTime, loginTime} = user
   return executeSocketSql<SgMsgRes[]>(ws, 'select `from`,`to`,content `data`,type,status,createdAt from single_chat where createdAt > ? and (`from` = ? or `to` = ?);',
     [leaveTime || loginTime, username, username])
-}
-
-export function addGroupMessage(data: GpMsgReq) {
-
 }

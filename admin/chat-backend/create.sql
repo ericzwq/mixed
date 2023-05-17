@@ -107,7 +107,7 @@ create table `groups`
 (
     id        bigint auto_increment primary key not null,
     name      varchar(20)                       not null,
-    avatar    varchar(50)                       not null,
+    avatar    varchar(100)                      not null,
     leader    varchar(20)                       not null,
     manager   varchar(400),
     member    text,
@@ -132,6 +132,7 @@ create table group_chat
     type      tinyint                           not null comment '0系统消息 1文本 2图片 3音频 4视频',
     status    tinyint                           not null comment '0正常 1撤回',
     `reads`   text                              not null comment '已读的用户',
+    readCount int                               not null default 0 comment '已读的用户数',
     createdAt timestamp                         not null default current_timestamp comment '创建时间'
 );
 create index fakeId_index on group_chat (fakeId);

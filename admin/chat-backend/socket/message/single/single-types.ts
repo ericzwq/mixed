@@ -26,7 +26,7 @@ export interface SgMsgReq {
   ext?: SgMsgs.Ext
   lastId?: SgMsgs.Id
   to: SgMsgs.To
-  pre: SgMsgs.Pre
+  pre: SgMsgs.Pre // 额外的
 }
 
 export interface SgMsgRes {

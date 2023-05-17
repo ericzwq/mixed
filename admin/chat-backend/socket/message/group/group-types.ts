@@ -23,7 +23,8 @@ export namespace GpMsgs {
   export type Ext = string
   export type Next = Id | null
   export type Pre = Id | null
-  export type Reads = string
+  export type Reads = Users.Username
+  export type ReadCount = number
 }
 
 export namespace GpMembers {
@@ -43,7 +44,7 @@ export interface GpMsgReq {
   ext?: GpMsgs.Ext
   lastId?: GpMsgs.Id
   to: GpMsgs.To
-  pre: GpMsgs.Pre
+  pre: GpMsgs.Pre // 额外的
 }
 
 export interface GpMsgRes {
@@ -57,7 +58,7 @@ export interface GpMsgRes {
   status: MsgStatus
   next: GpMsgs.Next
   pre: GpMsgs.Pre
-  reads: GpMsgs.Reads
+  readCount: GpMsgs.ReadCount
 }
 
 export interface Group {
@@ -117,6 +118,7 @@ export interface AddGroupRetReq {
 export interface CreateGroupReq {
   members: Users.Username[]
   name: Groups.Name
+  avatar: Groups.Avatar
 }
 
 export interface GetGroupAplsReq {

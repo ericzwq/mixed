@@ -1,7 +1,7 @@
 import {checkMessageParams, createFakeId, formatDate, handleAudio, notifyUpdateUser} from "../../../common/utils";
 import {User, Users} from "../../../router/user/user-types";
 import {ExtWebSocket, MsgStatus, MsgType, RequestMessage} from "../../socket-types";
-import {addGroupRetSchema, addGroupSchema, createGroupSchema, getGroupAplsSchema, groupInviteRetSchema, readGpMsgsSchema} from "./group-schema";
+import {addGroupRetSchema, addGroupSchema, createGroupSchema, getGroupAplsSchema, groupInviteRetSchema, readGpMsgsSchema, sendGpMsgSchema} from "./group-schema";
 import {
   addGpMsg,
   addGroup,
@@ -23,7 +23,7 @@ import {
   CreateGroupReq, GetGroupAplsReq,
   GpMemberOrigin,
   GpMsgReq,
-  GpMsgRes,
+  GpMsgRes, GpMsgs,
   Group,
   GroupApls,
   GroupInviteRetReq,
@@ -34,7 +34,6 @@ import client from "../../../redis/redis";
 import {usernameClientMap} from "../single/single";
 import {REC_ADD_GROUP, REC_GP_MSGS, REC_GROUP_INVITE, REC_GROUP_INVITE_RET, REC_READ_GP_MSGS, REC_SG_MSGS} from "../../socket-actions";
 import {beginSocketSql} from "../../../db";
-import {addGroupMessage} from "../single/single-sql";
 
 // 创建群聊
 export async function createGroup(ws: ExtWebSocket, user: User, data: RequestMessage<CreateGroupReq>) {
@@ -60,7 +59,7 @@ export async function createGroup(ws: ExtWebSocket, user: User, data: RequestMes
     id: msgId,
     next: null,
     status: MsgStatus.normal,
-    reads: ''
+    readCount: 0
   }
   for (const username of members) {
     if (!(await selectUserByUsername(ws, username)).result.length) continue
@@ -109,7 +108,7 @@ export async function groupInviteRet(ws: ExtWebSocket, user: User, data: Request
     } as GpMsgReq
     const {result: {insertId}} = await addGpMsg(ws, from, message, createdAt, '')
     await updateGpMsgNext(ws, insertId, id)
-    const msgRes = JSON.stringify({
+    const msgRes: RequestMessage<GpMsgRes> = {
       action: REC_GP_MSGS,
       data: {
         ...message,
@@ -118,10 +117,10 @@ export async function groupInviteRet(ws: ExtWebSocket, user: User, data: Request
         status: MsgStatus.normal,
         from,
         createdAt,
-        reads: ''
+        readCount: 0
       }
-    })
-    for (const member of group.members) usernameClientMap[member]?.send(msgRes)
+    }
+    groupBroad(group, JSON.stringify(msgRes))
   } else {
     ws.json({action, data: res})
     usernameClientMap[inviter]?.json({action: REC_GROUP_INVITE_RET, data: res})
@@ -142,16 +141,18 @@ export async function readGpMsgs(ws: ExtWebSocket, user: User, data: RequestMess
   const {action, data: {ids, to}} = data
   const group = await getGroupById(ws, to)
   if (!isUserInGroup(from, group)) return ws.json({action, message: '你不在群内', status: 1014})
-  let count = 0
+  await beginSocketSql(ws)
+  const readIds: GpMsgs.Id[] = []
   for (const id of ids) {
-    const {result} = await selectGpMsgReadsById(ws, id)
+    const {result} = await selectGpMsgReadsById(ws, id, to)
     if (!result.length) continue
-    const reads: string[] = result[0].reads.split(',')
+    const reads: string[] = result[0].reads ? result[0].reads.split(',') : []
+    if (reads.includes(from)) continue
     reads.push(from)
-    await updateGpMsgReads(ws, data.data.to, reads.join(','))
-    count++
+    await updateGpMsgReads(ws, id, to, reads.join(','))
+    readIds.push(id)
   }
-  groupBroad(group, JSON.stringify({action: REC_READ_GP_MSGS, data: {ids, count, from}}))
+  groupBroad(group, JSON.stringify({action: REC_READ_GP_MSGS, data: {ids: readIds, from, to}}))
 }
 
 export async function getGroupById(ws: ExtWebSocket, id: Groups.Id): Promise<Group> {
@@ -209,12 +210,48 @@ export async function joinGroup(ws: ExtWebSocket, user: User, data: RequestMessa
 }
 
 // 加群申请回应
-export async function joinGroupRet(ws: ExtWebSocket, session: User, data: RequestMessage<AddGroupRetReq>) {
+export async function joinGroupRet(ws: ExtWebSocket, user: User, data: RequestMessage<AddGroupRetReq>) {
   await checkMessageParams(ws, addGroupRetSchema, 1005)
   const body = data.data
   const {to, status} = body
-  const from = session.username
+  const from = user.username
 
+}
+
+// 群聊
+export async function sendGpMsg(ws: ExtWebSocket, user: User, data: RequestMessage<GpMsgReq>) { // 群聊
+  const body = data.data
+  await checkMessageParams(ws, sendGpMsgSchema, body, 1007)
+  const to = body.to
+  const group = await getGroupById(ws, to)
+  const from = user.username
+  if (!isUserInGroup(from, group)) return ws.json({status: 1006, message: '您不在群内'})
+  await beginSocketSql(ws)
+  const createdAt = formatDate()
+  if (body.type === MsgType.audio) handleAudio(body, createdAt) // 音频
+  const {result: [{id}]} = await selectLastGpMsg(ws, body.lastId!, to)
+  const message: GpMsgReq = {
+    pre: id,
+    content: body.content,
+    type: body.type,
+    fakeId: body.fakeId,
+    to
+  }
+  const {result: {insertId}} = await addGpMsg(ws, from, message, createdAt, '')
+  await updateGpMsgNext(ws, insertId, id)
+  const msgRes: RequestMessage<GpMsgRes> = {
+    action: REC_GP_MSGS,
+    data: {
+      ...message,
+      id: insertId,
+      next: null,
+      status: MsgStatus.normal,
+      from,
+      createdAt,
+      readCount: 0
+    }
+  }
+  groupBroad(group, JSON.stringify(msgRes))
 }
 
 // 群广播
@@ -222,19 +259,4 @@ function groupBroad(group: Group, data: string) {
   usernameClientMap[group.leader]?.send(data)
   group.managers.forEach(manager => usernameClientMap[manager]?.send(data))
   group.members.forEach(member => usernameClientMap[member]?.send(data))
-}
-
-// 群聊
-async function groupChat(ws: ExtWebSocket, message: GpMsgReq, user: User) { // 群聊
-  const group = await getGroupById(ws, message.to)
-  const {username} = user
-  if (!isUserInGroup(username, group)) return ws.json({status: 1006, message: '您不在群内'})
-  const createdAt = formatDate()
-  if (message.type === MsgType.audio) handleAudio(message, createdAt) // 音频
-  const res = JSON.stringify({
-    data: [{data: message.content, type: message.type, fakeId: message.fakeId, from: user.username, to: message.to, createdAt}],
-    action: REC_SG_MSGS
-  })
-  await addGroupMessage(message)
-  groupBroad(group, res)
 }

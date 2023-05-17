@@ -38,7 +38,7 @@ export default (port: number) => {
   app.use(session(sessionConfig, app))
 
   process.on('message', (e, handler) => {
-    console.log(e, process.pid)
+    console.log('【message】', e, process.pid)
     wss.emit('connection', handler as any)
   })
 

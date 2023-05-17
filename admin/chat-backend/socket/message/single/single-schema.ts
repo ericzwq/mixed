@@ -9,7 +9,7 @@ const sgMsgSchemas = {
   ext: Joi.string().allow(null, ''),
 }
 
-export const sgMsgSchema = Joi.object({
+export const sendSgMsgSchema = Joi.object({
   to: userSchemas.username,
   content: sgMsgSchemas.content,
   fakeId: sgMsgSchemas.fakeId,

@@ -7,21 +7,31 @@ const groupSchemas = {
   id: Joi.number().required(),
   friendAplId: Joi.number().required(),
   reason: Joi.string().max(50).required(),
-  name: Joi.string().max(20),
-  avatar: Joi.string().max(20)
+  name: Joi.string().max(20).required(),
+  avatar: Joi.string().max(100).required()
 }
 
 const gpMsgSchemas = {
-  id: Joi.number().required(),
+  id: Joi.number(),
   content: Joi.required(),
   fakeId: Joi.string().required(), // 前端消息id
   type: Joi.valid(1, 2, 3, 4, 5, 6),
   ext: Joi.string().allow(null, ''),
 }
 
+export const sendGpMsgSchema = Joi.object({
+  to: groupSchemas.id,
+  content: gpMsgSchemas.content,
+  fakeId: gpMsgSchemas.fakeId,
+  type: gpMsgSchemas.type,
+  ext: gpMsgSchemas.ext,
+  lastId: gpMsgSchemas.id.allow(null)
+}).unknown().required()
+
 export const createGroupSchema = Joi.object({
   members: Joi.array().max(10),
   name: groupSchemas.name,
+  avatar: groupSchemas.avatar
 }).unknown().required()
 
 export const addGroupSchema = Joi.object({

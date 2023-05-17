@@ -3,15 +3,16 @@ fetch(
   {body: JSON.stringify({username: 'eric', password: '111111'}), method: 'POST', headers: {'Content-Type': 'application/json'}})
 
 let ws = new WebSocket('wss://localhost:5001/?cookie='
-  + encodeURIComponent('session-id=017784bb-694b-4c6a-b246-b9af4201121b;session-id.sig=60mtJJsU1qByIaIoJ6oSC2zuX0s;'))
+  + encodeURIComponent('session-id=1761f7d1-02eb-416a-9181-713eaf0ca12b;session-id.sig=0DNLxBs-ZTfc0Dv2d4cs0F_q024;'))
 ws.json = (data) => ws.send(JSON.stringify(data))
 
 ws.json({action: 'addUser', data: {username: 'eric4', reason: 'reason', remark: 'remark'}})
-ws.json({action: 'sendSgMsg', data: {target: '1-eric4', fakeId: Date.now().toString(), type: 1, content: Date.now().toString(36), lastId: null}})
-ws.json({action: 'sendSgMsg', data: {target: '1-eric4', fakeId: Date.now().toString(), type: 5, content: 30, lastId: null}})
+ws.json({action: 'sendSgMsg', data: {to: 'eric4', fakeId: Date.now().toString(), type: 1, content: Date.now().toString(36), lastId: null}})
+ws.json({action: 'sendSgMsg', data: {to: 'eric4', fakeId: Date.now().toString(), type: 5, content: 30, lastId: null}})
 ws.json({action: 'getHisSgMsgs', data: {maxId: 23, count: 20, minId: null}})
 ws.json({action: 'createGroup', data: {name: '群聊1', members: ['eric2', 'eric3']}})
-
+ws.json({action: 'readGpMsgs', data: {ids: [2, 3], to: 1}})
+ws.json({action: 'sendSgMsg', data: {to: 1, fakeId: Date.now().toString(), type: 1, content: Date.now().toString(36), lastId: null}})
 
 fetch(
   'https://localhost:5001/login',

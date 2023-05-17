@@ -7,6 +7,7 @@ export const selectPostsUrl = 'selectPosts'
 export const uploadUrl = 'upload'
 export const likePostUrl = 'likePost'
 export const commentPostUrl = 'commentPost'
+export const upAvatarUrl = 'upAvatar'
 
 export const noLoginUrlSet = new Set([
   loginUrl, registerUrl, getEmailCodeUrl, 'test'
