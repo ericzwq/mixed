@@ -1,14 +1,22 @@
 import { createStoreBindings } from "mobx-miniprogram-bindings";
 import { userStore } from "../../store/user";
-import { STATIC_BASE_URL, primaryColor } from '../../consts/consts'
+import { BASE_URL, primaryColor } from '../../consts/consts'
+import { CreateGroupPath } from "../../consts/routes";
 
 Page({
   data: {
     selecteds: [] as Contact[],
-    STATIC_BASE_URL,
+    STATIC_BASE_URL: BASE_URL,
     primaryColor,
     curContacts: [] as Contact[],
     keyword: ''
+  },
+  onLoad() {
+    this.storeBindings = createStoreBindings(this, {
+      store: userStore,
+      fields: ['contacts']
+    })
+    this.setData({ curContacts: userStore.contacts })
   },
   toggle(event: WechatMiniprogram.CustomEvent) {
     const { index } = event.currentTarget.dataset
@@ -36,14 +44,9 @@ Page({
     this.setData({ selecteds: [...selecteds] })
   },
   storeBindings: {} as StoreBindings,
-  onLoad() {
-    this.storeBindings = createStoreBindings(this, {
-      store: userStore,
-      fields: ['contacts']
-    })
-    this.setData({ curContacts: userStore.contacts })
+  toCreateGroup() {
+    wx.navigateTo({ url: CreateGroupPath + '?data=' + JSON.stringify(this.data.selecteds.map(c => c.username)) })
   },
-
   /**
    * 生命周期函数--监听页面初次渲染完成
    */

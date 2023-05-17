@@ -57,6 +57,13 @@
                     "query": "",
                     "launchMode": "default",
                     "scene": null
+                },
+                {
+                    "name": "",
+                    "pathName": "pages/create-group/create-group",
+                    "query": "data=%5B%22eric2%22%2C%22eric3%22%2C%22eric4%22%5D",
+                    "launchMode": "default",
+                    "scene": null
                 }
             ]
         }

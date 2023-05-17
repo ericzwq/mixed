@@ -10,8 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@vant/weapp": "^1.10.18",
     "mobx-miniprogram": "^4.13.2",
-    "mobx-miniprogram-bindings": "^2.1.5",
-    "vant-weapp": "^0.5.29"
+    "mobx-miniprogram-bindings": "^2.1.5"
+  },
+  "devDependencies": {
+    "miniprogram-api-typings": "^3.9.1"
   }
 }

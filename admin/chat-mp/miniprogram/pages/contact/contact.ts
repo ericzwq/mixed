@@ -1,5 +1,5 @@
 import { createStoreBindings } from 'mobx-miniprogram-bindings'
-import { STATIC_BASE_URL } from '../../consts/consts'
+import { BASE_URL } from '../../consts/consts'
 import { GroupsPath, NewFriendsPath, UserDetailPath } from '../../consts/routes'
 import { chatSocket } from '../../socket/socket'
 import { ADD_USER, REC_ADD_USER } from '../../socket/socket-actions'
@@ -7,7 +7,7 @@ import { userStore } from '../../store/store'
 
 Page({
   data: {
-    STATIC_BASE_URL,
+    STATIC_BASE_URL: BASE_URL,
     newFriendCount: ''
   },
   toDetail(e: WechatMiniprogram.CustomEvent) {

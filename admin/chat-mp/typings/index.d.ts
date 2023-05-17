@@ -1,4 +1,5 @@
 /// <reference path="./types/index.d.ts" />
+/// <reference path="../miniprogram/node_modules/miniprogram-api-typings/index.d.ts" />
 
 
 interface IAppOption {
@@ -16,4 +17,8 @@ interface IAppOption {
 
 interface VanInputEvent<T> {
   detail: T
+}
+
+interface PageOptions {
+  data?: string
 }

@@ -3,7 +3,7 @@
     <image class="img" wx:for="{{selecteds}}" wx:key="index" src="{{STATIC_BASE_URL + item.avatar}}" data-u="{{item.username}}" bindtap="unselect"></image>
     <van-field class="search" left-icon="search" placeholder="搜索" bind:input="search" focus></van-field>
   </scroll-view>
-  <view class="main">
+  <scroll-view class="main" scroll-y enable-flex>
     <wxs module="wxs" src="./choose-friend.wxs"></wxs>
     <van-cell value-class="item" wx:for="{{curContacts}}" wx:key="username" clickable data-index="{{index}}" bind:click="toggle">
       <van-checkbox value="{{wxs.isSelected(item.username, selecteds)}}" class="c" checked-color="{{primaryColor}}" />
@@ -13,8 +13,8 @@
         <text class="username" hidden="{{wxs.isUsernameHidden(item.username, keyword)}}"> {{item.username}} </text>
       </view>
     </van-cell>
-  </view>
+  </scroll-view>
   <view class="footer" hidden="{{!selecteds.length}}">
-    <button type="primary" class="btn" size="mini">完成({{selecteds.length}})</button>
+    <button type="primary" class="btn" size="mini" bindtap="toCreateGroup">完成({{selecteds.length}})</button>
   </view>
 </view>

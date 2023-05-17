@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "van-cell-group": "@vant/weapp/cell-group",
+    "van-field": "@vant/weapp/field",
+    "van-uploader": "@vant/weapp/uploader"
+  },
+  "navigationBarTitleText": "创建群聊"
+}

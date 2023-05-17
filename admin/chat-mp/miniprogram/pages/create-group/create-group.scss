@@ -1,0 +1,16 @@
+.title {
+  padding-left: 30rpx;
+  font-size: 12px;
+}
+
+.margin {
+  margin-top: 60rpx;
+}
+
+.btn {
+  margin-top: 140rpx;
+}
+
+.van-cell-group::after {
+  border: none !important;
+}

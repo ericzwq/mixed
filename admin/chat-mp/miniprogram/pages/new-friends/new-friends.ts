@@ -1,5 +1,5 @@
 import { createStoreBindings } from 'mobx-miniprogram-bindings'
-import { STATIC_BASE_URL } from '../../consts/consts'
+import { BASE_URL } from '../../consts/consts'
 import { FriendSettingPath } from '../../consts/routes'
 import { chatSocket } from '../../socket/socket'
 import { ADD_USER_RET, REC_ADD_USER } from '../../socket/socket-actions'
@@ -10,7 +10,7 @@ Page({
    * 页面的初始数据
    */
   data: {
-    STATIC_BASE_URL,
+    STATIC_BASE_URL: BASE_URL,
     friendApls: [] as FriendApl[]
   },
 

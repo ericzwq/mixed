@@ -1,6 +1,6 @@
 import { createStoreBindings } from 'mobx-miniprogram-bindings'
 import { userStore } from '../../store/store'
-import { LOAD_MESSAGE_COUNT, STATIC_BASE_URL } from '../../consts/consts'
+import { LOAD_MESSAGE_COUNT, BASE_URL } from '../../consts/consts'
 import { chatSocket, voiceSocket } from '../../socket/socket'
 import { formatDate, formatSimpleDate } from '../../common/utils'
 import { ANSWER, CANDIDATE, OFFER, RECE_SG_MSGS, SEND_SG_MSG, VOICE_RESULT } from '../../socket/socket-actions'
@@ -17,7 +17,7 @@ Page({
     keyboardUp: false,
     windowHeight: 0,
     type: '1', // 1单聊 2群聊
-    STATIC_BASE_URL,
+    STATIC_BASE_URL: BASE_URL,
     viewMessages: [] as Message[],
     saveTime: 0,
     // _saveStatus: '',
@@ -510,7 +510,7 @@ Page({
     }
     this.data.viewMessages[i].isPlay = true
     const iac = this.data._innerAudioContext
-    iac.src = STATIC_BASE_URL + data.data
+    iac.src = BASE_URL + data.data
     iac.play()
     this.setData({ _audioPlayIndex: i, viewMessages: this.data.viewMessages })
   },

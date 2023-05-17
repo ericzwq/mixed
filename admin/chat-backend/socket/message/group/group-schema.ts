@@ -8,7 +8,7 @@ const groupSchemas = {
   friendAplId: Joi.number().required(),
   reason: Joi.string().max(50).required(),
   name: Joi.string().max(20).required(),
-  avatar: Joi.string().max(100).required()
+  avatar: Joi.string().max(100)
 }
 
 const gpMsgSchemas = {
@@ -29,7 +29,7 @@ export const sendGpMsgSchema = Joi.object({
 }).unknown().required()
 
 export const createGroupSchema = Joi.object({
-  members: Joi.array().max(10),
+  members: Joi.array().max(100),
   name: groupSchemas.name,
   avatar: groupSchemas.avatar
 }).unknown().required()

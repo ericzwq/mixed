@@ -1,6 +1,5 @@
 {
   "usingComponents": {
-    "van-badge": "vant-weapp/badge",
     "more": "../../components/more/more"
   }
 }

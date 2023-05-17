@@ -118,7 +118,7 @@ export interface AddGroupRetReq {
 export interface CreateGroupReq {
   members: Users.Username[]
   name: Groups.Name
-  avatar: Groups.Avatar
+  avatar?: Groups.Avatar
 }
 
 export interface GetGroupAplsReq {

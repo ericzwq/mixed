@@ -7,7 +7,7 @@ import {InsertModal, UpdateModal} from "../../../types/sql-types";
 export function addGroup(ws: ExtWebSocket, from: Users.Username, data: CreateGroupReq, createdAt: Groups.CreatedAt) {
   const {name, avatar} = data
   return executeSocketSql<InsertModal>(ws, 'insert into `groups`(name, avatar, leader, createdAt) values(?, ?, ?, ?);',
-    [name, avatar, from, createdAt])
+    [name, avatar || '/avatar/group-default.png', from, createdAt])
 }
 
 export function addGroupMember(ws: ExtWebSocket, from: Users.Username, groupId: Groups.Id, prohibition: GpMembers.prohibition,

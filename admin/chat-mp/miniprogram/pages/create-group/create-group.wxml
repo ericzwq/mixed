@@ -1,0 +1,7 @@
+<van-cell-group>
+  <text class="title">头像：</text>
+  <van-uploader file-list="{{ fileList }}" bind:after-read="afterRead" />
+  <view class="title margin">群聊名称：</view>
+  <van-field value="{{ formData.remark }}" bind:input="remarkChange" placeholder="请输入群聊名称" error-message="{{errors.remark}}" required />
+  <button type="primary" class="btn" bindtap="addUser">完成</button>
+</van-cell-group>

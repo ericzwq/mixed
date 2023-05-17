@@ -1,12 +1,12 @@
 import { createStoreBindings } from 'mobx-miniprogram-bindings'
 import { userStore } from "../../store/store"
-import { STATIC_BASE_URL } from '../../consts/consts'
+import { BASE_URL } from '../../consts/consts'
 import { ChatDetailPath } from '../../consts/routes'
 
 Page({
   data: {
     showHoverBtn: false,
-    STATIC_BASE_URL,
+    STATIC_BASE_URL: BASE_URL,
   },
   handleLongPress() {
     this.setData({ showHoverBtn: true })
