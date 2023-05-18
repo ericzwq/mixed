@@ -15,7 +15,7 @@ import {
   REC_SG_MSGS,
   SEARCH_USERS,
   SEND_SG_MSG,
-  VOICE_RESULT, GET_GROUP_APLS, READ_GP_MSGS, SEND_GP_MSG
+  VOICE_RESULT, GET_GROUP_APLS, READ_GP_MSGS, SEND_GP_MSG, GROUP_INVITE, GET_HIS_GP_MSGS
 } from '../socket-actions'
 import {formatDate, log} from '../../common/utils'
 import client from '../../redis/redis'
@@ -24,7 +24,7 @@ import {getContacts} from './contact/contact'
 import {answer, candidate, offer, voiceResult} from './mediaCall/mediaCall'
 import {CANCELLED} from 'dns'
 import {addUser, addUserRet, getFriendApls, searchUsers} from './user/user'
-import {joinGroup, joinGroupRet, createGroup, groupInviteRet, getGroupApls, readGpMsgs, sendGpMsg} from './group/group'
+import {joinGroup, joinGroupRet, createGroup, groupInviteRet, getGroupApls, readGpMsgs, sendGpMsg, groupInvite, getHisGpMsgs} from './group/group'
 import {commitSocketSql, rollbackSocketSql, socketSqlMiddleware} from '../../db'
 import {SgMsgReq} from './single/single-types'
 
@@ -137,10 +137,12 @@ socketMessageRouter.addHandlers([
 ])
 socketMessageRouter.addHandlers([
   {action: CREAT_GROUP, handler: createGroup},
+  {action: GROUP_INVITE, handler: groupInvite},
   {action: GROUP_INVITE_RET, handler: groupInviteRet},
   {action: JOIN_GROUP, handler: joinGroup},
   {action: JOIN_GROUP_RET, handler: joinGroupRet},
   {action: GET_GROUP_APLS, handler: getGroupApls},
   {action: READ_GP_MSGS, handler: readGpMsgs},
   {action: SEND_GP_MSG, handler: sendGpMsg},
+  {action: GET_HIS_GP_MSGS, handler: getHisGpMsgs},
 ])

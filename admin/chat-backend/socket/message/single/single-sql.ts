@@ -52,13 +52,11 @@ export function updateFriendAplStatus(ws: ExtWebSocket, id: FriendApls.Id, conta
 
 export function selectSgMsgByFakeId(ws: ExtWebSocket, fakeId: SgMsgs.FakeId) {
   return executeSocketSql<[]>(ws,
-    `select id
-     from single_chat
-     where fakeId = ?;`, [fakeId])
+    'select 1 from single_chat where fakeId = ?;', [fakeId])
 }
 
-export function selectNewSgMsgs(ws: ExtWebSocket, id: SgMsgs.Id | null) {
-  return executeSocketSql<[[{ messages: string }]]>(ws, `call selectNewSgMsgs(?, 20);`, [id])
+export function selectNewSgMsgs(ws: ExtWebSocket, preId: SgMsgs.Id | null, count = 20) {
+  return executeSocketSql<[[{ messages: string }]]>(ws, `call selectNewSgMsgs(?, ?);`, [preId, count])
 }
 
 // 根据lastId获取当前客户端最后一条消息
@@ -91,7 +89,7 @@ export function addSgMsg(ws: ExtWebSocket, from: Users.Username, data: SgMsgReq,
 
 export function selectSgMsgByIdAndFrom(ws: ExtWebSocket, id: SgMsgs.Id, from: SgMsgs.From) {
   return executeSocketSql<{ createdAt: SgMsgs.CreatedAt, status: MsgStatus }[]>(ws,
-    'select \`to\`, createdAt, status from single_chat where id = ? and \`from\` = ?;', [id, from])
+    'select `to`, createdAt, status from single_chat where id = ? and `from` = ?;', [id, from])
 }
 
 export function updateSgMsgStatus(ws: ExtWebSocket, id: SgMsgs.Id, status: MsgStatus) {

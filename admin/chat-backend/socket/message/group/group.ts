@@ -1,39 +1,49 @@
-import {checkMessageParams, createFakeId, formatDate, handleAudio, notifyUpdateUser} from "../../../common/utils";
+import {checkMessageParams, createFakeId, formatDate, handleAudio, notifyUpdateUser, updateUser} from "../../../common/utils";
 import {User, Users} from "../../../router/user/user-types";
-import {ExtWebSocket, MsgStatus, MsgType, RequestMessage} from "../../socket-types";
-import {addGroupRetSchema, addGroupSchema, createGroupSchema, getGroupAplsSchema, groupInviteRetSchema, readGpMsgsSchema, sendGpMsgSchema} from "./group-schema";
+import {ExtWebSocket, MsgRead, MsgStatus, MsgType, RequestMessage} from "../../socket-types";
+import {
+  addGroupRetSchema,
+  addGroupSchema,
+  createGroupSchema,
+  getGroupAplsSchema, getHisGpMsgsSchema,
+  groupInviteRetSchema,
+  groupInviteSchema,
+  readGpMsgsSchema,
+  sendGpMsgSchema
+} from "./group-schema";
 import {
   addGpMsg,
   addGroup,
   addGroupApl,
   addGroupMember,
-  resetGroupApl, selectGpMsgReadsById,
+  resetGroupApl, selectGpMsgByFakeId, selectGpMsgByIdAndFrom, selectGpMsgReadsById,
   selectGroupAplByAddGroup,
   selectGroupAplByInvite, selectGroupAplsById,
-  selectGroupById,
-  selectLastGpMsg,
+  selectGroupById, selectHisGpMsgs,
+  selectLastGpMsg, selectNewGpMsgs,
   selectUserByUsername,
-  updateGpMsgNext, updateGpMsgReads,
+  updateGpMsgNext, updateGpMsgReads, updateGpMsgStatus,
   updateGroupAplStatus,
   updateGroupsMember
 } from "./group-sql";
 import {
   AddGroupReq,
   AddGroupRetReq,
-  CreateGroupReq, GetGroupAplsReq,
+  CreateGroupReq, GetGroupAplsReq, GetHisGpMsgReq,
   GpMemberOrigin,
   GpMsgReq,
   GpMsgRes, GpMsgs,
   Group,
-  GroupApls,
+  GroupApls, GroupInviteReq,
   GroupInviteRetReq,
   GroupInviteRetRes,
   Groups, ReadGpMsgsReq
 } from "./group-types";
 import client from "../../../redis/redis";
 import {usernameClientMap} from "../single/single";
-import {REC_ADD_GROUP, REC_GP_MSGS, REC_GROUP_INVITE, REC_GROUP_INVITE_RET, REC_READ_GP_MSGS, REC_SG_MSGS} from "../../socket-actions";
+import {REC_ADD_GROUP, REC_GP_MSGS, REC_GROUP_INVITE, REC_GROUP_INVITE_RET, REC_READ_GP_MSGS} from "../../socket-actions";
 import {beginSocketSql} from "../../../db";
+import {selectHisSgMsgs} from "../single/single-sql";
 
 // 创建群聊
 export async function createGroup(ws: ExtWebSocket, user: User, data: RequestMessage<CreateGroupReq>) {
@@ -61,20 +71,26 @@ export async function createGroup(ws: ExtWebSocket, user: User, data: RequestMes
     status: MsgStatus.normal,
     readCount: 0
   }
-  for (const username of members) {
-    if (!(await selectUserByUsername(ws, username)).result.length) continue
-    const {result: {insertId: groupAplId}} = await addGroupApl(ws, groupId, from, username, null)
-    usernameClientMap[username]?.json({action: REC_GROUP_INVITE, data: {id: groupAplId, groupId, from, status: GroupApls.Status.pending, createdAt}})
-    const sessionId = await client.get(username)
-    if (sessionId) {
-      const toUser: User = JSON.parse((await client.get(sessionId))!)
-      toUser.lastGroupAplId = groupAplId
-      await client.set(sessionId, JSON.stringify(toUser))
-    }
-    notifyUpdateUser(username)
-  }
+  await broadGroupInvite(ws, members, groupId, from, createdAt)
   ws.json({action, data: {id: groupId, from, createdAt}})
   ws.json({action: REC_GP_MSGS, data: res})
+}
+
+// 邀请入群
+export async function groupInvite(ws: ExtWebSocket, user: User, data: RequestMessage<GroupInviteReq>) {
+  await checkMessageParams(ws, groupInviteSchema, data.data, 1019)
+  const {action, data: {members, to}} = data
+  const group = await getGroupById(ws, to)
+  const from = user.username
+  if (!isUserInGroup(from, group)) return ws.json({action, message: '你不在群内', status: 1020})
+  await beginSocketSql(ws)
+  const groupId = group.id
+  const createdAt = formatDate()
+  for (let i = 0, l = members.length; i < l; i++) {
+    if (isUserInGroup(members[i], group)) delete members[i]
+  }
+  await broadGroupInvite(ws, members, groupId, from, createdAt)
+  ws.json({action, data: {to, members: members.filter(() => true)}})
 }
 
 // 群邀请回应
@@ -92,6 +108,7 @@ export async function groupInviteRet(ws: ExtWebSocket, user: User, data: Request
   const res: GroupInviteRetRes = {...data.data, createdAt}
   if (status === GroupApls.Status.accept) { // 通知入群
     const group = await getGroupById(ws, groupId)
+    if (isUserInGroup(from, group)) return ws.json({action, message: '你已在群内', status: 1011})
     group.members.add(from)
     group.member = Array.from(group.members).join(',')
     await updateGroupsMember(ws, groupId, group.member)
@@ -120,7 +137,7 @@ export async function groupInviteRet(ws: ExtWebSocket, user: User, data: Request
         readCount: 0
       }
     }
-    groupBroad(group, JSON.stringify(msgRes))
+    broadGpMsg(group, JSON.stringify(msgRes))
   } else {
     ws.json({action, data: res})
     usernameClientMap[inviter]?.json({action: REC_GROUP_INVITE_RET, data: res})
@@ -152,7 +169,7 @@ export async function readGpMsgs(ws: ExtWebSocket, user: User, data: RequestMess
     await updateGpMsgReads(ws, id, to, reads.join(','))
     readIds.push(id)
   }
-  groupBroad(group, JSON.stringify({action: REC_READ_GP_MSGS, data: {ids: readIds, from, to}}))
+  broadGpMsg(group, JSON.stringify({action: REC_READ_GP_MSGS, data: {ids: readIds, from, to}}))
 }
 
 export async function getGroupById(ws: ExtWebSocket, id: Groups.Id): Promise<Group> {
@@ -164,7 +181,7 @@ export async function getGroupById(ws: ExtWebSocket, id: Groups.Id): Promise<Gro
     const {result} = await selectGroupById(ws, id)
     if (!result.length) {
       ws.json({status: 1004, message: '未知的群聊id：' + id})
-      return Promise.reject()
+      return Promise.reject('未知的群聊id')
     }
     group = result[0]
   }
@@ -220,43 +237,80 @@ export async function joinGroupRet(ws: ExtWebSocket, user: User, data: RequestMe
 
 // 群聊
 export async function sendGpMsg(ws: ExtWebSocket, user: User, data: RequestMessage<GpMsgReq>) { // 群聊
-  const body = data.data
+  const {action, data: body} = data
   await checkMessageParams(ws, sendGpMsgSchema, body, 1007)
-  const to = body.to
+  const {to, type, fakeId} = body
   const group = await getGroupById(ws, to)
   const from = user.username
-  if (!isUserInGroup(from, group)) return ws.json({status: 1006, message: '您不在群内'})
+  if (!isUserInGroup(from, group)) return ws.json({action, status: 1006, message: '您不在群内'})
+  const {result} = await selectGpMsgByFakeId(ws, fakeId)
+  if (result.length) return ws.json({action, status: 1008, message: 'fakeId重复'})
+  const {result: result2} = await selectLastGpMsg(ws, body.lastId!, to)
+  if (!result2.length) return ws.json({action, status: 1009, message: 'lastId错误'})
   await beginSocketSql(ws)
   const createdAt = formatDate()
-  if (body.type === MsgType.audio) handleAudio(body, createdAt) // 音频
-  const {result: [{id}]} = await selectLastGpMsg(ws, body.lastId!, to)
-  const message: GpMsgReq = {
-    pre: id,
+  if (type === MsgType.audio) handleAudio(body, createdAt) // 音频
+  if (type === MsgType.retract) await handleRetract(ws, body, from)
+  let lastMsg = result2[0]
+  const messages: GpMsgRes[] = JSON.parse((await selectNewGpMsgs(ws, lastMsg.id)).result[0][0].messages)
+  if (messages.length > 0) lastMsg = messages[messages.length - 1]
+  body.pre = lastMsg.id
+  const {result: {insertId}} = await addGpMsg(ws, from, body, createdAt, '')
+  await updateGpMsgNext(ws, insertId, lastMsg.id)
+  const message: GpMsgRes = {
+    id: insertId,
+    pre: body.pre,
+    next: null,
+    status: MsgStatus.normal,
     content: body.content,
-    type: body.type,
-    fakeId: body.fakeId,
-    to
+    type,
+    fakeId,
+    from,
+    to,
+    createdAt,
+    readCount: 0
   }
-  const {result: {insertId}} = await addGpMsg(ws, from, message, createdAt, '')
-  await updateGpMsgNext(ws, insertId, id)
-  const msgRes: RequestMessage<GpMsgRes> = {
-    action: REC_GP_MSGS,
-    data: {
-      ...message,
-      id: insertId,
-      next: null,
-      status: MsgStatus.normal,
-      from,
-      createdAt,
-      readCount: 0
-    }
-  }
-  groupBroad(group, JSON.stringify(msgRes))
+  messages.push(message)
+  ws.json({action: REC_GP_MSGS, data: messages})
+  broadGpMsg(group, JSON.stringify({action: REC_GP_MSGS, data: [message]}), from)
 }
 
-// 群广播
-function groupBroad(group: Group, data: string) {
-  usernameClientMap[group.leader]?.send(data)
-  group.managers.forEach(manager => usernameClientMap[manager]?.send(data))
-  group.members.forEach(member => usernameClientMap[member]?.send(data))
+// 历史消息
+export async function getHisGpMsgs(ws: ExtWebSocket, user: User, data: RequestMessage<GetHisGpMsgReq>) {
+  await checkMessageParams(ws, getHisGpMsgsSchema, data.data, 1001)
+  const {result} = await selectHisGpMsgs(ws, data.data)
+  ws.json({action: data.action, data: JSON.parse(result[0][0].messages)})
+}
+
+// 处理撤回
+async function handleRetract(ws: ExtWebSocket, message: GpMsgReq, from: GpMsgs.From) {
+  const handler = async () => {
+    const id = message.content as number
+    const {result} = await selectGpMsgByIdAndFrom(ws, id, from)
+    if (!result.length) return ws.json({message: 'content不匹配', status: 1010})
+    const {createdAt, status} = result[0]
+    if (status === MsgStatus.retract) return ws.json({message: '该消息已撤回', status: 1011})
+    if (Date.now() - new Date(createdAt).getTime() > 120000) return ws.json({message: '超过2分钟无法撤回', status: 1012})
+    const {result: result2} = await updateGpMsgStatus(ws, id, MsgStatus.retract)
+    if (result2.changedRows === 0) return ws.json({message: '撤回失败', status: 1013})
+    return true
+  }
+  if (await handler() !== true) return Promise.reject('撤回群消息异常')
+}
+
+// 广播群消息
+function broadGpMsg(group: Group, data: string, self?: Users.Username) {
+  const usernames = [group.leader, ...Array.from(group.managers), ...Array.from(group.members)]
+  self && (usernames[usernames.indexOf(self)] = '')
+  for (const username of usernames) usernameClientMap[username]?.send(data)
+}
+
+// 广播群邀请
+async function broadGroupInvite(ws: ExtWebSocket, members: Users.Username[], groupId: Groups.Id, from: Users.Username, createdAt: GroupApls.CreatedAt) {
+  for (const username of members) {
+    if (!username || !(await selectUserByUsername(ws, username)).result.length) continue
+    const {result: {insertId: groupAplId}} = await addGroupApl(ws, groupId, from, username, null)
+    usernameClientMap[username]?.json({action: REC_GROUP_INVITE, data: {id: groupAplId, groupId, from, status: GroupApls.Status.pending, createdAt}})
+    await updateUser(username, 'lastGroupAplId', groupAplId)
+  }
 }

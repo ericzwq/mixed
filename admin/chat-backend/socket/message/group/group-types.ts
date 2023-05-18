@@ -1,5 +1,6 @@
 import {Users} from "../../../router/user/user-types";
 import {MsgStatus, MsgType} from "../../socket-types";
+import {SgMsgs} from "../single/single-types";
 
 export namespace Groups {
   export type Id = number
@@ -49,7 +50,7 @@ export interface GpMsgReq {
 
 export interface GpMsgRes {
   id: GpMsgs.Id
-  type: MsgType // 1普通消息 2系统消息 3撤回消息
+  type: MsgType
   fakeId?: GpMsgs.FakeId // 前端消息id
   from: GpMsgs.From
   to: GpMsgs.To
@@ -121,6 +122,11 @@ export interface CreateGroupReq {
   avatar?: Groups.Avatar
 }
 
+export interface GroupInviteReq {
+  members: Users.Username[]
+  to: Groups.Id
+}
+
 export interface GetGroupAplsReq {
   lastGroupAplId?: GroupApls.Id
 }
@@ -128,4 +134,10 @@ export interface GetGroupAplsReq {
 export interface ReadGpMsgsReq {
   ids: GpMsgs.Id[]
   to: GpMsgs.To
+}
+
+export interface GetHisGpMsgReq {
+  count: number | null
+  maxId: SgMsgs.Id
+  minId: SgMsgs.Id | null
 }

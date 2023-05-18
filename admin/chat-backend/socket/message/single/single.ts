@@ -25,14 +25,14 @@ export async function sendSgMsg(ws: ExtWebSocket, user: User, data: RequestMessa
   const body = data.data
   const from = user.username
   const createdAt = formatDate()
-  const {type} = body
-  if (type === MsgType.audio) handleAudio(body, createdAt) // 音频
-  const {result} = await selectSgMsgByFakeId(ws, body.fakeId)
+  const {type, to, fakeId} = body
+  const {result} = await selectSgMsgByFakeId(ws, fakeId)
   if (result.length) return ws.json({status: 1004, message: 'fakeId重复'})
-  const {result: result2} = await selectLastSgMsg(ws, body.lastId!, from, body.to)
+  const {result: result2} = await selectLastSgMsg(ws, body.lastId!, from, to)
   if (!result2.length) return ws.json({status: 1005, message: 'lastId错误'})
   await beginSocketSql(ws)
-  if (type === MsgType.retract) await handleRetract(ws, body, user.username)
+  if (type === MsgType.audio) handleAudio(body, createdAt) // 音频
+  if (type === MsgType.retract) await handleRetract(ws, body, from)
   let lastMsg = result2[0]
   const messages: SgMsgRes[] = JSON.parse((await selectNewSgMsgs(ws, lastMsg.id)).result[0][0].messages)
   if (messages.length > 0) lastMsg = messages[messages.length - 1]
@@ -40,25 +40,22 @@ export async function sendSgMsg(ws: ExtWebSocket, user: User, data: RequestMessa
   const {result: {insertId}} = await addSgMsg(ws, from, body, createdAt)
   await updateSgMsgNext(ws, insertId, lastMsg.id)
   if (messages.length > 0) lastMsg.next = insertId
-  messages.push({
+  const message: SgMsgRes = {
     id: insertId,
     pre: body.pre,
     next: null,
     status: MsgStatus.normal,
     content: body.content,
     type,
-    fakeId: body.fakeId,
+    fakeId,
     from,
-    to: body.to,
+    to,
     createdAt,
     read: MsgRead.no
-  })
-  const res = {
-    data: messages,
-    action: REC_SG_MSGS
   }
-  ws.json(res) // 给自己返回消息
-  usernameClientMap[body.to]?.json(res) // 给好友发送消息
+  messages.push(message)
+  ws.json({data: messages, action: REC_SG_MSGS}) // 给自己返回消息
+  usernameClientMap[body.to]?.json({data: [message], action: REC_SG_MSGS}) // 给好友发送消息
 }
 
 // 获取历史消息
@@ -81,12 +78,13 @@ async function handleRetract(ws: ExtWebSocket, message: SgMsgReq, from: SgMsgs.F
     if (result2.changedRows === 0) return ws.json({message: '撤回失败', status: 1011})
     return true
   }
-  if (await handler() !== true) return Promise.reject()
+  if (await handler() !== true) return Promise.reject('撤回消息异常')
 }
 
 // 消息已读
 export async function readSgMsgs(ws: ExtWebSocket, user: User, data: RequestMessage<ReadSgMsg>) {
   await checkMessageParams(ws, readSgMsgSchema, data.data, 1013)
+  await beginSocketSql(ws)
   const {ids, to} = data.data
   const from = user.username
   const readIds: SgMsgs.Id[] = []

@@ -3,10 +3,11 @@ import {AnySchema} from 'joi'
 import {ResponseSchema} from '../response/response'
 import {ExtWebSocket} from '../socket/socket-types'
 import {usernameClientMap} from "../socket/message/single/single";
-import {Users} from "../router/user/user-types";
+import {User, Users} from "../router/user/user-types";
 import {SgMsgReq, SgMsgs} from "../socket/message/single/single-types";
 import fs = require("fs");
 import path = require("path");
+import client from "../redis/redis";
 
 export const setExcelType = function (res: any) {
   // res.setHeader('Content-Type', 'application/vnd.ms-excel') // application/vnd.openxmlformats
@@ -67,10 +68,18 @@ export function handleAudio(message: Pick<SgMsgReq, 'content' | 'ext'>, createdA
   const uint8Array = new Uint8Array(message.content as [])
   const urlDir = '/staging/' + createdAt.slice(0, -9) + '/'
   const dir = path.resolve(__dirname, '../public' + urlDir)
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
-  }
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir)
   const filename = Date.now() + '' + Math.random() + (message.ext || '.webm')
   fs.writeFileSync(path.resolve(dir, filename), uint8Array)
   message.content = urlDir + filename // 文件内容保存为地址
+}
+
+export async function updateUser(username: Users.Username, key: keyof User, value: User[typeof key]) {
+  const sessionId = await client.get(username)
+  if (sessionId) {
+    const toUser: User = JSON.parse((await client.get(sessionId))!)
+    toUser[key] = value
+    await client.set(sessionId, JSON.stringify(toUser))
+  }
+  notifyUpdateUser(username)
 }

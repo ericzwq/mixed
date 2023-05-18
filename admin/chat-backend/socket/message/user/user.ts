@@ -1,4 +1,4 @@
-import {checkMessageParams, createFakeId, formatDate, notifyUpdateUser} from '../../../common/utils'
+import {checkMessageParams, createFakeId, formatDate, notifyUpdateUser, updateUser} from '../../../common/utils'
 import {User, Users} from '../../../router/user/user-types'
 import {AddUserReq, AddUserRetReq, FriendApls, SearchUserQuery} from './user-types'
 import {getUserByUsername} from './user-sql'
@@ -60,17 +60,11 @@ export async function addUser(ws: ExtWebSocket, user: User, data: RequestMessage
     await updateLastFriendAplId(ws, [from, to], friendAplId)
     user.lastFriendAplId = friendAplId
     await client.set((await client.get(from))!, JSON.stringify(user))
-    const sessionId = await client.get(to)
-    if (sessionId) {
-      const toUser: User = JSON.parse((await client.get(sessionId))!)
-      toUser.lastFriendAplId = friendAplId
-      await client.set(sessionId, JSON.stringify(toUser))
-    }
-    notifyUpdateUser(to)
+    await updateUser(to, 'lastFriendAplId', friendAplId)
   } else {
     friendAplId = result[0].id
     const status = result[0].status
-    if (status === FriendApls.Status.pending) return ws.json({message: '请勿重复申请', status: 1013})
+    // if (status === FriendApls.Status.pending) return ws.json({message: '请勿重复申请', status: 1013})
     if (status === FriendApls.Status.accept) return ws.json({message: '该用户已是您的好友', status: 1014})
     await resetFriendAplById(ws, friendAplId, reason)
   }

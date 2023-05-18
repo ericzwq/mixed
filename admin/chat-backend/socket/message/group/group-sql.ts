@@ -1,8 +1,10 @@
 import {executeSocketSql} from "../../../db";
 import {ExtWebSocket, MsgStatus} from "../../socket-types";
 import {Users} from "../../../router/user/user-types";
-import {CreateGroupReq, GpMemberOrigin, GpMembers, GpMsgReq, GpMsgRes, GpMsgs, Group, GroupApls, Groups} from "./group-types";
+import {CreateGroupReq, GetHisGpMsgReq, GpMemberOrigin, GpMembers, GpMsgReq, GpMsgRes, GpMsgs, Group, GroupApls, Groups} from "./group-types";
 import {InsertModal, UpdateModal} from "../../../types/sql-types";
+import c = require("koa-session/lib/context");
+import {GetHisSgMsgReq, SgMsgs} from "../single/single-types";
 
 export function addGroup(ws: ExtWebSocket, from: Users.Username, data: CreateGroupReq, createdAt: Groups.CreatedAt) {
   const {name, avatar} = data
@@ -22,6 +24,10 @@ export function addGpMsg(ws: ExtWebSocket, from: Users.Username, data: GpMsgReq,
     [fakeId, pre, from, to, content, type, MsgStatus.normal, createdAt, reads])
 }
 
+export function selectGpMsgByFakeId(ws: ExtWebSocket, fakeId: GpMsgs.FakeId) {
+  return executeSocketSql<[]>(ws, 'select 1 from group_chat where fakeId = ?;', [fakeId])
+}
+
 // 根据lastId获取当前客户端最后一条消息
 export function selectLastGpMsg(ws: ExtWebSocket, lastId: GpMsgs.Id | null, groupId: Groups.Id) {
   if (lastId != null) {
@@ -31,6 +37,10 @@ export function selectLastGpMsg(ws: ExtWebSocket, lastId: GpMsgs.Id | null, grou
     return executeSocketSql<GpMsgRes[]>(ws,
       'select * from group_chat where `to` = ? and next is null;', [groupId])
   }
+}
+
+export function selectNewGpMsgs(ws: ExtWebSocket, preId: GpMsgs.Pre, count = 20) {
+  return executeSocketSql<[[{ messages: string }]]>(ws, 'call selectNewGpMsgs(?, ?);', [preId, count])
 }
 
 export function updateGpMsgNext(ws: ExtWebSocket, next: GpMsgs.Next, id: GpMsgs.Id) {
@@ -85,6 +95,20 @@ export function selectGpMsgReadsById(ws: ExtWebSocket, id: GpMsgs.Id, to: GpMsgs
 
 export function updateGpMsgReads(ws: ExtWebSocket, id: GpMsgs.Id, to: GpMsgs.To, reads: GpMsgs.Reads) {
   return executeSocketSql<UpdateModal>(ws, 'update group_chat set `reads` = ?, readCount = readCount + 1 where id = ? and `to` = ?;', [reads, id, to])
+}
+
+export function selectGpMsgByIdAndFrom(ws: ExtWebSocket, id: GpMsgs.Id, from: GpMsgs.From) {
+  return executeSocketSql<{ createdAt: GpMsgs.CreatedAt, status: MsgStatus }[]>(ws,
+    'select `to`, createdAt, status from group_chat where id = ? and `from` = ?;', [id, from])
+}
+
+export function updateGpMsgStatus(ws: ExtWebSocket, id: GpMsgs.Id, status: MsgStatus) {
+  return executeSocketSql<UpdateModal>(ws, 'update group_chat set status = ? where id = ?', [status, id])
+}
+
+export function selectHisGpMsgs(ws: ExtWebSocket, data: GetHisGpMsgReq) {
+  const {maxId, count, minId} = data
+  return executeSocketSql<[[{ messages: string }]]>(ws, `call selectHisGpMsgs(?, ?, ?);`, [maxId, count, minId])
 }
 
 // export function addGroupApl(ws: ExtWebSocket, to: GroupApls.Id, from: Users.Username, reason: GroupApls.Reason) {

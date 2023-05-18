@@ -34,6 +34,11 @@ export const createGroupSchema = Joi.object({
   avatar: groupSchemas.avatar
 }).unknown().required()
 
+export const groupInviteSchema = Joi.object({
+  members: Joi.array().max(20),
+  to: groupSchemas.id
+})
+
 export const addGroupSchema = Joi.object({
   id: groupSchemas.friendAplId,
   reason: groupSchemas.reason
@@ -56,4 +61,10 @@ export const getGroupAplsSchema = Joi.object({
 export const readGpMsgsSchema = Joi.object({
   ids: Joi.array().required().min(1).max(100),
   to: groupSchemas.id
+}).unknown().required()
+
+export const getHisGpMsgsSchema = Joi.object({
+  maxId: gpMsgSchemas.id.required(),
+  count: Joi.number().allow(null),
+  minId: gpMsgSchemas.id.allow(null)
 }).unknown().required()
