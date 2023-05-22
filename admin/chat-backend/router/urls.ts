@@ -9,6 +9,7 @@ export const likePostUrl = 'likePost'
 export const commentPostUrl = 'commentPost'
 export const upPicUrl = 'upPic'
 export const upVideoUrl = 'upVideo'
+export const upFileUrl = 'upFile'
 
 export const noLoginUrlSet = new Set([
   loginUrl, registerUrl, getEmailCodeUrl, 'test'

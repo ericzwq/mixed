@@ -1,4 +1,4 @@
-import {User} from '../../../router/user/user-types'
+import {User, Users} from '../../../router/user/user-types'
 import {ExtWebSocket, MsgRead, MsgStatus, MsgType, RequestMessage} from '../../socket-types'
 import {checkMessageParams, formatDate, handleAudio} from '../../../common/utils'
 import {
@@ -15,8 +15,12 @@ import {
 } from './single-sql'
 import {REC_READ_SG_MSGS, REC_SG_MSGS} from '../../socket-actions'
 import {getHisSgMsgsSchema, readSgMsgSchema, sendSgMsgSchema} from './single-schema'
-import {GetHisSgMsgReq, ReadSgMsg, SgMsgReq, SgMsgRes, SgMsgs} from './single-types'
+import {GetHisSgMsgReq, ReadSgMsgReq, SgMsgReq, SgMsgRes, SgMsgs} from './single-types'
 import {beginSocketSql} from '../../../db'
+import client from "../../../redis/redis";
+import {selectContactBySub} from "../contact/contact-sql";
+import {Contacts} from "../contact/contact-types";
+import Status = Contacts.Status;
 
 export const usernameClientMap = {} as { [key in string]?: ExtWebSocket }
 
@@ -26,10 +30,17 @@ export async function sendSgMsg(ws: ExtWebSocket, user: User, data: RequestMessa
   const from = user.username
   const createdAt = formatDate()
   const {type, to, fakeId} = body
+  const {action} = data
+  const contactStatus = await getUserContactStatus(ws, from, to)
+  if (contactStatus !== Status.normal) {
+    if (contactStatus === Status.never) return ws.json({action, status: 1002, message: '你们不是好友'})
+    if (contactStatus === Status.blackList) return ws.json({action, status: 1003, message: '对方已将你拉黑'})
+    return ws.json({action, status: 1008, message: '对方已将你删除'})
+  }
   const {result} = await selectSgMsgByFakeId(ws, fakeId)
-  if (result.length) return ws.json({status: 1004, message: 'fakeId重复'})
+  if (result.length) return ws.json({action, status: 1004, message: 'fakeId重复'})
   const {result: result2} = await selectLastSgMsg(ws, body.lastId!, from, to)
-  if (!result2.length) return ws.json({status: 1005, message: 'lastId错误'})
+  if (!result2.length) return ws.json({action, status: 1005, message: 'lastId错误'})
   await beginSocketSql(ws)
   if (type === MsgType.audio) handleAudio(body, createdAt) // 音频
   if (type === MsgType.retract) await handleRetract(ws, body, from)
@@ -82,7 +93,7 @@ async function handleRetract(ws: ExtWebSocket, message: SgMsgReq, from: SgMsgs.F
 }
 
 // 消息已读
-export async function readSgMsgs(ws: ExtWebSocket, user: User, data: RequestMessage<ReadSgMsg>) {
+export async function readSgMsgs(ws: ExtWebSocket, user: User, data: RequestMessage<ReadSgMsgReq>) {
   await checkMessageParams(ws, readSgMsgSchema, data.data, 1013)
   await beginSocketSql(ws)
   const {ids, to} = data.data
@@ -96,4 +107,16 @@ export async function readSgMsgs(ws: ExtWebSocket, user: User, data: RequestMess
   }
   ws.json({action: data.action, data: {ids: readIds, from}})
   usernameClientMap[to]?.json({action: REC_READ_SG_MSGS, data: {ids: readIds, from}})
+}
+
+// 获取用户和目标用户的好友关系
+async function getUserContactStatus(ws: ExtWebSocket, from: Users.Username, to: Users.Username) {
+  let _status = await client.get('contact-' + from + '-' + to)
+  let status: Status
+  if (_status == null) {
+    const {result} = await selectContactBySub(ws, to, from)
+    status = result.length ? result[0].status : Status.never
+    await client.set('contact-' + from + '-' + to, status)
+  } else status = +_status
+  return status
 }

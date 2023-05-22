@@ -100,7 +100,7 @@ function createSocket() {
       this.socketTask && this.socketTask.close({ reason })
       this.connected = false
     },
-    send(data: { action: string, data?: any }) {
+    send<T = any>(data: { action: string, data?: T }) {
       return new Promise((resolve, reject) => {
         this.socketTask.send({
           data: JSON.stringify(data),

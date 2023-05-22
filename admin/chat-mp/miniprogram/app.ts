@@ -2,12 +2,12 @@ import { createStoreBindings } from 'mobx-miniprogram-bindings'
 import { formatDate } from './common/utils'
 import { ChatDetailPath, LoginPath } from './consts/routes'
 import { chatSocket } from "./socket/socket"
-import { GET_CONTACTS, GET_FRIEND_APLS, RECE_SG_MSGS } from './socket/socket-actions'
-import { userStore } from "./store/store"
+import { GET_FRIEND_APLS, REC_SG_MSGS } from './socket/socket-actions'
+import { userStore } from "./store/user"
 
 App<IAppOption>({
   globalData: {
-    toSaveUnameFakeIdsMap: {} as { [k in string]: Messages.FakeId[] },
+    toSaveUnameFakeIdsMap: {} as { [k in string]: SgMsgs.FakeId[] },
     saveStatus: '',
   },
   onLaunch() {
@@ -15,7 +15,7 @@ App<IAppOption>({
       store: userStore,
       actions: ['setUser', 'getContacts']
     })
-    this.addReceMsgsListener()
+    this.addRecMsgsListener()
     if (!this.getUser()) return
     chatSocket.connect().then(() => {
       userStore.getContacts()
@@ -24,7 +24,7 @@ App<IAppOption>({
       chatSocket.addSuccessHandler<FriendApl[]>(GET_FRIEND_APLS, data => {
           data.data.forEach(friendApl => {
             const id = friendApl.friendAplId
-            
+            console.log(id)
           })
       })
     })
@@ -41,8 +41,8 @@ App<IAppOption>({
     }
     return !!user
   },
-  addReceMsgsListener() {
-    chatSocket.addSuccessHandler(RECE_SG_MSGS, ((data: SocketResponse<Message[]>) => {
+  addRecMsgsListener() {
+    chatSocket.addSuccessHandler(REC_SG_MSGS, ((data: SocketResponse<SgMsg[]>) => {
       const { unameMessageInfoMap } = userStore
       const msg = data.data[0]
       if (!msg) return
@@ -59,12 +59,12 @@ App<IAppOption>({
         unameMessageInfoMap[targetUname!] = messageInfo
       }
       const { messages, fakeIdIndexMap } = messageInfo
-      data.data.forEach((message: Message) => {
+      data.data.forEach((message: SgMsg) => {
         const ownMessage = messages[fakeIdIndexMap[message.fakeId!]]
         console.log('接收到消息', message, ownMessage);
         if (ownMessage) { // 自己发的
           delete ownMessage.state
-          ownMessage.createdAt = ownMessage.createdAt
+          ownMessage.createdAt = message.createdAt
           if (ownMessage.type === 3) { // 音频数据处理
             ownMessage.data = ownMessage.data
           }
@@ -83,14 +83,14 @@ App<IAppOption>({
       this.saveChat(data.data[data.data.length - 1], userStore.contactMap[targetUname!], data.data.length)
       this.saveMessages()
     }))
-    chatSocket.addErrorHandler(RECE_SG_MSGS, (data: SocketResponse<Message>) => {
+    chatSocket.addErrorHandler(REC_SG_MSGS, (data: SocketResponse<SgMsg>) => {
       const newMessage = data.data
       const messageInfo = userStore.unameMessageInfoMap[newMessage.to!]
       const message = messageInfo.messages[messageInfo.fakeIdIndexMap[newMessage.fakeId!]]
       message.state = 'error'
     })
   },
-  saveChat(message: Message, target: Contact, newCount: number) {
+  saveChat(message: SgMsg, target: Contact, newCount: number) {
     const pages = getCurrentPages()
     const isChatDetailPath = '/' + pages[pages.length - 1].route === ChatDetailPath
     const message2 = message.type === 1 ? message.data : ''

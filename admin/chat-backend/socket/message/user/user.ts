@@ -19,7 +19,7 @@ import {
   updateFriendAplStatus,
   updateLastFriendAplId
 } from '../single/single-sql'
-import {addContactByMasterAndSub, resetContactById, selectContactByAddUser, updateContactStatus} from "../contact/contact-sql";
+import {addContactByMasterAndSub, resetContactById, selectContactBySub, updateContactStatus} from "../contact/contact-sql";
 
 
 export async function searchUsers(ws: ExtWebSocket, user: User, data: RequestMessage<SearchUserQuery>) {
@@ -41,13 +41,14 @@ export async function addUser(ws: ExtWebSocket, user: User, data: RequestMessage
   const {result: users} = await getUserByUsername(ws, to)
   if (!users.length) return ws.json({status: 1018, message: '该用户不存在'})
   const from = user.username
-  const result2 = (await selectContactByAddUser(ws, to, from)).result
+  const result2 = (await selectContactBySub(ws, to, from)).result
   let contactId: number
   await beginSocketSql(ws)
   if (result2.length) {
-    if (result2[0].status !== Contacts.Status.delete) return ws.json({action: data.action, message: '他已是您的好友', status: 1017})
+    if ([Contacts.Status.normal, Contacts.Status.blackList].includes(result2[0].status)) return ws.json({action: data.action, message: '他已是您的好友', status: 1017})
     contactId = result2[0].id
-    await resetContactById(ws, contactId, remark)
+    result2[0].status
+    await resetContactById(ws, contactId, remark, result2[0].status === Contacts.Status.never ? Contacts.Status.never : Contacts.Status.delete)
   } else {
     const {result: {insertId}} = await addContactByMasterAndSub(ws, to, from, Contacts.Status.delete, remark)
     contactId = insertId

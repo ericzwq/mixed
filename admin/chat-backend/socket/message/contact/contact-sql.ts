@@ -28,10 +28,10 @@ export function updateContactStatus(ws: ExtWebSocket, id: Contacts.Id, sub: User
   return executeSocketSql<UpdateModal>(ws, 'update contacts set status = ? where id = ? and master = ? and sub = ?;', [status, id, master, sub])
 }
 
-export function selectContactByAddUser(ws: ExtWebSocket, to: Users.Username, from: Users.Username) {
-  return executeSocketSql<{ id: Contacts.Id, status: Contacts.Status }[]>(ws, 'select id, status from contacts where (master = ? and sub = ?);', [from, to])
+export function selectContactBySub(ws: ExtWebSocket, sub: Users.Username, master: Users.Username) {
+  return executeSocketSql<{ id: Contacts.Id, status: Contacts.Status }[]>(ws, 'select id, status from contacts where (master = ? and sub = ?);', [master, sub])
 }
 
-export function resetContactById(ws: ExtWebSocket, id: Contacts.Id, remark: Contacts.Remark) {
-  return executeSocketSql<UpdateModal>(ws, 'update contacts set remark = ?, status = ? where id = ?;', [remark, Contacts.Status.delete, id])
+export function resetContactById(ws: ExtWebSocket, id: Contacts.Id, remark: Contacts.Remark, status: Contacts.Status) {
+  return executeSocketSql<UpdateModal>(ws, 'update contacts set remark = ?, status = ? where id = ?;', [remark, status, id])
 }

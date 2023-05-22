@@ -6,6 +6,7 @@ export namespace Contacts {
   export type Sub = Users.Username
 
   export enum Status {
+    never = -1,
     normal = 0,
     delete = 1,
     blackList = 2,

@@ -17,18 +17,18 @@ declare namespace ChatItems {
 
 interface ChatItem {
   username: Users.Username
-  message: Messages.Data
+  message: SgMsgs.Data
   nickname: Users.Nickname
-  createdAt: Messages.CreatedAt
+  createdAt: SgMsgs.CreatedAt
   avatar: Users.Avatar
   newCount: ChatItems.NewCount // 新消息数量
-  type: Messages.Type
+  type: SgMsgs.Type
   from: Users.Username
 }
 
 interface MessageInfo {
   fakeIdIndexMap: FakeIdIndexMap,
-  messages: Message[],
+  messages: SgMsg[],
   maxMessagesIndex: number, // messages最大本地缓存分页索引，默认0
   loadedMessagesMinIndex: number, // messages已加载本地缓存分页最小索引，默认-1
   loadedMessagesPageMinIndex: number, // 本地缓存中已加载的分页最小索引，默认Infinity

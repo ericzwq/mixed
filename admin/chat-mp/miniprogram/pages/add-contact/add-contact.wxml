@@ -1,5 +1,5 @@
 <view class="add-contact-box">
-		<input class="search-input" model:value="{{username}}" bindconfirm="search" bindinput="input" focus placeholder="请输入天聊号" />
-		<button class="search-btn" type="primary" bindtap="search">搜索</button>
-		<view hidden="{{!noUser}}" class="no-user">该用户不存在</view>
-	</view>
+    <input class="search-input" model:value="{{username}}" bindconfirm="search" bindinput="input" focus placeholder="请输入天聊号"/>
+    <button class="search-btn" type="primary" bindtap="search">搜索</button>
+    <view hidden="{{!noUser}}" class="no-user">该用户不存在</view>
+</view>

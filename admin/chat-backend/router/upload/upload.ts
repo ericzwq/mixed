@@ -1,5 +1,5 @@
 import * as Router from "koa-router";
-import {upPicUrl, upVideoUrl} from "../urls";
+import {upFileUrl, upPicUrl, upVideoUrl} from "../urls";
 import {picSet, UPLOAD_STATIC_PATH, videoSet} from "../../common/consts";
 import path = require("path");
 import * as fs from "fs";
@@ -31,6 +31,14 @@ upload.post(upVideoUrl, async ctx => {
     fs.unlink(file.path, () => 1)
     return ctx.body = new ResponseSchema({message: '请上传视频文件', status: 1004})
   }
+  ctx.body = new ResponseSchema({message: '上传成功', data: UPLOAD_STATIC_PATH + base})
+})
+
+// 上传文件
+upload.post(upFileUrl, async ctx => {
+  await checkParams(ctx, upFileSchema, ctx.request.files, 1005)
+  const file = ctx.request.files!.file as formidable.File
+  let {base} = path.parse(file.path)
   ctx.body = new ResponseSchema({message: '上传成功', data: UPLOAD_STATIC_PATH + base})
 })
 

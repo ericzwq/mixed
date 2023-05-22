@@ -43,7 +43,7 @@ export interface SgMsgRes {
   read: MsgRead
 }
 
-export interface ReadSgMsg {
+export interface ReadSgMsgReq {
   ids: SgMsgs.Id[]
   to: SgMsgs.To
 }

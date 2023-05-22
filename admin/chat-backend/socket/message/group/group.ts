@@ -172,7 +172,7 @@ export async function readGpMsgs(ws: ExtWebSocket, user: User, data: RequestMess
   broadGpMsg(group, JSON.stringify({action: REC_READ_GP_MSGS, data: {ids: readIds, from, to}}))
 }
 
-export async function getGroupById(ws: ExtWebSocket, id: Groups.Id): Promise<Group> {
+async function getGroupById(ws: ExtWebSocket, id: Groups.Id): Promise<Group> {
   const _group = await client.get('group-' + id)
   let group: Group
   if (_group) {
