@@ -18,6 +18,14 @@ Page({
     errors: {
       reason: '',
       remark: ''
+    },
+    _validators: {
+      reason(v: string) {
+        this.setData({'errors.reason': v ? '' : '请输入申请原因'})
+      },
+      remark(v: string) {
+        this.setData({'errors.remark': v ? '' : '请输入申请备注'})
+      }
     }
   },
   valueModel,
@@ -29,17 +37,17 @@ Page({
     nickname = decodeURIComponent(nickname)
     this.setData({target: {username, nickname}, formData: {reason: '你好，我是' + userStore.user.nickname, remark: nickname}})
   },
-  reasonChange(e: WechatMiniprogram.CustomEvent) {
+  reasonChange(e: VanInputEvent<string>) {
     this.setData({'formData.reason': e.detail})
-    this.setData({'errors.reason': e.detail ? '' : '请输入申请原因'})
+    this.data._validators.reason.call(this, e.detail)
   },
-  remarkChange(e: WechatMiniprogram.CustomEvent) {
+  remarkChange(e: VanInputEvent<string>) {
     this.setData({'formData.remark': e.detail})
-    this.setData({'errors.remark': e.detail ? '' : '请输入申请备注'})
+    this.data._validators.remark.call(this, e.detail)
   },
   addUser() {
-    const {errors, formData, target} = this.data
-    if (Object.keys(errors).some(k => errors[k as keyof typeof errors])) return
+    const {formData, target, _validators} = this.data
+    if (Object.keys(formData).some(k => _validators[k as keyof typeof formData].call(this, formData[k as keyof typeof formData]))) return
     chatSocket.send({action: ADD_USER, data: {username: target.username, ...formData}})
     const {username} = userStore.user
     const saveFriendApls = (data: SocketResponse<FriendApl>) => {

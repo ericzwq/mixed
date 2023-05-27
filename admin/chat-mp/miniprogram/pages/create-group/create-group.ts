@@ -1,14 +1,8 @@
 import {BASE_URL} from "../../consts/consts"
-import {upAvatarUrl} from "../../http/urls"
+import {upPicUrl} from "../../http/urls"
 import {chatSocket} from "../../socket/socket";
 import {CREAT_GROUP} from "../../socket/socket-actions";
 
-enum UpState {
-  none,
-  upping,
-  success,
-  error
-}
 
 Page({
 
@@ -17,8 +11,6 @@ Page({
    */
   data: {
     fileList: [] as File[],
-    upState: UpState.none,
-    upProgress: 0,
     task: {} as WechatMiniprogram.UploadTask,
     _selecteds: [] as Users.Username[],
     formData: {
@@ -26,6 +18,12 @@ Page({
     },
     errors: {
       name: ''
+    },
+    _validators: {
+      name(v: string) {
+        this.setData({'errors.name': v ? '' : '请输入群聊名称'})
+        return this.data.errors.name
+      }
     }
   },
 
@@ -45,42 +43,69 @@ Page({
   },
   afterRead(event: { detail: { file: File } }) {
     const {file} = event.detail;
+    const {fileList} = this.data;
+    fileList.push({...file, status: 'uploading', message: '0%'});
+    this.setData({fileList})
     const task = wx.uploadFile({
-      url: BASE_URL + '/' + upAvatarUrl, // 仅为示例，非真实的接口地址
+      url: BASE_URL + '/' + upPicUrl,
       filePath: file.url,
       name: 'file',
       header: {cookie: wx.getStorageSync('cookies')},
       success: (res) => {
-        const {fileList} = this.data;
-        fileList.push({...file, url: res.data});
-        this.setData({fileList, upState: UpState.success});
+        if (res.statusCode > 199 && res.statusCode < 300) {
+          const data: SocketResponse<{ data: string }> = JSON.parse(res.data)
+          if (data.status === 0) {
+            Object.assign(fileList[0], {url: BASE_URL + data.data, shortUrl: data.data, status: 'done'})
+          } else {
+            Object.assign(fileList[0], {status: 'failed', message: '上传失败'})
+          }
+        } else {
+          Object.assign(fileList[0], {status: 'failed', message: '上传失败'})
+        }
+        this.setData({fileList});
       },
-    });
+      fail: (e) => {
+        console.log('上传失败：', e)
+        fileList[0].status = 'failed'
+        this.setData({fileList})
+      }
+    })
     this.setData({task})
     task.onProgressUpdate(data => {
-      console.log('progress', data)
-      this.setData({upProgress: data.progress})
+      fileList[0].message = data.progress + '%'
+      this.setData({fileList})
     })
   },
-  stop() {
-    if (this.data.upState !== UpState.upping) return
-    this.data.task.abort()
-    this.setData({upState: UpState.none, upProgress: 0})
-  },
-  remove() {
+  onDelete() {
     this.setData({fileList: []})
   },
   nameChange(e: VanInputEvent<string>) {
     this.setData({'formData.name': e.detail})
-    this.setData({'errors.name': e.detail ? '' : '请输入群聊名称'})
+    this.data._validators.name.call(this, e.detail)
+  },
+  createGroupHandler: () => {
   },
   createGroup() {
-    const {_selecteds, formData, errors, fileList} = this.data
-    if (Object.keys(formData).some(k => errors[k as keyof typeof errors])) return
-    chatSocket.send<CreateGroupReq>({action: CREAT_GROUP, data: {members: _selecteds, avatar: fileList.length ? fileList[0].url : '', name: formData.name}}).then(() => {
-      wx.hideLoading()
+    const {_selecteds, formData, fileList, _validators} = this.data
+    if (Object.keys(formData).some(k => _validators[k as keyof typeof formData].call(this, formData[k as keyof typeof formData]))) return
+    new Promise<void>(resolve => {
+      if (fileList[0] && fileList[0].status === 'uploading') wx.showModal({title: '图片未上传完成，确定继续吗？'}).then(() => resolve())
+      else resolve()
+    }).then(() => {
+      chatSocket.send<CreateGroupReq>({
+        action: CREAT_GROUP,
+        data: {members: _selecteds, avatar: fileList.length ? fileList[0].shortUrl : '', name: formData.name}
+      }).then(() => {
+        this.createGroupHandler = () => {
+          chatSocket.removeSuccessHandler(CREAT_GROUP, this.createGroupHandler)
+          wx.hideLoading()
+          wx.showToast({title: '创建成功'})
+          setTimeout(() => wx.navigateBack({delta: 2}), 1000)
+        }
+        chatSocket.addSuccessHandler(CREAT_GROUP, this.createGroupHandler)
+      })
+      wx.showLoading({title: '加载中...'})
     })
-    wx.showLoading({title: '加载中...'})
   },
   onReady() {
 
@@ -104,7 +129,7 @@ Page({
    * 生命周期函数--监听页面卸载
    */
   onUnload() {
-
+    chatSocket.removeSuccessHandler(CREAT_GROUP, this.createGroupHandler)
   },
 
   /**

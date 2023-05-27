@@ -1,10 +1,11 @@
 import {createStoreBindings} from 'mobx-miniprogram-bindings'
 import {userStore} from '../../store/user'
-import {LOAD_MESSAGE_COUNT, BASE_URL} from '../../consts/consts'
+import {BASE_URL, LOAD_MESSAGE_COUNT} from '../../consts/consts'
 import {chatSocket} from '../../socket/socket'
 import {formatDate, formatSimpleDate} from '../../common/utils'
-import {REC_SG_MSGS, SEND_SG_MSG} from '../../socket/socket-actions'
-import {UserDetailPath} from '../../consts/routes'
+import {REC_GP_MSGS, REC_SG_MSGS, SEND_SG_MSG} from '../../socket/socket-actions'
+import {GroupInfoPath, SingleInfoPath, UserDetailPath} from '../../consts/routes'
+import {ChatType, MsgType} from '../../socket/socket-types'
 
 const app = getApp<IAppOption>()
 Page({
@@ -12,13 +13,13 @@ Page({
   // pureDataPattern: /^_/
   // },
   data: {
-    target: {} as Contact, // 目标用户
+    target: {} as Contact | GroupInfo, // 目标用户
     content: '',
     keyboardUp: false,
     windowHeight: 0,
-    type: '1', // 1单聊 2群聊
+    chatType: ChatType.single,
     STATIC_BASE_URL: BASE_URL,
-    viewMessages: [] as SgMsg[],
+    viewMessages: [] as SgMsg[] | GpMsg[],
     saveTime: 0,
     // _saveStatus: '',
     inputState: 0 as ChatInputState, // 0键盘 1语音
@@ -41,28 +42,44 @@ Page({
     audioSender: [],
     videoSender: [],
     audioPlayState: 0 as ChatAudioPlayState, // 0 未播放 1播放中
+    title: ''
   },
   storeBindings: {} as StoreBindings,
-  onLoad(query: { username: string, type: ChatType }) {
-    this.addMessageListener()
-    const {username, type} = query
-    this.storeBindings = createStoreBindings(this, {
-      store: userStore,
-      fields: ['user'],
-    })
-    const target = userStore.contactMap[username]
-    if (!target) return
-    this.setData({target, type})
-    this.clearChat()
-    wx.setNavigationBarTitle({title: target?.nickname})
-    this.loadInitMessage()
-  },
-
   containerTap(e: WechatMiniprogram.CustomEvent) {
     if (e.target.id !== 'showOpt' && !e.mark!['opts']) {
       this.setData({showOpts: false})
     }
     // setTimeout(() => e.target.focus(), 500) todo
+  },
+  onLoad(query: { to: string, type: ChatType }) {
+    this.addSgMsgListener()
+    this.addGpMsgListener()
+    const {to, type} = query
+    this.storeBindings = createStoreBindings(this, {
+      store: userStore,
+      fields: ['user', 'unameUserMap'],
+    })
+    let target: Contact | GroupInfo, title: string, plus = ''
+    new Promise<void>(resolve => {
+      if (type === ChatType.single) {
+        target = {...userStore.unameUserMap[to], username: to} as Contact
+        if (!target) return
+        title = target.nickname!
+        resolve()
+      } else {
+        userStore.getGroupIdGroupInfo(+to).then(groupInfo => {
+          target = groupInfo
+          title = groupInfo.name
+          plus = '（' + groupInfo.count + '）'
+          resolve()
+        })
+      }
+    }).then(() => {
+      this.setData({target, chatType: type, title: title + plus})
+      this.clearChat()
+      wx.setNavigationBarTitle({title})
+      this.loadInitMessage()
+    })
   },
   onReady() {
     const iac = wx.createInnerAudioContext()
@@ -96,12 +113,26 @@ Page({
   },
   onUnload() {
     this.storeBindings.destroyStoreBindings()
+    chatSocket.removeSuccessHandler(REC_SG_MSGS, this.sgMsgSuccessHandler)
+    chatSocket.removeErrorHandler(REC_SG_MSGS, this.sgMsgErrorHandler)
   },
   onPullDownRefresh() {
     this.loadMoreMessage()
   },
   toDetail(e: WechatMiniprogram.CustomEvent) {
-    wx.navigateTo({url: UserDetailPath + '?username=' + (e.target.dataset['right'] ? userStore.user.username : this.data.target.username)})
+    const {right, i} = e.target.dataset
+    const {target, chatType, viewMessages} = this.data
+    let username!: Users.Username
+    if (right) {
+      username = userStore.user.username
+    } else {
+      if (chatType === ChatType.single) {
+        username = (target as Contact).username
+      } else {
+        username = viewMessages[i].from!
+      }
+    }
+    wx.navigateTo({url: UserDetailPath + '?username=' + username})
   },
   contentInput() {
   },
@@ -313,15 +344,17 @@ Page({
   },
   // 首屏获取本地消息
   loadInitMessage() {
-    const {username} = this.data.target
-    const messageInfo = userStore.unameMessageInfoMap[username] || {}
-    const index = wx.getStorageSync(username + '-i')
+    const {chatType} = this.data
+    const to = this.getTo()
+    const prefixKey = chatType + '-' + to + '-'
+    const messageInfo = this.getMessageInfo(to)
+    const index = wx.getStorageSync(prefixKey + 'i')
     messageInfo.maxMessagesIndex = +(index || 0)
-    // console.log(messageInfo.messages, messageInfo.maxMessagesIndex, messageInfo.loadedMessagesMinIndex, messageInfo.loadedMessagesPageMinIndex)
+    console.log(messageInfo.messages, messageInfo.maxMessagesIndex, messageInfo.loadedMessagesMinIndex, messageInfo.loadedMessagesPageMinIndex, prefixKey, index)
     if (messageInfo.messages && messageInfo.messages.length >= LOAD_MESSAGE_COUNT) { // 如果全局有足够的消息数量则直接从内存中取
       const rest = messageInfo.messages.length - LOAD_MESSAGE_COUNT
       messageInfo.messages = messageInfo.messages.slice(messageInfo.messages.length - LOAD_MESSAGE_COUNT)
-      this.data.viewMessages = this.handleViewMessageTime(messageInfo.messages)
+      this.data.viewMessages = this.handleViewMessageTime(messageInfo.messages) as SgMsg[]
       messageInfo.loadedMessagesMinIndex += Math.floor(rest / LOAD_MESSAGE_COUNT)
       messageInfo.loadedMessagesPageMinIndex += rest % LOAD_MESSAGE_COUNT
       console.log(messageInfo.maxMessagesIndex, messageInfo.loadedMessagesMinIndex, messageInfo.loadedMessagesPageMinIndex)
@@ -329,10 +362,10 @@ Page({
     } else { // 从缓存中读取
       if (index) { // 有本地消息
         messageInfo.loadedMessagesMinIndex = messageInfo.maxMessagesIndex
-        const messages = JSON.parse(wx.getStorageSync(username + '-' + messageInfo.maxMessagesIndex))
-        // console.log(messages.length, LOAD_MESSAGE_COUNT, messageInfo.maxMessagesIndex)
+        const messages = JSON.parse(wx.getStorageSync(prefixKey + messageInfo.maxMessagesIndex))
+        console.log(messages.length, LOAD_MESSAGE_COUNT, messageInfo.maxMessagesIndex)
         if (messages.length < LOAD_MESSAGE_COUNT && messageInfo.maxMessagesIndex > 0) { // 消息不够loadMessageCount从上一页加载
-          const lastMessages = JSON.parse(wx.getStorageSync(username + '-' + (--messageInfo.loadedMessagesMinIndex)))
+          const lastMessages = JSON.parse(wx.getStorageSync(prefixKey + (--messageInfo.loadedMessagesMinIndex)))
           messageInfo.loadedMessagesPageMinIndex = lastMessages.length - (LOAD_MESSAGE_COUNT - messages.length)
           messageInfo.messages = lastMessages.slice(messageInfo.loadedMessagesPageMinIndex).concat(messages)
         } else { // 取本页数据
@@ -351,86 +384,103 @@ Page({
         messageInfo.loadedMessagesPageMinIndex = Infinity
       }
     }
-    userStore.unameMessageInfoMap[username] = messageInfo
-    this.data.viewMessages = this.handleViewMessageTime(messageInfo.messages)
+    if (chatType === ChatType.single) {
+      userStore.unameMessageInfoMap[to] = messageInfo as MessageInfo<SgMsg>
+    } else {
+      userStore.groupIdMessageInfoMap[to] = messageInfo as MessageInfo<GpMsg>
+    }
+    this.data.viewMessages = this.handleViewMessageTime(messageInfo.messages) as SgMsg[]
     // console.log(this.data.viewMessages)
     this.setData({viewMessages: this.data.viewMessages})
     this.resetMessagesMap(messageInfo)
   },
   // 获取更多消息
   loadMoreMessage() {
-    const {username} = this.data.target
-    const messageInfo = userStore.unameMessageInfoMap[username]
-    let preMessages
+    const {chatType} = this.data
+    const to = this.getTo()
+    const prefixKey = chatType + '-' + to + '-'
+    const messageInfo = this.getMessageInfo(to)
+    let preMessages!: SgMsg[]
     if (messageInfo.loadedMessagesPageMinIndex >= LOAD_MESSAGE_COUNT) { // 本页数据够
-      const messages = JSON.parse(wx.getStorageSync(username + '-' + (messageInfo.loadedMessagesMinIndex)))
+      const messages = JSON.parse(wx.getStorageSync(prefixKey + (messageInfo.loadedMessagesMinIndex)))
       messageInfo.loadedMessagesPageMinIndex -= LOAD_MESSAGE_COUNT
       preMessages = messages.slice(messageInfo.loadedMessagesPageMinIndex, messageInfo.loadedMessagesPageMinIndex +
         LOAD_MESSAGE_COUNT)
-      messageInfo.messages = preMessages.concat(messageInfo.messages)
+      messageInfo.messages = preMessages.concat(messageInfo.messages as SgMsg[])
     } else if (messageInfo.loadedMessagesMinIndex === 0) { // 到顶 todo 最后一项
       if (messageInfo.loadedMessagesPageMinIndex > 0) {
-        const messages = JSON.parse(wx.getStorageSync(username + '-' + (messageInfo.loadedMessagesMinIndex)))
+        const messages = JSON.parse(wx.getStorageSync(prefixKey + (messageInfo.loadedMessagesMinIndex)))
         preMessages = messages.slice(0, messageInfo.loadedMessagesPageMinIndex)
-        messageInfo.messages = preMessages.concat(messageInfo.messages)
+        messageInfo.messages = preMessages.concat(messageInfo.messages as SgMsg[])
         messageInfo.loadedMessagesPageMinIndex = 0
       }
     } else { // 本页数据不够
-      const messages = JSON.parse(wx.getStorageSync(username + '-' + messageInfo.loadedMessagesMinIndex))
-      const lastMessages = JSON.parse(wx.getStorageSync(username + '-' + (--messageInfo.loadedMessagesMinIndex)))
+      const messages = JSON.parse(wx.getStorageSync(prefixKey + messageInfo.loadedMessagesMinIndex))
+      const lastMessages = JSON.parse(wx.getStorageSync(prefixKey + (--messageInfo.loadedMessagesMinIndex)))
       const _loadedMessagesPageMinIndex = messageInfo.loadedMessagesPageMinIndex
       messageInfo.loadedMessagesPageMinIndex = lastMessages.length - (LOAD_MESSAGE_COUNT - messageInfo.loadedMessagesPageMinIndex)
       preMessages = lastMessages.slice(messageInfo.loadedMessagesPageMinIndex).concat(messages.slice(0,
         _loadedMessagesPageMinIndex))
-      messageInfo.messages = preMessages.concat(messageInfo.messages)
+      messageInfo.messages = preMessages.concat(messageInfo.messages as SgMsg[])
     }
     // console.log(this.loadedMessagesPageMinIndex, this.loadedMessagesIndex, this.messages.length)
     if (preMessages) {
-      const preViewMessages = this.handleViewMessageTime(preMessages)
+      const preViewMessages = this.handleViewMessageTime(preMessages) as SgMsg[]
       const viewMessages = this.data.viewMessages
       if (viewMessages.length && !this.cmpTime(preViewMessages[preViewMessages.length - 1].createdAt!,
         viewMessages[0].createdAt!)) {
         viewMessages.shift() // 删除间隔时间
       }
-      this.setData({viewMessages: preViewMessages.concat(viewMessages)})
+      this.setData({viewMessages: preViewMessages.concat(viewMessages as SgMsg[])})
     }
     this.resetMessagesMap(messageInfo)
     wx.stopPullDownRefresh()
   },
-  resetMessagesMap(messageInfo: MessageInfo) {
+  resetMessagesMap(messageInfo: MessageInfo<SgMsg> | MessageInfo<GpMsg>) {
     messageInfo.fakeIdIndexMap = {}
-    messageInfo.messages.forEach((v, i) => messageInfo.fakeIdIndexMap[v.fakeId!] = i)
+    messageInfo.messages.forEach((v: SgMsg | GpMsg, i: number) => messageInfo.fakeIdIndexMap[v.fakeId!] = i)
     // userStore.setUnameMessageInfoMap({ ...userStore.unameMessageInfoMap })
   },
-  // 注册socket消息监听
-  addMessageListener() {
-    chatSocket.addSuccessHandler(REC_SG_MSGS, ((data: SocketResponse<SgMsg[]>) => {
+  sgMsgSuccessHandler: (_data: SocketResponse) => {
+  },
+  sgMsgErrorHandler: (_data: SocketResponse) => {
+  },
+  // 注册单聊消息监听
+  addSgMsgListener() {
+    this.sgMsgSuccessHandler = ((data: SocketResponse<SgMsg[]>) => {
+      const viewMessages = this.data.viewMessages as SgMsg[]
       data.data.forEach((message: SgMsg) => {
         if (message.from === userStore.user.username) { // 自己发的
-          const ownMessage = this.data.viewMessages.find(msg => msg.fakeId === message.fakeId)!
+          const ownMessage = viewMessages.find(msg => msg.fakeId === message.fakeId)!
           delete ownMessage?.state
           ownMessage.createdAt = message.createdAt
         } else { // 别人发的
-          const length = this.data.viewMessages.push(message)
-          this.data.viewMessages.splice(length - 2, 2, ...this.handleViewMessageTime(undefined, length - 2))
+          const length = viewMessages.push(message as SgMsg)
+          viewMessages.splice(length - 2, 2, ...this.handleViewMessageTime(undefined, length - 2) as SgMsg[])
         }
       })
       this.setData({viewMessages: this.data.viewMessages,})
       this.scrollView()
       app.saveMessages()
-    }))
-    chatSocket.addErrorHandler(REC_SG_MSGS, (data: SocketResponse<SgMsg>) => {
+    })
+    this.sgMsgErrorHandler = (data: SocketResponse<SgMsg>) => {
       const messageInfo = userStore.unameMessageInfoMap[data.data.to!]
       const message = messageInfo.messages[messageInfo.fakeIdIndexMap[data.data.fakeId!]]
       message.state = 'error'
       // userStore.setUnameMessageInfoMap({ ...userStore.unameMessageInfoMap })
       // this.setData({ viewMessages: this.data.viewMessages })
-    })
+    }
+    chatSocket.addSuccessHandler(REC_SG_MSGS, this.sgMsgSuccessHandler)
+    chatSocket.addErrorHandler(REC_SG_MSGS, this.sgMsgErrorHandler)
+  },
+  addGpMsgListener() {
+    chatSocket.addSuccessHandler(REC_GP_MSGS, this.sgMsgSuccessHandler)
+    chatSocket.addErrorHandler(REC_GP_MSGS, this.sgMsgErrorHandler)
   },
   cmpTime(t1: string | number, t2: string | number) {
     return new Date(t1).getTime() < new Date(t2).getTime() - 180000 // 大于3分钟显示时间
   },
-  handleViewMessageTime(target?: SgMsg[], start = 0, end?: number) {
+  handleViewMessageTime(target?: SgMsg[] | GpMsg[], start = 0, end?: number) {
     if (target === undefined) target = this.data.viewMessages
     if (end === undefined) end = target.length
     if (start < 0) start = 0
@@ -449,7 +499,7 @@ Page({
     if (start === 0) {
       res.unshift({
         content: formatSimpleDate(new Date(target[0].createdAt!)),
-        type: MsgType.system
+        type: MsgType.system,
       })
     }
     return res
@@ -505,9 +555,10 @@ Page({
   async send() {
     // console.log(this.data.recordState, this.data.inputState)
     const type = this.data.recordState === 2 && this.data.inputState === 1 ? MsgType.audio : MsgType.text // 语音或文字
-    const target = this.data.target
+    const {target, chatType, title} = this.data
+    const to = this.getTo()
     const username = userStore.user.username
-    const fakeId = username + '-' + target.username + '-' + Date.now().toString(36)
+    const fakeId = username + '-' + to + '-' + Date.now().toString(36)
     let data: string | number[]
     if (type === MsgType.audio) {
       const fsm = wx.getFileSystemManager()
@@ -525,10 +576,11 @@ Page({
       createdAt: formatDate(),
       status: 0
     }
-    const messageInfo = userStore.unameMessageInfoMap[target.username]
+    const messageInfo = this.getMessageInfo(to)
+    const viewMessages = this.data.viewMessages as SgMsg[]
     chatSocket.send({
       data: {
-        to: target.username,
+        to,
         content: data,
         fakeId,
         type,
@@ -536,34 +588,47 @@ Page({
       },
       action: SEND_SG_MSG
     }).then(() => {
-      messageInfo.fakeIdIndexMap[fakeId] = messageInfo.messages.push(message) - 1
-      const length = this.data.viewMessages.push(message)
-      this.data.viewMessages.splice(length - 2, 2, ...this.handleViewMessageTime(undefined, length - 2))
-      this.setData({viewMessages: this.data.viewMessages})
+      messageInfo.fakeIdIndexMap[fakeId] = messageInfo.messages.push(message as SgMsg) - 1
+      const length = viewMessages.push(message)
+      viewMessages.splice(length - 2, 2, ...this.handleViewMessageTime(undefined, length - 2) as SgMsg[])
+      this.setData({viewMessages})
       // userStore.setUnameMessageInfoMap({ ...userStore.unameMessageInfoMap })
       this.scrollView()
     }, () => {
       message.state = 'error'
       messageInfo.fakeIdIndexMap[fakeId] = messageInfo.messages.push(message) - 1
-      const length = this.data.viewMessages.push(message)
-      this.data.viewMessages.splice(length - 2, 2, ...this.handleViewMessageTime(undefined, length - 2))
-      this.setData({viewMessages: this.data.viewMessages})
+      const length = viewMessages.push(message)
+      viewMessages.splice(length - 2, 2, ...this.handleViewMessageTime(undefined, length - 2) as SgMsg[])
+      this.setData({viewMessages})
       // userStore.setUnameMessageInfoMap({ ...userStore.unameMessageInfoMap })
       this.scrollView()
     })
-    const fakeIds = app.globalData.toSaveUnameFakeIdsMap[target.username] || []
+    const map = chatType === ChatType.single ? app.globalData.toSaveUnameFakeIdsMap : app.globalData.toSaveGroupIdFakeIdsMap
+    const fakeIds = map[to] || []
     fakeIds.push(fakeId)
-    app.globalData.toSaveUnameFakeIdsMap[target.username] = fakeIds
+    map[to] = fakeIds
     this.setData({content: '', _recordFilePath: '', recordState: 0})
-    app.saveChat(message, this.data.target, 0)
+    app.saveChats(message, {nickname: title, avatar: target.avatar!}, 0, chatType)
     app.saveMessages()
   },
   clearChat() {
-    const index = userStore.chats.findIndex(chat => chat.username === this.data.target.username)
+    const to = this.getTo()
+    const index = userStore.chats.findIndex(chat => chat.to === to)
     if (index > -1) {
       userStore.chats[index].newCount = 0
       userStore.setChats([...userStore.chats])
       wx.setStorageSync('chats-' + userStore.user.username, JSON.stringify(userStore.chats))
     }
+  },
+  getTo() {
+    const {chatType, target} = this.data
+    return chatType === ChatType.single ? (target as Contact).username : (target as GroupInfo).id
+  },
+  getMessageInfo(to: Users.Username | Groups.Id) {
+    const {chatType} = this.data
+    return ((chatType === ChatType.single ? userStore.unameMessageInfoMap[to] : userStore.groupIdMessageInfoMap[to]) || {}) as MessageInfo<SgMsg>
+  },
+  toChatInfo() {
+    this.data.chatType === ChatType.group ? wx.navigateTo({url: GroupInfoPath + '?id=' + this.getTo()}) : wx.navigateTo({url: SingleInfoPath + '?username=' + this.getTo()})
   },
 })

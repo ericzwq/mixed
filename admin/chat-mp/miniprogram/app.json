@@ -13,7 +13,9 @@
     "pages/friend-setting/friend-setting",
     "pages/groups/groups",
     "pages/choose-friend/choose-friend",
-    "pages/create-group/create-group"
+    "pages/create-group/create-group",
+    "pages/group-info/group-info",
+    "pages/single-info/single-info"
   ],
   "tabBar": {
     "custom": true,

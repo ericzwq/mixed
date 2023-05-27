@@ -1,26 +1,32 @@
-import { ChatsPath, ContactPath, FoundPath, PersonalPath } from "../consts/routes";
-import { chatSocket } from "../socket/socket";
-import { REC_ADD_USER } from "../socket/socket-actions";
-import { userStore } from "../store/user";
+import {ChatsPath, ContactPath, FoundPath, PersonalPath} from "../consts/routes";
+import {chatSocket} from "../socket/socket";
+import {REC_ADD_USER} from "../socket/socket-actions";
+import {userStore} from "../store/user";
+import {createStoreBindings} from "mobx-miniprogram-bindings";
 
 Component({
   options: {
     styleIsolation: 'shared'
   },
-  properties: {
-
-  },
+  properties: {},
   lifetimes: {
     attached() {
+      this.data.storeBindings = createStoreBindings(this, {
+        store: userStore,
+        fields: ['newMsgCount']
+      })
       chatSocket.addSuccessHandler<FriendApl>(REC_ADD_USER, (data) => {
         this.data.list[1].info = (+this.data.list[1].info + 1) + ''
-        this.setData({ list: [...this.data.list] })
-        const { username } = userStore.user
+        this.setData({list: [...this.data.list]})
+        const {username} = userStore.user
         wx.setStorageSync('newFriendCount-' + username, this.data.list[1].info)
         const friendApls: FriendApl[] = JSON.parse(wx.getStorageSync('friendApplications-' + username) || '[]')
         friendApls.unshift(data.data)
         wx.setStorageSync('friendApplications-' + username, JSON.stringify(friendApls))
       }, 0)
+    },
+    detached() {
+      this.data.storeBindings.destroyStoreBindings()
     }
   },
 
@@ -29,34 +35,35 @@ Component({
    */
   data: {
     active: 0,
-    list: [{
+    chats: {
       icon: '../static/image/message.svg',
       activeIcon: '../static/image/message-active.svg',
       text: '消息',
       url: ChatsPath,
-      info: ''
     },
-    {
-      icon: '../static/image/contact.svg',
-      activeIcon: '../static/image/contact-active.svg',
-      text: '联系人',
-      url: ContactPath,
-      info: ''
-    },
-    {
-      icon: '../static/image/found.svg',
-      activeIcon: '../static/image/found-active.svg',
-      text: '发现',
-      url: FoundPath,
-      info: ''
-    },
-    {
-      icon: '../static/image/personal.svg',
-      activeIcon: '../static/image/personal-active.svg',
-      text: '我的',
-      url: PersonalPath,
-      info: ''
-    }]
+    list: [
+      {
+        icon: '../static/image/contact.svg',
+        activeIcon: '../static/image/contact-active.svg',
+        text: '联系人',
+        url: ContactPath,
+        info: ''
+      },
+      {
+        icon: '../static/image/found.svg',
+        activeIcon: '../static/image/found-active.svg',
+        text: '发现',
+        url: FoundPath,
+        info: ''
+      },
+      {
+        icon: '../static/image/personal.svg',
+        activeIcon: '../static/image/personal-active.svg',
+        text: '我的',
+        url: PersonalPath,
+        info: ''
+      }],
+    storeBindings: {} as StoreBindings,
   },
 
   /**
@@ -70,13 +77,13 @@ Component({
         2: FoundPath,
         3: PersonalPath
       } as { [key in string]: string }
-      this.setData({ active: event.detail })
-      wx.switchTab({ url: routeMap[event.detail] })
+      this.setData({active: event.detail})
+      wx.switchTab({url: routeMap[event.detail]})
     },
     init() {
       const page = getCurrentPages().pop()
       this.data.list[1].info = wx.getStorageSync('newFriendCount-' + userStore.user.username)
-      this.setData({ active: this.data.list.findIndex(v => v.url === '/' + page?.route), list: [...this.data.list] })
+      this.setData({active: this.data.list.findIndex(v => v.url === '/' + page?.route) + 1, list: [...this.data.list]})
     }
   }
 })

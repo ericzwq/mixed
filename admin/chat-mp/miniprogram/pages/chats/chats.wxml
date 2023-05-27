@@ -1,11 +1,12 @@
 <view class="message-box">
   <wxs src="../../common/utils.wxs" module="utils"></wxs>
-  <view wx:for="{{chats}}" class="message-item" wx:key="nickname" bindlongpress="handleLongPress" data-i="{{index}}" bindtap="toDetail">
+  <view class="message-item {{index === activeIndex ? 'active' : ''}}" wx:for="{{chats}}" wx:key="nickname" bindlongpress="handleLongPress" data-i="{{index}}"
+        bindtap="toDetail" bindtouchstart="onTouchStart" bindtouchcancel="onTouchCancel" bindtouchend="onTouchCancel">
     <image class="left" src="{{STATIC_BASE_URL + item.avatar}}"></image>
     <view class="right">
       <view class="content-box">
         <view class="remark">{{item.nickname}}</view>
-        <view class="content"> {{item.message}} </view>
+        <view class="content">{{item.content}}</view>
       </view>
       <view class="time">
         <text>{{utils.formatSimpleDate(item.createdAt)}}</text>
@@ -14,7 +15,12 @@
     </view>
   </view>
   <view class="hover-btn-box" hidden="{{!showHoverBtn}}" bindtap="clickMask">
-    <view>删除该聊天</view>
+    <view class="opts" style="left: {{left}}; right: {{right}}; top: {{top}}; bottom: {{bottom}}">
+      <view class="item">标为未读</view>
+      <view class="item">置顶该聊天</view>
+      <view class="item">不显示该聊天</view>
+      <view class="item">删除该聊天</view>
+    </view>
   </view>
   <more/>
 </view>

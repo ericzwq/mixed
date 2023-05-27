@@ -6,6 +6,6 @@ import {ExtWebSocket} from '../../socket-types'
 
 export function getUserByUsername(ws: ExtWebSocket, username: Users.Username) {
   return executeSocketSql<{
-    username: Users.Username, nickname: Users.Nickname, avatar: Users.Avatar
-  }[]>(ws, 'select username, nickname, avatar from users where username = ? limit 1;', [username])
+    username: Users.Username, nickname: Users.Nickname, avatar: Users.Avatar, email: Users.Email
+  }[]>(ws, 'select username, nickname, avatar, email from users where username = ? limit 1;', [username])
 }

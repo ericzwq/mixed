@@ -1,4 +1,6 @@
 export const registerUrl = 'register'
 export const loginUrl = 'login'
 export const logoutUrl = 'logout'
-export const upAvatarUrl = 'upAvatar'
+export const upPicUrl = 'upPic'
+export const upVideoUrl = 'upVideo'
+export const upFileUrl = 'upFile'

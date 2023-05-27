@@ -1,6 +1,6 @@
 <van-cell-group>
   <text class="title">头像：</text>
-  <van-uploader file-list="{{ fileList }}" bind:after-read="afterRead" />
+  <van-uploader max-count="1" image-fit="aspectFit" file-list="{{ fileList }}" bind:after-read="afterRead" bind:delete="onDelete" />
   <view class="title margin">群聊名称：</view>
   <van-field value="{{ formData.name }}" bind:input="nameChange" placeholder="请输入群聊名称" error-message="{{errors.name}}" required />
   <button type="primary" class="btn" bindtap="createGroup">完成</button>

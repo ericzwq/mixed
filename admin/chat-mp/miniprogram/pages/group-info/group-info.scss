@@ -1,0 +1,50 @@
+@import "../../style/public";
+
+.avatar-box {
+  display: flex;
+  padding: 0 10rpx;
+}
+
+.gap::after {
+  content: '';
+  display: block;
+  height: 20rpx;
+  background: #eee;
+}
+
+.avatar {
+  display: block;
+  width: 80rpx;
+  height: 80rpx;
+  margin: 20rpx 10rpx;
+  border-radius: 8rpx;
+}
+
+.plus {
+  border: 1px dashed grey;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.more {
+  text-align: center;
+  color: grey;
+  font-size: 15px;
+  margin-bottom: 20rpx;
+
+  .icon {
+    width: unset !important;
+  }
+}
+
+.exit {
+  padding: 20rpx 0;
+  font-size: 15px;
+  color: red;
+  text-align: center;
+
+  &.active {
+    background: $active-background-color;
+  }
+}

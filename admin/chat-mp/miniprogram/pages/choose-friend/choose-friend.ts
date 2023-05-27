@@ -1,7 +1,7 @@
-import { createStoreBindings } from "mobx-miniprogram-bindings";
-import { userStore } from "../../store/user";
-import { BASE_URL, primaryColor } from '../../consts/consts'
-import { CreateGroupPath } from "../../consts/routes";
+import {createStoreBindings} from "mobx-miniprogram-bindings";
+import {userStore} from "../../store/user";
+import {BASE_URL, primaryColor} from '../../consts/consts'
+import {CreateGroupPath} from "../../consts/routes";
 
 Page({
   data: {
@@ -16,15 +16,18 @@ Page({
       store: userStore,
       fields: ['contacts']
     })
-    this.setData({ curContacts: userStore.contacts })
+    const curContacts = [...userStore.contacts]
+    const {username} = userStore.user
+    curContacts.splice(curContacts.findIndex(c => c.username === username), 1)
+    this.setData({curContacts})
   },
   toggle(event: WechatMiniprogram.CustomEvent) {
-    const { index } = event.currentTarget.dataset
-    const { selecteds } = this.data
+    const {index} = event.currentTarget.dataset
+    const {selecteds} = this.data
     const contact = this.data.curContacts[index]
     const selected = selecteds.findIndex(c => c.username === contact.username) > -1
     if (!selected && selecteds.length >= 100) {
-      wx.showToast({ title: '最多选100个', icon: 'error' })
+      wx.showToast({title: '最多选100个', icon: 'error'})
       return
     }
     if (selected) {
@@ -32,20 +35,24 @@ Page({
     } else {
       selecteds.push(contact)
     }
-    this.setData({ selecteds: [...selecteds] })
+    this.setData({selecteds: [...selecteds]})
   },
   search(e: VanInputEvent<string>) {
-    this.setData({ keyword: e.detail, curContacts: userStore.contacts.filter(c => c.nickname.includes(e.detail) || c.username.includes(e.detail)) })
+    const {contacts, unameUserMap, user: {username}} = userStore
+    this.setData({
+      keyword: e.detail,
+      curContacts: contacts.filter(c => c.username !== username && unameUserMap[c.username].nickname.includes(e.detail) || c.username.includes(e.detail))
+    })
   },
   unselect(e: WechatMiniprogram.CustomEvent) {
     const username: Users.Username = e.currentTarget.dataset.u
-    const { selecteds } = this.data
+    const {selecteds} = this.data
     selecteds.splice(selecteds.findIndex(c => c.username === username), 1)
-    this.setData({ selecteds: [...selecteds] })
+    this.setData({selecteds: [...selecteds]})
   },
   storeBindings: {} as StoreBindings,
   toCreateGroup() {
-    wx.navigateTo({ url: CreateGroupPath + '?data=' + JSON.stringify(this.data.selecteds.map(c => c.username)) })
+    wx.navigateTo({url: CreateGroupPath + '?data=' + JSON.stringify(this.data.selecteds.map(c => c.username))})
   },
   /**
    * 生命周期函数--监听页面初次渲染完成

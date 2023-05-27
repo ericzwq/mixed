@@ -1,4 +1,6 @@
 {
-    "usingComponents": {},
-    "enablePullDownRefresh": true
+  "usingComponents": {
+    "van-icon": "@vant/weapp/icon"
+  },
+  "enablePullDownRefresh": true
 }

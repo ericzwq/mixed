@@ -1,6 +1,6 @@
-import { UserDetailPath } from "../../consts/routes"
-import { chatSocket } from "../../socket/socket"
-import { SEARCH_USERS } from "../../socket/socket-actions"
+import {UserDetailPath} from "../../consts/routes"
+import {chatSocket} from "../../socket/socket"
+import {SEARCH_USERS} from "../../socket/socket-actions"
 
 // pages/addContact/addContact.ts
 Page({
@@ -19,14 +19,15 @@ Page({
   onLoad() {
 
   },
-  input() {},
+  input() {
+  },
   search() {
-    chatSocket.send({ action: SEARCH_USERS, data: { username: this.data.username } })
+    chatSocket.send({action: SEARCH_USERS, data: {username: this.data.username}})
     chatSocket.addSuccessHandler(SEARCH_USERS, (data: SocketResponse<Contact[]>) => {
       const contacts = data.data
-      this.setData({ noUser: contacts.length === 0 })
+      this.setData({noUser: contacts.length === 0})
       if (!this.data.noUser) {
-        const { avatar, username, nickname, } = contacts[0]
+        const {avatar, username, nickname} = contacts[0]
         wx.navigateTo({
           url: UserDetailPath + '?avatar=' + avatar + '&username=' + username + '&nickname=' + nickname
         })

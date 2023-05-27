@@ -1,9 +1,9 @@
-import { valueModel } from '../../../common/utils'
+import {valueModel} from '../../../common/utils'
 import http from '../../../http/http'
-import { loginUrl } from '../../../http/urls'
-import { userStore } from '../../../store/store'
-import { chatSocket } from '../../../socket/socket'
-import { ChatsPath } from '../../../consts/routes'
+import {loginUrl} from '../../../http/urls'
+import {userStore} from '../../../store/store'
+import {chatSocket} from '../../../socket/socket'
+import {ChatsPath} from '../../../consts/routes'
 
 Page({
 
@@ -13,10 +13,10 @@ Page({
   data: {
     rules: [{
       name: 'username',
-      rules: [{ required: true, message: '用户名不能为空' }]
+      rules: [{required: true, message: '用户名不能为空'}]
     }, {
       name: 'password',
-      rules: [{ required: true, message: '密码不能为空' }]
+      rules: [{required: true, message: '密码不能为空'}]
     }],
     formData: {
       username: '',
@@ -25,15 +25,17 @@ Page({
   },
   valueModel,
   login() {
-    this.selectComponent('#form').validate((isValid: boolean, errors: any) => {
-      if (errors) return wx.showToast({ title: errors[0].message, icon: 'error' })
+    this.selectComponent('#form').validate((_isValid: boolean, errors: any) => {
+      if (errors) {
+        wx.showToast({title: errors[0].message, icon: 'error'})
+        return
+      }
       http.post<User>(loginUrl, this.data.formData).then(r => {
         const data = r.data
         userStore.setUser(data)
-        wx.showToast({ title: '登录成功' })
-        wx.switchTab({ url: ChatsPath })
-        chatSocket.connect().then(() => userStore.getContacts())
-        userStore.getChats()
+        wx.showToast({title: '登录成功'})
+        wx.switchTab({url: ChatsPath})
+        chatSocket.connect().then(() => userStore.init())
       })
     })
   },

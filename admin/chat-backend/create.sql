@@ -93,6 +93,15 @@ create index fakeId_index on single_chat (fakeId);
 create index next_index on single_chat (next);
 
 insert single_chat(fakeId, pre, next, `from`, `to`, content, type, status)
+values ('asf', null, null, 'eric', 'eric', '你们已是好友，可以一起尬聊了', 1, 0);
+
+insert single_chat(fakeId, pre, next, `from`, `to`, content, type, status)
+values ('asf', null, null, 'eric2', 'eric2', '你们已是好友，可以一起尬聊了', 1, 0);
+
+insert single_chat(fakeId, pre, next, `from`, `to`, content, type, status)
+values ('asf', null, null, 'eric3', 'eric3', '你们已是好友，可以一起尬聊了', 1, 0);
+
+insert single_chat(fakeId, pre, next, `from`, `to`, content, type, status)
 values ('asf', null, null, 'eric', 'eric2', '你们已是好友，可以一起尬聊了', 1, 0);
 
 insert single_chat(fakeId, pre, next, `from`, `to`, content, type, status)

@@ -1,4 +1,4 @@
-@import '../../style//public.scss';
+@import '../../style/public.scss';
 
 .chat-box {
   background-color: #eee;
@@ -230,4 +230,10 @@ image {
     display: flex;
     justify-content: space-around;
   }
+}
+
+.float-btn {
+  position: fixed;
+  right: 0;
+  top: 0;
 }

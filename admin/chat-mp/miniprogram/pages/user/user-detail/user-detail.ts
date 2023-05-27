@@ -2,6 +2,7 @@ import { createStoreBindings } from 'mobx-miniprogram-bindings'
 import { BASE_URL } from '../../../consts/consts'
 import { userStore } from '../../../store/user'
 import { ChatDetailPath, FriendApplicationPath } from '../../../consts/routes'
+import {ChatType} from "../../../socket/socket-types";
 
 // pages/user/user-detail/user-detail.ts
 Page({
@@ -19,7 +20,7 @@ Page({
     const { username, nickname, avatar } = query
     this.storeBindings = createStoreBindings(this, {
       store: userStore,
-      fields: ['contacts', 'contactMap'],
+      fields: ['contacts', 'contactMap', 'unameUserMap'],
     })
     this.setData({
       target: userStore.contactMap[username] || { username, nickname, avatar } as Contact, // 添加好友或查看好友
@@ -34,7 +35,7 @@ Page({
   // 发消息
   toChat() {
     wx.navigateTo({
-      url: ChatDetailPath + '?username=' + this.data.target.username + '&type=1' // 单聊
+      url: ChatDetailPath + '?to=' + this.data.target.username + '&type=' + ChatType.single // 单聊
     })
   },
   /**

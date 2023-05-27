@@ -7,9 +7,9 @@ export namespace Groups {
   export type Name = string
   export type Avatar = string
   export type Leader = string
-  export type Manager = string
+  export type Manager = string | null
   export type Managers = Set<string>
-  export type Member = string
+  export type Member = string | null
   export type Members = Set<string>
   export type CreatedAt = string
 }
@@ -54,7 +54,7 @@ export interface GpMsgRes {
   fakeId?: GpMsgs.FakeId // 前端消息id
   from: GpMsgs.From
   to: GpMsgs.To
-  createdAt?: GpMsgs.CreatedAt
+  createdAt: GpMsgs.CreatedAt
   content: GpMsgs.Content
   status: MsgStatus
   next: GpMsgs.Next
@@ -67,9 +67,9 @@ export interface Group {
   name: Groups.Name
   avatar: Groups.Avatar
   leader: Groups.Leader
-  manager?: Groups.Manager
+  manager: Groups.Manager
   managers: Groups.Managers
-  member?: Groups.Member
+  member: Groups.Member
   members: Groups.Members
   createdAt: Groups.CreatedAt
 }

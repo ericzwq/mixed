@@ -8,7 +8,7 @@ const groupSchemas = {
   friendAplId: Joi.number().required(),
   reason: Joi.string().max(50).required(),
   name: Joi.string().max(20).required(),
-  avatar: Joi.string().max(100)
+  avatar: Joi.string().max(100).allow('')
 }
 
 const gpMsgSchemas = {
@@ -67,4 +67,12 @@ export const getHisGpMsgsSchema = Joi.object({
   maxId: gpMsgSchemas.id.required(),
   count: Joi.number().allow(null),
   minId: gpMsgSchemas.id.allow(null)
+}).unknown().required()
+
+export const getGroupInfoSchema = Joi.object({
+  id: groupSchemas.id
+}).unknown().required()
+
+export const getGroupMembersSchema = Joi.object({
+  id: groupSchemas.id
 }).unknown().required()

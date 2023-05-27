@@ -9,6 +9,7 @@ interface Contact {
   username: Users.Username
   nickname: Users.Nickname
   avatar: Users.Avatar
+  email: Users.Email
   remark: Contacts.Remark
   status: Contacts.Status
 }
@@ -16,12 +17,13 @@ interface Contact {
 // 获取通讯录
 export function getContactsByUsername(ws: ExtWebSocket, session: User) {
   return executeSocketSql<Contact[]>(
-    ws, 'select u.username, u.nickname, u.avatar, c.remark, c.status from contacts c left join users u on c.sub = u.username where c.master = ? and status in (?, ?);',
+    ws, 'select u.username, u.nickname, u.email, u.avatar, c.remark, c.status from contacts c left join users u on c.sub = u.username where c.master = ? and status in (?, ?);',
     [session.username, Status.normal, Status.blackList])
 }
 
 export function addContactByMasterAndSub(ws: ExtWebSocket, sub: Users.Username, master: Users.Username, status: Contacts.Status, remark: Contacts.Remark) {
-  return executeSocketSql<InsertModal>(ws, `insert into contacts(master, sub, status, remark) values(?, ?, ?, ?);`, [master, sub, status, remark])
+  return executeSocketSql<InsertModal>(ws, `insert into contacts(master, sub, status, remark)
+                                            values (?, ?, ?, ?);`, [master, sub, status, remark])
 }
 
 export function updateContactStatus(ws: ExtWebSocket, id: Contacts.Id, sub: Users.Username, master: Users.Username, status: Contacts.Status) {

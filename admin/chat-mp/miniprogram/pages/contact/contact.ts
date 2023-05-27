@@ -1,9 +1,9 @@
-import { createStoreBindings } from 'mobx-miniprogram-bindings'
-import { BASE_URL } from '../../consts/consts'
-import { GroupsPath, NewFriendsPath, UserDetailPath } from '../../consts/routes'
-import { chatSocket } from '../../socket/socket'
-import { ADD_USER, REC_ADD_USER } from '../../socket/socket-actions'
-import { userStore } from '../../store/store'
+import {createStoreBindings} from 'mobx-miniprogram-bindings'
+import {BASE_URL} from '../../consts/consts'
+import {GroupsPath, NewFriendsPath, UserDetailPath} from '../../consts/routes'
+import {chatSocket} from '../../socket/socket'
+import {REC_ADD_USER} from '../../socket/socket-actions'
+import {userStore} from '../../store/store'
 
 Page({
   data: {
@@ -12,23 +12,24 @@ Page({
   },
   toDetail(e: WechatMiniprogram.CustomEvent) {
     const data = userStore.contacts[e.currentTarget.dataset.i]
-    wx.navigateTo({ url: UserDetailPath + '?username=' + data.username })
+    wx.navigateTo({url: UserDetailPath + '?username=' + data.username})
   },
   toNewFriends() {
-    wx.navigateTo({ url: NewFriendsPath })
+    wx.navigateTo({url: NewFriendsPath})
   },
   toGroups() {
     wx.navigateTo({url: GroupsPath})
   },
   storeBindings: {} as StoreBindings,
-  receAddUserHandler: null as any,
+  recAddUserHandler: () => {
+  },
   onLoad() {
     this.storeBindings = createStoreBindings(this, {
       store: userStore,
-      fields: ['contacts', 'contactMap'],
+      fields: ['contacts', 'contactMap', 'unameUserMap'],
     })
-    this.receAddUserHandler = () => this.setData({ newFriendCount: wx.getStorageSync('newFriendCount-' + userStore.user.username) })
-    chatSocket.addSuccessHandler(REC_ADD_USER, this.receAddUserHandler)
+    this.recAddUserHandler = () => this.setData({newFriendCount: wx.getStorageSync('newFriendCount-' + userStore.user.username)})
+    chatSocket.addSuccessHandler(REC_ADD_USER, this.recAddUserHandler)
   },
   /**
    * 生命周期函数--监听页面初次渲染完成
@@ -42,7 +43,7 @@ Page({
    */
   onShow() {
     this.getTabBar().init()
-    this.receAddUserHandler()
+    this.recAddUserHandler()
   },
 
   /**
@@ -57,7 +58,7 @@ Page({
    */
   onUnload() {
     this.storeBindings.destroyStoreBindings()
-    chatSocket.removeSuccessHandler(REC_ADD_USER, this.receAddUserHandler)
+    chatSocket.removeSuccessHandler(REC_ADD_USER, this.recAddUserHandler)
   },
 
   /**

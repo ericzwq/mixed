@@ -1,0 +1,30 @@
+<view>
+  <view class="gap">
+    <view class="avatar-box">
+      <image class="avatar" wx:for="{{members}}" wx:key="index" src="{{BASE_URL + unameUserMap[item].avatar}}"/>
+      <van-icon class="avatar plus" name="plus"/>
+    </view>
+    <view wx:if="{{count > 19}}" class="more">
+      <text>查看更多群成员</text>
+      <van-icon class="icon" name="arrow"/>
+    </view>
+  </view>
+  <van-cell-group class="gap">
+    <van-cell title="群聊名称" value="{{name}}" is-link/>
+    <van-cell title="群公告" is-link/>
+    <van-cell title="备注" value="备注" is-link/>
+  </van-cell-group>
+  <van-cell title="查找聊天记录" class="gap" is-link/>
+  <van-cell-group class="gap">
+    <van-cell title="消息免打扰" is-link/>
+    <van-cell title="置顶聊天" is-link/>
+  </van-cell-group>
+  <van-cell-group class="gap">
+    <van-cell title="我在群里的昵称" value="淡定" is-link/>
+    <van-cell title="显示群成员昵称" is-link/>
+  </van-cell-group>
+  <van-cell title="清空聊天记录" class="gap" is-link/>
+  <view class="gap">
+    <view class="exit {{exitClass}}" bindtap="exit" bindtouchstart="onTouchStart" bindtouchcancel="onTouchCancel" bindtouchend="onTouchCancel">退出群聊</view>
+  </view>
+</view>

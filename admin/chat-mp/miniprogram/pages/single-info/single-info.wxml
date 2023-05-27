@@ -1,0 +1,12 @@
+<view>
+  <view class="gap">
+    <image class="avatar"/>
+    <van-icon class="avatar plus" name="plus"/>
+  </view>
+  <van-cell title="查找聊天记录" class="gap" is-link/>
+  <van-cell-group class="gap">
+    <van-cell title="消息免打扰" is-link/>
+    <van-cell title="置顶聊天" is-link/>
+  </van-cell-group>
+  <van-cell title="清空聊天记录" class="gap" is-link/>
+</view>

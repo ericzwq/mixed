@@ -15,11 +15,11 @@
   </view>
   <view class="contact-item" bindtap="toGroups">
     <image class="left" src="../../static/image/group-chat.svg" style="background: #FFC125;"></image>
-    <view class="right"> 群聊 </view>
+    <view class="right">群聊</view>
   </view>
   <view class="contact-item" wx:for="{{contacts}}" wx:key="username" data-i="{{index}}" bindtap="toDetail">
-    <image class="left" src="{{STATIC_BASE_URL + item.avatar}}"></image>
-    <view class="right">{{ item.nickname }}</view>
+    <image class="left" src="{{STATIC_BASE_URL + unameUserMap[item.username].avatar}}"></image>
+    <view class="right">{{ unameUserMap[item.username].nickname }}</view>
   </view>
-  <more />
+  <more/>
 </view>

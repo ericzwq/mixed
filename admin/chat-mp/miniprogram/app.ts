@@ -1,49 +1,41 @@
-import { createStoreBindings } from 'mobx-miniprogram-bindings'
-import { formatDate } from './common/utils'
-import { ChatDetailPath, LoginPath } from './consts/routes'
-import { chatSocket } from "./socket/socket"
-import { GET_FRIEND_APLS, REC_SG_MSGS } from './socket/socket-actions'
-import { userStore } from "./store/user"
+import {createStoreBindings} from 'mobx-miniprogram-bindings'
+import {formatDate, handleMsg} from './common/utils'
+import {ChatDetailPath, LoginPath} from './consts/routes'
+import {chatSocket} from "./socket/socket"
+import {REC_GP_MSGS, REC_SG_MSGS, SEARCH_USERS} from './socket/socket-actions'
+import {userStore} from "./store/user"
+import {ChatType, MsgType} from './socket/socket-types'
 
 App<IAppOption>({
   globalData: {
     toSaveUnameFakeIdsMap: {} as { [k in string]: SgMsgs.FakeId[] },
+    toSaveGroupIdFakeIdsMap: {} as { [k in string]: SgMsgs.FakeId[] },
     saveStatus: '',
   },
   onLaunch() {
-    createStoreBindings({ setData: () => 0 }, {
+    createStoreBindings({setData: () => 0}, {
       store: userStore,
       actions: ['setUser', 'getContacts']
     })
-    this.addRecMsgsListener()
+    this.addRecSgMsgsListener()
+    this.addRecGpMsgsListener()
     if (!this.getUser()) return
-    chatSocket.connect().then(() => {
-      userStore.getContacts()
-      const friendApls: FriendApl[] = JSON.parse(wx.getStorageSync('friendApplications-' + userStore.user.username) || '[]')
-      chatSocket.send({ action: GET_FRIEND_APLS, data: { lastFriendAplId: friendApls.length ? friendApls[0].friendAplId : null } })
-      chatSocket.addSuccessHandler<FriendApl[]>(GET_FRIEND_APLS, data => {
-          data.data.forEach(friendApl => {
-            const id = friendApl.friendAplId
-            console.log(id)
-          })
-      })
-    })
-    userStore.getChats()
+    chatSocket.connect().then(() => userStore.init())
   },
   // 获取用户信息
   getUser() {
     const user = wx.getStorageSync('user')
     if (!user) {
       chatSocket.close('无用户信息')
-      wx.navigateTo({ url: LoginPath })
+      wx.navigateTo({url: LoginPath})
     } else {
       userStore.setUser(JSON.parse(user))
     }
     return !!user
   },
-  addRecMsgsListener() {
-    chatSocket.addSuccessHandler(REC_SG_MSGS, ((data: SocketResponse<SgMsg[]>) => {
-      const { unameMessageInfoMap } = userStore
+  addRecSgMsgsListener() {
+    chatSocket.addSuccessHandler(REC_SG_MSGS, (data: SocketResponse<SgMsg[]>) => {
+      const {unameMessageInfoMap} = userStore
       const msg = data.data[0]
       if (!msg) return
       const targetUname = msg.to === userStore.user.username ? msg.from : msg.to
@@ -58,15 +50,15 @@ App<IAppOption>({
         }
         unameMessageInfoMap[targetUname!] = messageInfo
       }
-      const { messages, fakeIdIndexMap } = messageInfo
+      const {messages, fakeIdIndexMap} = messageInfo
       data.data.forEach((message: SgMsg) => {
         const ownMessage = messages[fakeIdIndexMap[message.fakeId!]]
         console.log('接收到消息', message, ownMessage);
         if (ownMessage) { // 自己发的
           delete ownMessage.state
           ownMessage.createdAt = message.createdAt
-          if (ownMessage.type === 3) { // 音频数据处理
-            ownMessage.data = ownMessage.data
+          if (ownMessage.type === MsgType.audio) { // 音频数据处理
+            ownMessage.content = message.content
           }
         } else { // 别人发的
           delete message.state
@@ -79,10 +71,11 @@ App<IAppOption>({
         const fakeIds = this.globalData.toSaveUnameFakeIdsMap[targetUname!] || []
         fakeIds.push(message.fakeId!)
         this.globalData.toSaveUnameFakeIdsMap[targetUname!] = fakeIds
+        handleMsg(message)
       })
-      this.saveChat(data.data[data.data.length - 1], userStore.contactMap[targetUname!], data.data.length)
+      this.saveChats(data.data[data.data.length - 1], userStore.unameUserMap[targetUname!], data.data.length, ChatType.single)
       this.saveMessages()
-    }))
+    })
     chatSocket.addErrorHandler(REC_SG_MSGS, (data: SocketResponse<SgMsg>) => {
       const newMessage = data.data
       const messageInfo = userStore.unameMessageInfoMap[newMessage.to!]
@@ -90,11 +83,86 @@ App<IAppOption>({
       message.state = 'error'
     })
   },
-  saveChat(message: SgMsg, target: Contact, newCount: number) {
+  addRecGpMsgsListener() {
+    chatSocket.addSuccessHandler(REC_GP_MSGS, async (data: SocketResponse<GpMsg[]>) => {
+      console.log('群聊消息', data)
+      const {groupIdMessageInfoMap, unameUserMap, user: {username}} = userStore
+      const msg = data.data[0] as Required<GpMsg>
+      if (!msg) return
+      const {to, from} = msg
+      let messageInfo = groupIdMessageInfoMap[to]
+      if (!messageInfo) {
+        messageInfo = {
+          messages: [],
+          fakeIdIndexMap: {},
+          loadedMessagesMinIndex: -1,
+          loadedMessagesPageMinIndex: Infinity,
+          maxMessagesIndex: 0
+        }
+        groupIdMessageInfoMap[to] = messageInfo
+      }
+      const {messages, fakeIdIndexMap} = messageInfo
+      data.data.forEach((message: GpMsg) => {
+        const ownMessage = messages[fakeIdIndexMap[message.fakeId!]]
+        console.log('接收到消息', message, ownMessage);
+        if (ownMessage) { // 自己发的
+          delete ownMessage.state
+          ownMessage.createdAt = message.createdAt
+          if (ownMessage.type === MsgType.audio) { // 音频数据处理
+            ownMessage.content = message.content
+          }
+        } else { // 别人发的
+          delete message.state
+          fakeIdIndexMap[message.fakeId!] = messages.push(message) - 1
+          // const length = this.data.viewMessages.push(message)
+          // this.data.viewMessages.splice(length - 2, 2, ...this.handleViewMessageTime(
+          //   undefined,
+          //   length - 2))
+        }
+        const fakeIds = this.globalData.toSaveGroupIdFakeIdsMap[to] || []
+        fakeIds.push(message.fakeId!)
+        this.globalData.toSaveGroupIdFakeIdsMap[to] = fakeIds
+        handleMsg(message)
+      })
+      const groupInfo = await userStore.getGroupIdGroupInfo(to)
+      this.saveChats(data.data[data.data.length - 1], {nickname: groupInfo.name, avatar: groupInfo.avatar}, data.data.length, ChatType.group)
+      this.saveMessages()
+      if (!unameUserMap[from]) {
+        await chatSocket.send({action: SEARCH_USERS, data: {username: from}})
+        const handler = (data: SocketResponse<User[]>) => {
+          chatSocket.removeSuccessHandler(SEARCH_USERS, handler)
+          if (!data.data.length) return console.error('无该用户信息', from, data)
+          const {nickname, avatar, email} = data.data[0]
+          unameUserMap[from] = {nickname, avatar, email}
+          userStore.setUnameUserMap(unameUserMap)
+          wx.setStorageSync('unameUserMap-' + username, JSON.stringify(unameUserMap))
+        }
+        chatSocket.addSuccessHandler(SEARCH_USERS, handler)
+      }
+    })
+    chatSocket.addErrorHandler(REC_GP_MSGS, (data: SocketResponse<GpMsg>) => {
+      const newMessage = data.data
+      const messageInfo = userStore.groupIdMessageInfoMap[newMessage.to!]
+      const message = messageInfo.messages[messageInfo.fakeIdIndexMap[newMessage.fakeId!]]
+      message.state = 'error'
+    })
+  },
+  saveChats(message: SgMsg | GpMsg, target: { nickname: string, avatar: string }, newCount: number, chatType: ChatType) {
+    console.log(target)
     const pages = getCurrentPages()
     const isChatDetailPath = '/' + pages[pages.length - 1].route === ChatDetailPath
-    const message2 = message.type === 1 ? message.data : ''
-    const chat = { username: target.username, nickname: target.nickname, avatar: target.avatar, message: message2, createdAt: formatDate(), newCount, type: message.type, from: message.from! }
+    const content = message.type === MsgType.audio ? '' : message.content
+    const chat: ChatItem = {
+      nickname: target.nickname,
+      avatar: target.avatar,
+      content,
+      createdAt: formatDate(),
+      newCount,
+      type: message.type,
+      from: message.from!,
+      to: message.to!,
+      chatType
+    }
     const index = userStore.chats.findIndex(chat => chat.nickname === target.nickname)
     if (index > -1) {
       chat.newCount = isChatDetailPath ? 0 : userStore.chats[index].newCount + newCount
@@ -107,16 +175,15 @@ App<IAppOption>({
   // 缓存消息
   saveMessages() {
     if (this.globalData.saveStatus !== 'pending') {
-      setTimeout(this.saveMessagesHanlder.bind(this), 2000)
+      setTimeout(this.saveMessagesHandler.bind(this), 2000)
       this.globalData.saveStatus = 'pending'
     }
   },
-  saveMessagesHanlder() {
+  saveMessagesHandler() {
     const length = 16
-    Object.keys(this.globalData.toSaveUnameFakeIdsMap).forEach(to => {
-      const prefixKey = to + '-'
+    const handler = <T extends SgMsg | GpMsg>(to: Users.Username | GpMsgs.Id, chatType: ChatType, messageInfo: MessageInfo<T>) => {
+      const prefixKey = chatType + '-' + to + '-'
       const pages = new Set<number>()
-      let messageInfo = userStore.unameMessageInfoMap[to]
       if (!messageInfo) {
         const index = wx.getStorageSync(prefixKey + 'i')
         messageInfo = {
@@ -135,8 +202,8 @@ App<IAppOption>({
         }
       }
       let start = length - messageInfo.loadedMessagesPageMinIndex - 1
-      if (start === -Infinity) start = -1 // 无缓存
-      this.globalData.toSaveUnameFakeIdsMap[to].forEach(fakeId => {
+      if (start === -Infinity) start = -1; // 无缓存
+      (chatType === ChatType.single ? this.globalData.toSaveUnameFakeIdsMap : this.globalData.toSaveGroupIdFakeIdsMap)[to].forEach(fakeId => {
         const index = (messageInfo.fakeIdIndexMap[fakeId] - start) / length
         // console.log(messageInfo.fakeIdIndexMap[fakeId], start, index, messageInfo.loadedMessagesPageMinIndex)
         // const page = (index > 0 ? Math.ceil(index) : Math.floor(index)) + messageInfo.loadedMessagesIndex + 1
@@ -152,7 +219,9 @@ App<IAppOption>({
         wx.setStorageSync(prefixKey + i, JSON.stringify(messageInfo.messages.slice(left, left + length)))
       }
       wx.setStorageSync(prefixKey + 'i', messageInfo.maxMessagesIndex + '')
-    })
+    }
+    Object.keys(this.globalData.toSaveUnameFakeIdsMap).forEach(to => handler(to, ChatType.single, userStore.unameMessageInfoMap[to]))
+    Object.keys(this.globalData.toSaveGroupIdFakeIdsMap).forEach(to => handler(to, ChatType.group, userStore.groupIdMessageInfoMap[to]))
     this.globalData.toSaveUnameFakeIdsMap = {}
     this.globalData.saveStatus = ''
 

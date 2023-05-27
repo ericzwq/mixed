@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "群聊信息",
+  "usingComponents": {
+    "van-cell-group": "@vant/weapp/cell-group",
+    "van-cell": "@vant/weapp/cell",
+    "van-icon": "@vant/weapp/icon"
+  }
+}

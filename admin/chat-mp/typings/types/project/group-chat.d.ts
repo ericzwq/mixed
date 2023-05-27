@@ -3,10 +3,10 @@ declare namespace Groups {
   type Name = string
   type Avatar = string
   type Leader = string
-  type Manager = string
-  type Managers = Set<string>
-  type Member = string
-  type Members = Set<string>
+  type Manager = string | null
+  type Managers = Users.Username[]
+  type Member = string | null
+  type Members = Users.Username[]
   type CreatedAt = string
 }
 
@@ -26,6 +26,23 @@ declare namespace GpMsgs {
 
 declare namespace GpMembers {
   type prohibition = number
+}
+
+interface GroupIdMessageInfoMap {
+  [key: string]: MessageInfo<GpMsg>
+}
+
+interface GroupInfo {
+  id: Groups.Id
+  name: Groups.Name
+  avatar: Groups.Avatar
+  leader: Groups.Leader
+  manager: Groups.Manager
+  count: number
+}
+
+interface GroupIdGroupInfoMap {
+  [key: string]: GroupInfo
 }
 
 declare enum GpMemberOrigin {
@@ -59,22 +76,24 @@ interface GpMsgRes {
 }
 
 interface GpMsg extends Partial<GpMsgRes> {
+  content: GpMsgs.Content
+  type: MsgType
   state?: 'loading' | 'error'
   isPlay?: boolean
 }
 
 
-interface Group {
-  id: Groups.Id
-  name: Groups.Name
-  avatar: Groups.Avatar
-  leader: Groups.Leader
-  manager?: Groups.Manager
-  managers: Groups.Managers
-  member?: Groups.Member
-  members: Groups.Members
-  createdAt: Groups.CreatedAt
-}
+// interface Group {
+//   id: Groups.Id
+//   name: Groups.Name
+//   avatar: Groups.Avatar
+//   leader: Groups.Leader
+//   manager?: Groups.Manager
+//   managers: Groups.Managers
+//   member?: Groups.Member
+//   members: Groups.Members
+//   createdAt: Groups.CreatedAt
+// }
 
 declare namespace GroupApls {
   type Id = Groups.Id
@@ -148,4 +167,7 @@ interface File {
   size: number
   url: string
   type: string
+  status?: 'uploading' | 'failed' | 'done'
+  message?: string
+  shortUrl?: string
 }

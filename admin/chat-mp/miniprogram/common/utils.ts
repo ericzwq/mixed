@@ -19,5 +19,27 @@ export function formatSimpleDate(date: Date) {
  */
 export function valueModel(this: WechatMiniprogram.Page.Instance<WechatMiniprogram.Page.DataOption, WechatMiniprogram.Page.CustomOption>, e: WechatMiniprogram.CustomEvent) {
   const key = e.target.dataset['bindkey']
-  this.setData({ [key]: e.detail.value })
+  this.setData({[key]: e.detail.value})
+}
+
+// 处理消息
+export function handleMsg(msg: Pick<SgMsg, 'content' | 'type'>) {
+  const handlers = {
+    6() {
+      const content = msg.content as string
+      const [text, data] = content.split('/')
+      const texts = text.split('#')
+      const datas = data.split(',')
+      let txt = ''
+      for (let i = 0; i < texts.length; i++) {
+        if (texts[i] === '') {
+          txt += datas[i]
+        } else {
+          txt += decodeURIComponent(texts[i])
+        }
+      }
+      msg.content = txt
+    }
+  }
+  handlers[msg.type as keyof typeof handlers]?.()
 }

@@ -5,7 +5,7 @@ import {
   addGroupRetSchema,
   addGroupSchema,
   createGroupSchema,
-  getGroupAplsSchema, getHisGpMsgsSchema,
+  getGroupAplsSchema, getGroupInfoSchema, getGroupMembersSchema, getHisGpMsgsSchema,
   groupInviteRetSchema,
   groupInviteSchema,
   readGpMsgsSchema,
@@ -42,7 +42,7 @@ import {
 import client from "../../../redis/redis";
 import {usernameClientMap} from "../single/single";
 import {REC_ADD_GROUP, REC_GP_MSGS, REC_GROUP_INVITE, REC_GROUP_INVITE_RET, REC_READ_GP_MSGS} from "../../socket-actions";
-import {beginSocketSql} from "../../../db";
+import {beginSocketSql, commitSocketSql} from "../../../db";
 import {selectHisSgMsgs} from "../single/single-sql";
 
 // 创建群聊
@@ -69,11 +69,13 @@ export async function createGroup(ws: ExtWebSocket, user: User, data: RequestMes
     id: msgId,
     next: null,
     status: MsgStatus.normal,
-    readCount: 0
+    readCount: 0,
+    createdAt
   }
   await broadGroupInvite(ws, members, groupId, from, createdAt)
+  await commitSocketSql(ws)
   ws.json({action, data: {id: groupId, from, createdAt}})
-  ws.json({action: REC_GP_MSGS, data: res})
+  ws.json({action: REC_GP_MSGS, data: [res]})
 }
 
 // 邀请入群
@@ -181,7 +183,7 @@ async function getGroupById(ws: ExtWebSocket, id: Groups.Id): Promise<Group> {
     const {result} = await selectGroupById(ws, id)
     if (!result.length) {
       ws.json({status: 1004, message: '未知的群聊id：' + id})
-      return Promise.reject('未知的群聊id')
+      return Promise.reject('未知的群聊id：' + id)
     }
     group = result[0]
   }
@@ -280,6 +282,19 @@ export async function getHisGpMsgs(ws: ExtWebSocket, user: User, data: RequestMe
   await checkMessageParams(ws, getHisGpMsgsSchema, data.data, 1001)
   const {result} = await selectHisGpMsgs(ws, data.data)
   ws.json({action: data.action, data: JSON.parse(result[0][0].messages)})
+}
+
+// 获取群信息
+export async function getGroupInfo(ws: ExtWebSocket, user: User, data: RequestMessage<{ id: Groups.Id }>) {
+  await checkMessageParams(ws, getGroupInfoSchema, data.data, 1001)
+  const {id, name, avatar, leader, manager, managers, members} = await getGroupById(ws, data.data.id)
+  ws.json({action: data.action, data: {id, name, avatar, leader, manager, count: 1 + managers.size + members.size}})
+}
+
+export async function getGroupMembers(ws: ExtWebSocket, user: User, data: RequestMessage<{ id: Groups.Id }>) {
+  await checkMessageParams(ws, getGroupMembersSchema, data.data, 1001)
+  const {member} = await getGroupById(ws, data.data.id)
+  ws.json({action: data.action, data: member})
 }
 
 // 处理撤回

@@ -31,11 +31,13 @@ export async function sendSgMsg(ws: ExtWebSocket, user: User, data: RequestMessa
   const createdAt = formatDate()
   const {type, to, fakeId} = body
   const {action} = data
-  const contactStatus = await getUserContactStatus(ws, from, to)
-  if (contactStatus !== Status.normal) {
-    if (contactStatus === Status.never) return ws.json({action, status: 1002, message: '你们不是好友'})
-    if (contactStatus === Status.blackList) return ws.json({action, status: 1003, message: '对方已将你拉黑'})
-    return ws.json({action, status: 1008, message: '对方已将你删除'})
+  if (to !== from) {
+    const contactStatus = await getUserContactStatus(ws, from, to)
+    if (contactStatus !== Status.normal) {
+      if (contactStatus === Status.never) return ws.json({action, status: 1002, message: '你们不是好友'})
+      if (contactStatus === Status.blackList) return ws.json({action, status: 1003, message: '对方已将你拉黑'})
+      return ws.json({action, status: 1008, message: '对方已将你删除'})
+    }
   }
   const {result} = await selectSgMsgByFakeId(ws, fakeId)
   if (result.length) return ws.json({action, status: 1004, message: 'fakeId重复'})

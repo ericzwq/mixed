@@ -1,12 +1,14 @@
 <view class="{{['chat-box', keyboardUp ? 'focus': '']}}" bindtap="containerTap">
   <view class="{{['main', showOpts ? 'showOpt' : '']}}" id="main">
     <block wx:for="{{viewMessages}}" wx:key="fakeId">
-      <view wx:if="{{item.type === 0}}" class="middle">{{item.data}}</view>
+      <view wx:if="{{item.type === 0}}" class="middle">{{item.content}}</view>
+      <view wx:elif="{{item.type === 6}}" class="middle">{{item.content}}</view>
       <view wx:elif="{{user.username !== item.from}}" class="item left">
-        <image class="avatar" src="{{STATIC_BASE_URL + target.avatar}}" bindtap="toDetail"></image>
+        <image class="avatar" src="{{STATIC_BASE_URL + target.avatar}}" data-i="{{index}}" bindtap="toDetail"></image>
         <view class="content">
-          <view wx:if="{{item.type === 1}}">{{item.data}}</view>
-          <image src="../../static/image/voice.svg" wx:elif="{{item.type === 3}}" width="30" data-i="{{index}}" class="audio {{item.isPlay ? 'play' : ''}}" bindtap="audioPlay"></image>
+          <view wx:if="{{item.type === 1}}">{{item.content}}</view>
+          <image src="../../static/image/voice.svg" wx:elif="{{item.type === 3}}" width="30" data-i="{{index}}" class="audio {{item.isPlay ? 'play' : ''}}"
+                 bindtap="audioPlay"></image>
         </view>
         <image src="../../static/image/loading.svg" wx:if="{{item.state === 'loading'}}" width="20" class="status loading"></image>
         <image src="../../static/image/error.svg" wx:if="{{item.state === 'error'}}" width="20" color="red" class="status error">
@@ -17,10 +19,11 @@
         <image src="../../static/image/error.svg" wx:if="{{item.state === 'error'}}" color="red" class="status error">
         </image>
         <view class="content">
-          <view wx:if="{{item.type === 1}}">{{item.data}}</view>
-          <image src="../../static/image/voice.svg" wx:elif="{{item.type === 3}}" width="30" data-i="{{index}}" class="audio {{item.isPlay ? 'play' : ''}}" bindtap="audioPlay"></image>
+          <view wx:if="{{item.type === 1}}">{{item.content}}</view>
+          <image src="../../static/image/voice.svg" wx:elif="{{item.type === 3}}" width="30" data-i="{{index}}" class="audio {{item.isPlay ? 'play' : ''}}"
+                 bindtap="audioPlay"></image>
         </view>
-        <image class="avatar" src="{{STATIC_BASE_URL + user.avatar}}" data-right="1" bindtap="toDetail"></image>
+        <image class="avatar" src="{{STATIC_BASE_URL + user.avatar}}" data-right="1" data-i="{{index}}" bindtap="toDetail"></image>
       </view>
     </block>
   </view>
@@ -28,7 +31,7 @@
     <view class="input-box">
       <image src="../../static/image/mic.svg" hidden="{{inputState !== 0}}" style="margin: 0;" bindtap="handleMic"></image>
       <image src="../../static/image/keyboard.svg" hidden="{{inputState !== 1}}" bindtap="retKeybroad"></image>
-      <input id="content" focus="{{true}}" hidden="{{inputState !== 0}}" model:value="{{content}}" bindconfirm="send" bindinput="contentInput" />
+      <input id="content" focus="{{true}}" hidden="{{inputState !== 0}}" model:value="{{content}}" bindconfirm="send" bindinput="contentInput"/>
       <wxs module="chat" src="./chat-detail.wxs"></wxs>
       <button hidden="{{inputState !== 1}}" class="btn-small" size="mini" bindtap="handleRecording">{{chat.getRecordStateText(recordState)}}</button>
       <image id="showOpt" src="../../static/image/more.svg" hidden="{{!(!content && !recorder)}}" bindtap="handleShowOpts">
@@ -71,4 +74,5 @@
       </view>
     </view>
   </uni-popup> -->
+  <van-icon name="ellipsis" class="float-btn" bindtap="toChatInfo"/>
 </view>

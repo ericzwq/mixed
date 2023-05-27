@@ -14,8 +14,9 @@ declare namespace Contacts {
 
 interface Contact {
   username: Users.Username,
-  nickname: Users.Nickname,
-  avatar: Users.Avatar,
+  nickname?: Users.Nickname,
+  avatar?: Users.Avatar,
+  email?: Users.Email
   status: Contacts.Status,
   remark: Contacts.Remark
 }

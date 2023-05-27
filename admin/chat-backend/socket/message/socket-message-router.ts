@@ -15,7 +15,7 @@ import {
   REC_SG_MSGS,
   SEARCH_USERS,
   SEND_SG_MSG,
-  VOICE_RESULT, GET_GROUP_APLS, READ_GP_MSGS, SEND_GP_MSG, GROUP_INVITE, GET_HIS_GP_MSGS
+  VOICE_RESULT, GET_GROUP_APLS, READ_GP_MSGS, SEND_GP_MSG, GROUP_INVITE, GET_HIS_GP_MSGS, GET_GROUP_INFO, GET_GROUP_MEMBERS
 } from '../socket-actions'
 import {formatDate, log} from '../../common/utils'
 import client from '../../redis/redis'
@@ -24,7 +24,19 @@ import {getContacts} from './contact/contact'
 import {answer, candidate, offer, voiceResult} from './mediaCall/mediaCall'
 import {CANCELLED} from 'dns'
 import {addUser, addUserRet, getFriendApls, searchUsers} from './user/user'
-import {joinGroup, joinGroupRet, createGroup, groupInviteRet, getGroupApls, readGpMsgs, sendGpMsg, groupInvite, getHisGpMsgs} from './group/group'
+import {
+  joinGroup,
+  joinGroupRet,
+  createGroup,
+  groupInviteRet,
+  getGroupApls,
+  readGpMsgs,
+  sendGpMsg,
+  groupInvite,
+  getHisGpMsgs,
+  getGroupInfo,
+  getGroupMembers
+} from './group/group'
 import {commitSocketSql, rollbackSocketSql, socketSqlMiddleware} from '../../db'
 import {SgMsgReq} from './single/single-types'
 
@@ -69,17 +81,18 @@ export async function handleMessage(user: User, cookie: string, ws: ExtWebSocket
         log('数据格式错误', e)
         return ws.json({status: 1001, message: '数据格式错误'})
       }
-      log('action：' + data.action)
       const handler = socketMessageRouter.actionHandlerMap[data.action]
       if (!handler) return ws.json({status: 1002, message: '未知的action'})
       await socketSqlMiddleware(ws)
       try {
+        log('======> action：' + data.action)
         await handler(ws, user, data)
         if (ws.sqlCommit) await commitSocketSql(ws)
       } catch (e) {
         log('【handler error】', e)
         if (ws.sqlCommit) await rollbackSocketSql(ws)
       }
+      log('<====== action：' + data.action)
       ws.connection.release()
     }
   })
@@ -145,4 +158,6 @@ socketMessageRouter.addHandlers([
   {action: READ_GP_MSGS, handler: readGpMsgs},
   {action: SEND_GP_MSG, handler: sendGpMsg},
   {action: GET_HIS_GP_MSGS, handler: getHisGpMsgs},
+  {action: GET_GROUP_INFO, handler: getGroupInfo},
+  {action: GET_GROUP_MEMBERS, handler: getGroupMembers},
 ])

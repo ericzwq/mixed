@@ -1,22 +1,41 @@
-import { createStoreBindings } from 'mobx-miniprogram-bindings'
-import { userStore } from "../../store/store"
-import { BASE_URL } from '../../consts/consts'
-import { ChatDetailPath } from '../../consts/routes'
+import {createStoreBindings} from 'mobx-miniprogram-bindings'
+import {userStore} from "../../store/store"
+import {BASE_URL} from '../../consts/consts'
+import {ChatDetailPath} from '../../consts/routes'
 
 Page({
   data: {
     showHoverBtn: false,
+    activeIndex: -1,
+    left: '',
+    right: '',
+    top: '',
+    bottom: '',
+    isActive: false,
     STATIC_BASE_URL: BASE_URL,
   },
-  handleLongPress() {
-    this.setData({ showHoverBtn: true })
+  onTouchStart(e: WechatMiniprogram.CustomEvent) {
+    this.setData({activeIndex: +e.currentTarget.dataset.i})
+  },
+  onTouchCancel() {
+    if (this.data.isActive) return
+    this.setData({activeIndex: -1})
+  },
+  handleLongPress(e: LongPressEvent) {
+    const {x, y} = e.detail
+    const {windowHeight, windowWidth} = wx.getWindowInfo()
+    let left = '', right = '', top = '', bottom = ''
+    x < windowWidth - 200 ? left = x + 'px' : right = windowWidth - x + 'px'
+    y < windowHeight - 200 ? top = y + 'px' : bottom = windowHeight - y + 'px'
+    this.setData({showHoverBtn: true, left: left || 'unset', right: right || 'unset', top: top || 'unset', bottom: bottom || 'unset', isActive: true})
+    console.log({left, right, top, bottom}, e)
   },
   clickMask() {
-    this.setData({ showHoverBtn: false })
+    this.setData({showHoverBtn: false, isActive: false, activeIndex: -1})
   },
   toDetail(e: WechatMiniprogram.CustomEvent) {
-    const username = userStore.chats[e.currentTarget.dataset.i].username
-    wx.navigateTo({ url: ChatDetailPath + '?username=' + username + '&type=1' })
+    const {to, chatType} = userStore.chats[e.currentTarget.dataset.i]
+    wx.navigateTo({url: ChatDetailPath + '?to=' + to + '&type=' + chatType})
   },
   storeBindings: {} as StoreBindings,
   onLoad() {
