@@ -1,10 +1,11 @@
 import {createStoreBindings} from 'mobx-miniprogram-bindings'
-import {formatDate, handleMsg} from './common/utils'
 import {ChatDetailPath, LoginPath} from './consts/routes'
 import {chatSocket} from "./socket/socket"
 import {REC_GP_MSGS, REC_SG_MSGS, SEARCH_USERS} from './socket/socket-actions'
 import {userStore} from "./store/user"
-import {ChatType, MsgType} from './socket/socket-types'
+import {ChatType, MsgType, MsgState} from './socket/socket-types'
+
+// todo 动态系统消息展示和缓存处理
 
 App<IAppOption>({
   globalData: {
@@ -71,7 +72,6 @@ App<IAppOption>({
         const fakeIds = this.globalData.toSaveUnameFakeIdsMap[targetUname!] || []
         fakeIds.push(message.fakeId!)
         this.globalData.toSaveUnameFakeIdsMap[targetUname!] = fakeIds
-        handleMsg(message)
       })
       this.saveChats(data.data[data.data.length - 1], userStore.unameUserMap[targetUname!], data.data.length, ChatType.single)
       this.saveMessages()
@@ -80,7 +80,7 @@ App<IAppOption>({
       const newMessage = data.data
       const messageInfo = userStore.unameMessageInfoMap[newMessage.to!]
       const message = messageInfo.messages[messageInfo.fakeIdIndexMap[newMessage.fakeId!]]
-      message.state = 'error'
+      message.state = MsgState.error
     })
   },
   addRecGpMsgsListener() {
@@ -122,7 +122,6 @@ App<IAppOption>({
         const fakeIds = this.globalData.toSaveGroupIdFakeIdsMap[to] || []
         fakeIds.push(message.fakeId!)
         this.globalData.toSaveGroupIdFakeIdsMap[to] = fakeIds
-        handleMsg(message)
       })
       const groupInfo = await userStore.getGroupIdGroupInfo(to)
       this.saveChats(data.data[data.data.length - 1], {nickname: groupInfo.name, avatar: groupInfo.avatar}, data.data.length, ChatType.group)
@@ -144,7 +143,7 @@ App<IAppOption>({
       const newMessage = data.data
       const messageInfo = userStore.groupIdMessageInfoMap[newMessage.to!]
       const message = messageInfo.messages[messageInfo.fakeIdIndexMap[newMessage.fakeId!]]
-      message.state = 'error'
+      message.state = MsgState.error
     })
   },
   saveChats(message: SgMsg | GpMsg, target: { nickname: string, avatar: string }, newCount: number, chatType: ChatType) {
@@ -156,21 +155,25 @@ App<IAppOption>({
       nickname: target.nickname,
       avatar: target.avatar,
       content,
-      createdAt: formatDate(),
+      createdAt: message.createdAt!,
       newCount,
       type: message.type,
       from: message.from!,
       to: message.to!,
-      chatType
+      chatType,
+      state: message.state,
+      isTop: false
     }
-    const index = userStore.chats.findIndex(chat => chat.nickname === target.nickname)
+    const {chats} = userStore
+    const index = chats.findIndex(chat => chat.nickname === target.nickname)
     if (index > -1) {
-      chat.newCount = isChatDetailPath ? 0 : userStore.chats[index].newCount + newCount
-      userStore.chats.splice(index, 1)
+      chat.newCount = isChatDetailPath ? 0 : chats[index].newCount + newCount
+      chat.isTop = chats[index].isTop
+      chats.splice(index, 1)
     }
-    userStore.chats.unshift(chat)
-    userStore.setChats([...userStore.chats])
-    wx.setStorageSync('chats-' + userStore.user.username, JSON.stringify(userStore.chats))
+    chat.isTop ? chats.unshift(chat) : chats.splice(chats.findIndex(c => !c.isTop), 0, chat)
+    userStore.setChats([...chats])
+    wx.setStorageSync('chats-' + userStore.user.username, JSON.stringify(chats))
   },
   // 缓存消息
   saveMessages() {
@@ -181,8 +184,9 @@ App<IAppOption>({
   },
   saveMessagesHandler() {
     const length = 16
+    const {username} = userStore.user
     const handler = <T extends SgMsg | GpMsg>(to: Users.Username | GpMsgs.Id, chatType: ChatType, messageInfo: MessageInfo<T>) => {
-      const prefixKey = chatType + '-' + to + '-'
+      const prefixKey = username + '-' + chatType + '-' + to + '-'
       const pages = new Set<number>()
       if (!messageInfo) {
         const index = wx.getStorageSync(prefixKey + 'i')

@@ -57,9 +57,9 @@ const store = observable({
     this.setChats(chats)
     this.setNewMsgCount(chats.reduce((pre, cur) => pre + cur.newCount, 0))
   },
-  setChats: action(function (value: ChatItem[]) {
+  setChats: action(function (value: ChatItem[], setNewMsgCount = true) {
     store.chats = value
-    store.setNewMsgCount(value.reduce((pre, cur) => pre + cur.newCount, 0))
+    setNewMsgCount && store.setNewMsgCount(value.reduce((pre, cur) => pre + cur.newCount, 0))
   }),
   setContacts: action(function (value: Contact[]) {
     store.contacts = value

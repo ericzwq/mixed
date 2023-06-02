@@ -2,11 +2,16 @@
   <view class="{{['main', showOpts ? 'showOpt' : '']}}" id="main">
     <block wx:for="{{viewMessages}}" wx:key="fakeId">
       <view wx:if="{{item.type === 0}}" class="middle">{{item.content}}</view>
-      <view wx:elif="{{item.type === 6}}" class="middle">{{item.content}}</view>
+      <view wx:elif="{{item.type === 6}}" class="middle">
+        <block wx:for="{{item.content}}" wx:for-index="index2" wx:key="index2">
+          <text wx:if="{{item.type === 1}}">{{item.value}}</text>
+          <text wx:elif="{{item.type === 2}}" class="link" data-i="{{index}}" bindtap="toDetail"> {{unameUserMap[item.value].nickname}} </text>
+        </block>
+      </view>
       <view wx:elif="{{user.username !== item.from}}" class="item left">
-        <image class="avatar" src="{{STATIC_BASE_URL + target.avatar}}" data-i="{{index}}" bindtap="toDetail"></image>
-        <view class="content">
-          <view wx:if="{{item.type === 1}}">{{item.content}}</view>
+        <image class="avatar" src="{{STATIC_BASE_URL + target.avatar}}" data-i="{{index}}" bindtap="toUserDetail"></image>
+        <view class="content" bindlongpress="handleLongPress" bindtouchstart="onTouchStart" bindtouchcancel="onTouchCancel" bindtouchend="onTouchCancel" data-i="{{index}}">
+          <text selectable wx:if="{{item.type === 1}}">{{item.content}}</text>
           <image src="../../static/image/voice.svg" wx:elif="{{item.type === 3}}" width="30" data-i="{{index}}" class="audio {{item.isPlay ? 'play' : ''}}"
                  bindtap="audioPlay"></image>
         </view>
@@ -18,12 +23,12 @@
         <image src="../../static/image/loading.svg" wx:if="{{item.state === 'loading'}}" class="status loading"></image>
         <image src="../../static/image/error.svg" wx:if="{{item.state === 'error'}}" color="red" class="status error">
         </image>
-        <view class="content">
-          <view wx:if="{{item.type === 1}}">{{item.content}}</view>
+        <view class="content" bindlongpress="handleLongPress" bindtouchstart="onTouchStart" bindtouchcancel="onTouchCancel" bindtouchend="onTouchCancel" data-i="{{index}}">
+          <text selectable wx:if="{{item.type === 1}}">{{item.content}}</text>
           <image src="../../static/image/voice.svg" wx:elif="{{item.type === 3}}" width="30" data-i="{{index}}" class="audio {{item.isPlay ? 'play' : ''}}"
                  bindtap="audioPlay"></image>
         </view>
-        <image class="avatar" src="{{STATIC_BASE_URL + user.avatar}}" data-right="1" data-i="{{index}}" bindtap="toDetail"></image>
+        <image class="avatar" src="{{STATIC_BASE_URL + user.avatar}}" data-right="1" data-i="{{index}}" bindtap="toUserDetail"></image>
       </view>
     </block>
   </view>
@@ -75,4 +80,14 @@
     </view>
   </uni-popup> -->
   <van-icon name="ellipsis" class="float-btn" bindtap="toChatInfo"/>
+  <view class="hover-btn-box" hidden="{{!showHoverBtn}}" bindtap="clickMask">
+    <view class="opts" style="left: {{left}}; right: {{right}}; top: {{top}}; bottom: {{bottom}}">
+      <view class="item">复制</view>
+      <view class="item">转发</view>
+      <view class="item">收藏</view>
+      <view class="item">多选</view>
+      <view class="item">引用</view>
+      <view class="item">删除</view>
+    </view>
+  </view>
 </view>

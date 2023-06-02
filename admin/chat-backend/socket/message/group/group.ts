@@ -1,11 +1,14 @@
-import {checkMessageParams, createFakeId, formatDate, handleAudio, notifyUpdateUser, updateUser} from "../../../common/utils";
+import {checkMessageParams, createFakeId, formatDate, handleAudio, updateUser} from "../../../common/utils";
 import {User, Users} from "../../../router/user/user-types";
-import {ExtWebSocket, MsgRead, MsgStatus, MsgType, RequestMessage} from "../../socket-types";
+import {ExtWebSocket, MsgStatus, MsgType, RequestMessage, SysMsgCont, SysMsgContType} from "../../socket-types";
 import {
   addGroupRetSchema,
   addGroupSchema,
   createGroupSchema,
-  getGroupAplsSchema, getGroupInfoSchema, getGroupMembersSchema, getHisGpMsgsSchema,
+  getGroupAplsSchema,
+  getGroupInfoSchema,
+  getGroupMembersSchema,
+  getHisGpMsgsSchema,
   groupInviteRetSchema,
   groupInviteSchema,
   readGpMsgsSchema,
@@ -16,34 +19,46 @@ import {
   addGroup,
   addGroupApl,
   addGroupMember,
-  resetGroupApl, selectGpMsgByFakeId, selectGpMsgByIdAndFrom, selectGpMsgReadsById,
+  resetGroupApl,
+  selectGpMsgByFakeId,
+  selectGpMsgByIdAndFrom,
+  selectGpMsgReadsById,
   selectGroupAplByAddGroup,
-  selectGroupAplByInvite, selectGroupAplsById,
-  selectGroupById, selectHisGpMsgs,
-  selectLastGpMsg, selectNewGpMsgs,
+  selectGroupAplByInvite,
+  selectGroupAplsById,
+  selectGroupById,
+  selectHisGpMsgs,
+  selectLastGpMsg,
+  selectNewGpMsgs,
   selectUserByUsername,
-  updateGpMsgNext, updateGpMsgReads, updateGpMsgStatus,
+  updateGpMsgNext,
+  updateGpMsgReads,
+  updateGpMsgStatus,
   updateGroupAplStatus,
   updateGroupsMember
 } from "./group-sql";
 import {
   AddGroupReq,
   AddGroupRetReq,
-  CreateGroupReq, GetGroupAplsReq, GetHisGpMsgReq,
+  CreateGroupReq,
+  GetGroupAplsReq,
+  GetHisGpMsgReq,
   GpMemberOrigin,
   GpMsgReq,
-  GpMsgRes, GpMsgs,
+  GpMsgRes,
+  GpMsgs,
   Group,
-  GroupApls, GroupInviteReq,
+  GroupApls,
+  GroupInviteReq,
   GroupInviteRetReq,
   GroupInviteRetRes,
-  Groups, ReadGpMsgsReq
+  Groups,
+  ReadGpMsgsReq
 } from "./group-types";
 import client from "../../../redis/redis";
 import {usernameClientMap} from "../single/single";
 import {REC_ADD_GROUP, REC_GP_MSGS, REC_GROUP_INVITE, REC_GROUP_INVITE_RET, REC_READ_GP_MSGS} from "../../socket-actions";
 import {beginSocketSql, commitSocketSql} from "../../../db";
-import {selectHisSgMsgs} from "../single/single-sql";
 
 // 创建群聊
 export async function createGroup(ws: ExtWebSocket, user: User, data: RequestMessage<CreateGroupReq>) {
@@ -57,7 +72,7 @@ export async function createGroup(ws: ExtWebSocket, user: User, data: RequestMes
   if (!groupId) return ws.json({action, message: '创建失败', status: 1007})
   const message = {
     pre: null,
-    content: '#创建了群聊/' + encodeURIComponent(from),
+    content: [{type: SysMsgContType.username, value: from}, {type: SysMsgContType.text, value: '创建了群聊'}] as SysMsgCont[],
     type: MsgType.dynamicSys,
     fakeId: createFakeId(from, groupId),
     to: groupId
@@ -120,7 +135,7 @@ export async function groupInviteRet(ws: ExtWebSocket, user: User, data: Request
     const {result: [{id}]} = await selectLastGpMsg(ws, null, groupId)
     const message = {
       pre: id,
-      content: '#加入了群聊/' + encodeURIComponent(from),
+      content: [{type: SysMsgContType.username, value: from}, {type: SysMsgContType.text, value: '加入了群聊'}] as SysMsgCont[],
       type: MsgType.dynamicSys,
       fakeId: createFakeId(from, groupId),
       to: groupId

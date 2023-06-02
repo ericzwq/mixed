@@ -2,10 +2,10 @@ import {createStoreBindings} from 'mobx-miniprogram-bindings'
 import {userStore} from '../../store/user'
 import {BASE_URL, LOAD_MESSAGE_COUNT} from '../../consts/consts'
 import {chatSocket} from '../../socket/socket'
-import {formatDate, formatSimpleDate} from '../../common/utils'
+import {formatDate, formatDetailDate} from '../../common/utils'
 import {REC_GP_MSGS, REC_SG_MSGS, SEND_SG_MSG} from '../../socket/socket-actions'
 import {GroupInfoPath, SingleInfoPath, UserDetailPath} from '../../consts/routes'
-import {ChatType, MsgType} from '../../socket/socket-types'
+import {ChatType, MsgType, MsgState} from '../../socket/socket-types'
 
 const app = getApp<IAppOption>()
 Page({
@@ -42,7 +42,14 @@ Page({
     audioSender: [],
     videoSender: [],
     audioPlayState: 0 as ChatAudioPlayState, // 0 未播放 1播放中
-    title: ''
+    title: '',
+    showHoverBtn: false,
+    activeIndex: -1,
+    left: '',
+    right: '',
+    top: '',
+    bottom: '',
+    isActive: false
   },
   storeBindings: {} as StoreBindings,
   containerTap(e: WechatMiniprogram.CustomEvent) {
@@ -50,6 +57,9 @@ Page({
       this.setData({showOpts: false})
     }
     // setTimeout(() => e.target.focus(), 500) todo
+  },
+  toDetail(e: WechatMiniprogram.CustomEvent) {
+    wx.navigateTo({url: UserDetailPath + '?username=' + this.data.viewMessages[e.currentTarget.dataset.i].from})
   },
   onLoad(query: { to: string, type: ChatType }) {
     this.addSgMsgListener()
@@ -119,7 +129,7 @@ Page({
   onPullDownRefresh() {
     this.loadMoreMessage()
   },
-  toDetail(e: WechatMiniprogram.CustomEvent) {
+  toUserDetail(e: WechatMiniprogram.CustomEvent) {
     const {right, i} = e.target.dataset
     const {target, chatType, viewMessages} = this.data
     let username!: Users.Username
@@ -345,8 +355,9 @@ Page({
   // 首屏获取本地消息
   loadInitMessage() {
     const {chatType} = this.data
+    const {username} = userStore.user
     const to = this.getTo()
-    const prefixKey = chatType + '-' + to + '-'
+    const prefixKey = username + '-' + chatType + '-' + to + '-'
     const messageInfo = this.getMessageInfo(to)
     const index = wx.getStorageSync(prefixKey + 'i')
     messageInfo.maxMessagesIndex = +(index || 0)
@@ -390,15 +401,16 @@ Page({
       userStore.groupIdMessageInfoMap[to] = messageInfo as MessageInfo<GpMsg>
     }
     this.data.viewMessages = this.handleViewMessageTime(messageInfo.messages) as SgMsg[]
-    // console.log(this.data.viewMessages)
+    console.log(this.data.viewMessages, prefixKey)
     this.setData({viewMessages: this.data.viewMessages})
     this.resetMessagesMap(messageInfo)
   },
   // 获取更多消息
   loadMoreMessage() {
     const {chatType} = this.data
+    const {username} = userStore.user
     const to = this.getTo()
-    const prefixKey = chatType + '-' + to + '-'
+    const prefixKey = username + '-' + chatType + '-' + to + '-'
     const messageInfo = this.getMessageInfo(to)
     let preMessages!: SgMsg[]
     if (messageInfo.loadedMessagesPageMinIndex >= LOAD_MESSAGE_COUNT) { // 本页数据够
@@ -452,7 +464,7 @@ Page({
       data.data.forEach((message: SgMsg) => {
         if (message.from === userStore.user.username) { // 自己发的
           const ownMessage = viewMessages.find(msg => msg.fakeId === message.fakeId)!
-          delete ownMessage?.state
+          delete ownMessage.state
           ownMessage.createdAt = message.createdAt
         } else { // 别人发的
           const length = viewMessages.push(message as SgMsg)
@@ -466,7 +478,7 @@ Page({
     this.sgMsgErrorHandler = (data: SocketResponse<SgMsg>) => {
       const messageInfo = userStore.unameMessageInfoMap[data.data.to!]
       const message = messageInfo.messages[messageInfo.fakeIdIndexMap[data.data.fakeId!]]
-      message.state = 'error'
+      message.state = MsgState.error
       // userStore.setUnameMessageInfoMap({ ...userStore.unameMessageInfoMap })
       // this.setData({ viewMessages: this.data.viewMessages })
     }
@@ -490,7 +502,7 @@ Page({
       const createdAt = target[i].createdAt!
       if (this.cmpTime(target[i - 1].createdAt!, createdAt)) {
         res.push({
-          content: formatSimpleDate(new Date(createdAt)),
+          content: formatDetailDate(new Date(createdAt)),
           type: MsgType.system,
         })
       }
@@ -498,7 +510,7 @@ Page({
     }
     if (start === 0) {
       res.unshift({
-        content: formatSimpleDate(new Date(target[0].createdAt!)),
+        content: formatDetailDate(new Date(target[0].createdAt!)),
         type: MsgType.system,
       })
     }
@@ -572,7 +584,7 @@ Page({
       content: type === MsgType.audio ? '' : data, // 音频不保存在本地
       type,
       fakeId,
-      state: 'loading',
+      state: MsgState.loading,
       createdAt: formatDate(),
       status: 0
     }
@@ -595,7 +607,7 @@ Page({
       // userStore.setUnameMessageInfoMap({ ...userStore.unameMessageInfoMap })
       this.scrollView()
     }, () => {
-      message.state = 'error'
+      message.state = MsgState.error
       messageInfo.fakeIdIndexMap[fakeId] = messageInfo.messages.push(message) - 1
       const length = viewMessages.push(message)
       viewMessages.splice(length - 2, 2, ...this.handleViewMessageTime(undefined, length - 2) as SgMsg[])
@@ -631,4 +643,22 @@ Page({
   toChatInfo() {
     this.data.chatType === ChatType.group ? wx.navigateTo({url: GroupInfoPath + '?id=' + this.getTo()}) : wx.navigateTo({url: SingleInfoPath + '?username=' + this.getTo()})
   },
+  clickMask() {
+    this.setData({showHoverBtn: false, isActive: false, activeIndex: -1})
+  },
+  handleLongPress(e: LongPressEvent) {
+    const {x, y} = e.detail
+    const {windowHeight, windowWidth} = wx.getWindowInfo()
+    let left = '', right = '', top = '', bottom = ''
+    x < windowWidth - 100 ? left = x + 'px' : right = windowWidth - x + 'px'
+    y < windowHeight - 250 ? top = y + 'px' : bottom = windowHeight - y + 'px'
+    this.setData({showHoverBtn: true, left: left || 'unset', right: right || 'unset', top: top || 'unset', bottom: bottom || 'unset', isActive: true})
+  },
+  onTouchStart(e: WechatMiniprogram.CustomEvent) {
+    this.setData({activeIndex: +e.currentTarget.dataset.i})
+  },
+  onTouchCancel() {
+    if (this.data.isActive) return
+    this.setData({activeIndex: -1})
+  }
 })

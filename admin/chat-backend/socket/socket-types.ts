@@ -79,7 +79,7 @@ export enum MsgType { // 消息类型
   audio = 3, // 音频
   video = 4, // 视频
   retract = 5, // 撤回
-  dynamicSys = 6, // 动态的系统消息  '#邀请#加入了群聊/' + encodeURIComponent(from) + ',' + encodeURIComponent(to)
+  dynamicSys = 6, // 动态的系统消息
 }
 
 export enum MsgStatus {
@@ -90,4 +90,14 @@ export enum MsgStatus {
 export enum MsgRead {
   no = 0,
   yes = 1
+}
+
+export enum SysMsgContType {
+  text = 1, // 普通文本
+  username = 2 // 用户名
+}
+
+export interface SysMsgCont {
+  type: SysMsgContType
+  value: Users.Username
 }

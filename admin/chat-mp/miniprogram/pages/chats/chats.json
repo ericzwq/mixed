@@ -1,5 +1,6 @@
 {
   "usingComponents": {
-    "more": "../../components/more/more"
+    "more": "../../components/more/more",
+    "van-dialog": "@vant/weapp/dialog"
   }
 }

@@ -1,4 +1,5 @@
 @import "../../style/public";
+@import "../../style/animate";
 
 .message-item {
   display: flex;
@@ -25,6 +26,13 @@
     box-sizing: border-box;
   }
 
+  .status {
+    display: inline-block;
+    height: 24rpx;
+    width: 24rpx;
+    margin: 0 10rpx;
+  }
+
   .content-box {
     display: flex;
     flex-direction: column;
@@ -37,6 +45,8 @@
   }
 
   .content {
+    display: flex;
+    align-items: center;
     font-size: 24rpx;
     color: #aaa;
   }
@@ -63,6 +73,10 @@
     align-self: flex-end;
   }
 
+  &.top {
+    background: #ccc;
+  }
+
   &.active {
     background: $active-background-color;
   }
@@ -85,5 +99,13 @@
 
   .item {
     padding: 20rpx;
+  }
+}
+
+.van-dialog__button {
+  text-align: center;
+
+  .van-button {
+    width: unset !important;
   }
 }

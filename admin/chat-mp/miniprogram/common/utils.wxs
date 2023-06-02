@@ -1,8 +1,14 @@
 function formatSimpleDate(dateStr) {
   var date = getDate(dateStr)
+  var d = date.getDate()
   var h = date.getHours()
   var m = date.getMinutes()
-  return (h >= 12 ? '下午' + (h - 12) : '上午' + h) + ':' + (m < 10 ? '0' + m : m)
+  var diffDay = getDate().getDate() - d
+  if (diffDay === 0) return (h >= 12 ? '下午' + (h - 12) : '上午' + h) + ':' + (m < 10 ? '0' + m : m)
+  if (diffDay === 1) return '昨天'
+  if (diffDay === 2) return '前天'
+  return date.getFullYear().toString().slice(2) + '/' + (date.getMonth() + 1) + '/' + d
+  // return date.getFullYear().toString().slice(2) + '/' + (date.getMonth() + 1) + '/' + d + ' ' + (h >= 12 ? '下午' + (h - 12) : '上午' + h) + ':' + (m < 10 ? '0' + m : m)
 }
 
 module.exports.formatSimpleDate = formatSimpleDate

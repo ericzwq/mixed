@@ -1,5 +1,5 @@
 import {Users} from "../../../router/user/user-types";
-import {MsgStatus, MsgType} from "../../socket-types";
+import {MsgStatus, MsgType, SysMsgCont} from "../../socket-types";
 import {SgMsgs} from "../single/single-types";
 
 export namespace Groups {
@@ -16,7 +16,7 @@ export namespace Groups {
 
 export namespace GpMsgs {
   export type Id = number
-  export type Content = string | number[] | number
+  export type Content = string | number[] | number | SysMsgCont[]
   export type From = Users.Username
   export type To = Groups.Id
   export type FakeId = string // 前端消息id

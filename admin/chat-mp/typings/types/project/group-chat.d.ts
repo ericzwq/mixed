@@ -78,7 +78,7 @@ interface GpMsgRes {
 interface GpMsg extends Partial<GpMsgRes> {
   content: GpMsgs.Content
   type: MsgType
-  state?: 'loading' | 'error'
+  state?: MsgState
   isPlay?: boolean
 }
 

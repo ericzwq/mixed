@@ -1,4 +1,5 @@
 @import '../../style/public.scss';
+@import '../../style/animate.scss';
 
 .chat-box {
   background-color: #eee;
@@ -54,20 +55,10 @@ image {
 .status {
   width: 30rpx;
   height: 30rpx;
+}
 
-  &.loading {
-    animation: rotation 1s linear infinite;
-
-    @keyframes rotation {
-      from {
-        transform: rotate(0);
-      }
-
-      to {
-        transform: rotate(360deg);
-      }
-    }
-  }
+.link {
+  color: dodgerblue;
 }
 
 .middle {
@@ -236,4 +227,24 @@ image {
   position: fixed;
   right: 0;
   top: 0;
+}
+
+.hover-btn-box {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+
+  .opts {
+    position: fixed;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 0 6px #ccc;
+    background: #fff;
+    font-size: 14px;
+  }
+
+  .item {
+    padding: 6rpx;
+  }
 }

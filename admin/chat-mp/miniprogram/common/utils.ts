@@ -8,9 +8,15 @@ export function formatDate(date = new Date()) {
   return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')} ${h.padStart(2, '0')}:${mi.padStart(2, '0')}:${s.padStart(2, '0')}`
 }
 
-export function formatSimpleDate(date: Date) {
+export function formatDetailDate(date: Date) { // 聊天详情中展示
+  const d = date.getDate()
   const h = date.getHours()
-  return `${h >= 12 ? '下午' + (h - 12) : '上午' + h}:${date.getMinutes().toString().padStart(2, '0')}`
+  const m = date.getMinutes().toString().padStart(2, '0')
+  const diffDay = new Date().getDate() - d
+  if (diffDay === 0) return (h >= 12 ? '下午' + (h - 12) : '上午' + h) + ':' + m
+  if (diffDay === 1) return '昨天'
+  if (diffDay === 2) return '前天'
+  return date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + d + ' ' + h + ':' + m
 }
 
 /**
@@ -20,26 +26,4 @@ export function formatSimpleDate(date: Date) {
 export function valueModel(this: WechatMiniprogram.Page.Instance<WechatMiniprogram.Page.DataOption, WechatMiniprogram.Page.CustomOption>, e: WechatMiniprogram.CustomEvent) {
   const key = e.target.dataset['bindkey']
   this.setData({[key]: e.detail.value})
-}
-
-// 处理消息
-export function handleMsg(msg: Pick<SgMsg, 'content' | 'type'>) {
-  const handlers = {
-    6() {
-      const content = msg.content as string
-      const [text, data] = content.split('/')
-      const texts = text.split('#')
-      const datas = data.split(',')
-      let txt = ''
-      for (let i = 0; i < texts.length; i++) {
-        if (texts[i] === '') {
-          txt += datas[i]
-        } else {
-          txt += decodeURIComponent(texts[i])
-        }
-      }
-      msg.content = txt
-    }
-  }
-  handlers[msg.type as keyof typeof handlers]?.()
 }

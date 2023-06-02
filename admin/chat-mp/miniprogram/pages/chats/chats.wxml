@@ -1,12 +1,23 @@
 <view class="message-box">
   <wxs src="../../common/utils.wxs" module="utils"></wxs>
-  <view class="message-item {{index === activeIndex ? 'active' : ''}}" wx:for="{{chats}}" wx:key="nickname" bindlongpress="handleLongPress" data-i="{{index}}"
+  <view class="message-item {{item.isTop ? 'top' : ''}} {{index === activeIndex ? 'active' : ''}}" wx:for="{{chats}}" wx:key="nickname" bindlongpress="handleLongPress"
+        data-i="{{index}}"
         bindtap="toDetail" bindtouchstart="onTouchStart" bindtouchcancel="onTouchCancel" bindtouchend="onTouchCancel">
     <image class="left" src="{{STATIC_BASE_URL + item.avatar}}"></image>
     <view class="right">
       <view class="content-box">
         <view class="remark">{{item.nickname}}</view>
-        <view class="content">{{item.content}}</view>
+        <view class="content">
+          <image src="../../static/image/loading.svg" wx:if="{{item.state === 'loading'}}" width="20" class="status loading"></image>
+          <image src="../../static/image/error.svg" wx:if="{{item.state === 'error'}}" width="20" color="red" class="status error"></image>
+          <text wx:if="{{item.type === 2}}">[图片]</text>
+          <text wx:elif="{{item.type === 3}}">[语音]</text>
+          <text wx:elif="{{item.type === 4}}">[视频]</text>
+          <text wx:elif="{{item.type === 6}}">
+            <block wx:for="{{item.content}}" wx:key="index">{{item.type === 2 ? unameUserMap[item.value].nickname : item.value}}</block>
+          </text>
+          <text wx:else>{{item.content}}</text>
+        </view>
       </view>
       <view class="time">
         <text>{{utils.formatSimpleDate(item.createdAt)}}</text>
@@ -16,11 +27,14 @@
   </view>
   <view class="hover-btn-box" hidden="{{!showHoverBtn}}" bindtap="clickMask">
     <view class="opts" style="left: {{left}}; right: {{right}}; top: {{top}}; bottom: {{bottom}}">
-      <view class="item">标为未读</view>
-      <view class="item">置顶该聊天</view>
-      <view class="item">不显示该聊天</view>
-      <view class="item">删除该聊天</view>
+      <view wx:if="{{chats[activeIndex].newCount > 0}}" class="item" bindtap="setRead">标为已读</view>
+      <view wx:else class="item" bindtap="cancelRead">标为未读</view>
+      <view wx:if="{{chats[activeIndex].isTop}}" class="item" bindtap="cancelTop">取消置顶该聊天</view>
+      <view wx:else class="item" bindtap="setTop">置顶该聊天</view>
+      <view class="item" bindtap="hiddenChat">不显示该聊天</view>
+      <view class="item" bindtap="deleteChat">删除该聊天</view>
     </view>
   </view>
   <more/>
+  <van-dialog id="van-dialog"/>
 </view>

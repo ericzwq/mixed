@@ -83,7 +83,7 @@ Component({
     init() {
       const page = getCurrentPages().pop()
       this.data.list[1].info = wx.getStorageSync('newFriendCount-' + userStore.user.username)
-      this.setData({active: this.data.list.findIndex(v => v.url === '/' + page?.route) + 1, list: [...this.data.list]})
+      this.setData({active: this.data.list.findIndex(v => v.url === '/' + page!.route) + 1, list: [...this.data.list]})
     }
   }
 })

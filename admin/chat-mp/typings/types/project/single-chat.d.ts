@@ -59,24 +59,8 @@ type ChatAudioPlayState = 0 | 1
 interface SgMsg extends Partial<SgMsgRes> {
   content: SgMsgs.Content
   type: MsgType
-  state?: 'loading' | 'error'
+  state?: MsgState
   isPlay?: boolean
-}
-
-declare namespace ChatItems {
-  export type NewCount = number
-}
-
-interface ChatItem {
-  content: SgMsgs.Content
-  nickname: Users.Nickname
-  createdAt: SgMsgs.CreatedAt
-  avatar: Users.Avatar
-  newCount: ChatItems.NewCount // 新消息数量
-  type: MsgType
-  from: Users.Username
-  to: Users.Username | GpMsgs.Id
-  chatType: ChatType
 }
 
 interface MessageInfo<T> {

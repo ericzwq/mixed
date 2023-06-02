@@ -1,9 +1,9 @@
 import {Users} from '../../../router/user/user-types'
-import {MsgRead, MsgStatus, MsgType} from "../../socket-types";
+import {MsgRead, MsgStatus, MsgType, SysMsgCont} from "../../socket-types";
 
 export namespace SgMsgs {
   export type Id = number
-  export type Content = string | number[] | number
+  export type Content = string | number[] | number | SysMsgCont[]
   export type From = Users.Username
   export type To = Users.Username
   export type FakeId = string // 前端消息id

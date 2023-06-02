@@ -18,4 +18,16 @@ export enum MsgRead {
   yes = 1
 }
 
-export enum ChatType { single = '1', group = '2'}
+export enum ChatType {
+  single = '1', group = '2'
+}
+
+export enum MsgState {
+  loading = 'loading',
+  error = 'error'
+}
+
+export enum SysMsgContType {
+  text = 1, // 普通文本
+  username = 2 // 用户名
+}
