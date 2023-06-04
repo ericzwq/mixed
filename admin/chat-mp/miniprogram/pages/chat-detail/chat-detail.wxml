@@ -11,7 +11,7 @@
       <view wx:elif="{{user.username !== item.from}}" class="item left">
         <image class="avatar" src="{{STATIC_BASE_URL + target.avatar}}" data-i="{{index}}" bindtap="toUserDetail"></image>
         <view class="content" bindlongpress="handleLongPress" bindtouchstart="onTouchStart" bindtouchcancel="onTouchCancel" bindtouchend="onTouchCancel" data-i="{{index}}">
-          <text selectable wx:if="{{item.type === 1}}">{{item.content}}</text>
+          <text wx:if="{{item.type === 1}}">{{item.content}}</text>
           <image src="../../static/image/voice.svg" wx:elif="{{item.type === 3}}" width="30" data-i="{{index}}" class="audio {{item.isPlay ? 'play' : ''}}"
                  bindtap="audioPlay"></image>
         </view>
@@ -24,7 +24,7 @@
         <image src="../../static/image/error.svg" wx:if="{{item.state === 'error'}}" color="red" class="status error">
         </image>
         <view class="content" bindlongpress="handleLongPress" bindtouchstart="onTouchStart" bindtouchcancel="onTouchCancel" bindtouchend="onTouchCancel" data-i="{{index}}">
-          <text selectable wx:if="{{item.type === 1}}">{{item.content}}</text>
+          <text wx:if="{{item.type === 1}}">{{item.content}}</text>
           <image src="../../static/image/voice.svg" wx:elif="{{item.type === 3}}" width="30" data-i="{{index}}" class="audio {{item.isPlay ? 'play' : ''}}"
                  bindtap="audioPlay"></image>
         </view>

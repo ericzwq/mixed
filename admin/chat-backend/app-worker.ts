@@ -8,7 +8,7 @@ import client from './redis/redis'
 import router from './router/router'
 import session = require('koa-session')
 import assets = require('koa-static')
-import https = require('https')
+import https = require('http')
 import sessionConfig from './session/session'
 import {User} from './router/user/user-types'
 import {noLoginUrlSet} from './router/urls'
@@ -20,12 +20,13 @@ import socket from './socket/socket'
 export default (port: number) => {
   const app = new Koa()
   // todo wss
-  app.use(sslify.default())
+  // app.use(sslify.default())
   // const server = https.createServer({}, app.callback())
-  const server = https.createServer({
-    key: fs.readFileSync('./https/6414388_www.wanqiang.top.key'),
-    cert: fs.readFileSync('./https/6414388_www.wanqiang.top.pem')
-  }, app.callback())
+  // const server = https.createServer({
+  //   key: fs.readFileSync('./https/6414388_www.wanqiang.top.key'),
+  //   cert: fs.readFileSync('./https/6414388_www.wanqiang.top.pem')
+  // }, app.callback())
+  const server = https.createServer({}, app.callback())
 
   app.use(assets(path.resolve(__dirname, './public'), {maxAge: 400000000}))
 

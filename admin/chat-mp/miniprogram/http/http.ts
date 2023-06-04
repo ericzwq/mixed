@@ -1,4 +1,4 @@
-import { DOMAIN, PORT } from "../consts/consts.js"
+import { DOMAIN, PORT, PROTOCOL } from "../consts/consts.js"
 import { LoginPath } from "../consts/routes.js"
 import { chatSocket } from "../socket/socket.js"
 
@@ -8,7 +8,7 @@ const request = <T>(url: string, method: 'GET' | 'POST', data?: Data, config: {}
   const header = {} as { cookie: string }
   header.cookie = wx.getStorageSync('cookies')
   return wx.request({
-    url: `https://${DOMAIN}:${PORT}/${url}`,
+    url: `${PROTOCOL}://${DOMAIN}:${PORT}/${url}`,
     data,
     method,
     header,

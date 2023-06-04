@@ -7,6 +7,7 @@ import socketConnectionRouter from './socket-connection-router'
 import {SocketResponseOptions, SocketResponseSchema} from '../response/response'
 import {ExtWebSocket} from "./socket-types";
 import {log} from "../common/utils";
+import * as Http from 'http'
 
 
 function getSession(cookie?: string) {
@@ -14,7 +15,7 @@ function getSession(cookie?: string) {
 }
 
 /*export const phoneMap = {} as { [key in string]: WebSocket }*/ // todo
-export default (server: Server) => {
+export default (server: Server | Http.Server) => {
   const wss = new WebSocket.WebSocketServer({server})
   wss.on('connection', async (ws: ExtWebSocket, req) => {
     // 扩展方法
