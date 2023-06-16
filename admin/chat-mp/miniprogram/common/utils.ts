@@ -13,9 +13,10 @@ export function formatDetailDate(date: Date) { // 聊天详情中展示
   const h = date.getHours()
   const m = date.getMinutes().toString().padStart(2, '0')
   const diffDay = new Date().getDate() - d
-  if (diffDay === 0) return (h >= 12 ? '下午' + (h - 12) : '上午' + h) + ':' + m
-  if (diffDay === 1) return '昨天'
-  if (diffDay === 2) return '前天'
+  let detail = (h >= 12 ? '下午' + (h - 12) : '上午' + h) + ':' + m
+  if (diffDay === 0) return detail
+  if (diffDay === 1) return '昨天 ' + detail
+  if (diffDay === 2) return '前天 ' + detail
   return date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + d + ' ' + h + ':' + m
 }
 

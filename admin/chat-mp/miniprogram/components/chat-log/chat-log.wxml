@@ -1,0 +1,5 @@
+<view class="chat-log-box">
+  <view class="header">淡定与等等的聊天记录</view>
+  <view class="main">淡定：你好</view>
+  <view class="footer">聊天记录</view>
+</view>

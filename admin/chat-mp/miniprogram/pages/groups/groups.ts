@@ -1,68 +1,25 @@
-import { ChooseFriendPath } from "../../consts/routes"
+import {ChooseFriendPath} from "../../consts/routes"
+import {BASE_URL} from "../../consts/consts"
+import {userStore} from "../../store/user";
+import {createStoreBindings} from "mobx-miniprogram-bindings";
+import {ChooseMode} from "../choose-friend/choose-friend-types";
 
-// pages/groups/groups.ts
 Page({
-
-    /**
-     * 页面的初始数据
-     */
-    data: {
-
-    },
-
-    toChooseFriend() {
-      wx.navigateTo({url: ChooseFriendPath})
-    },
-    onLoad() {
-
-    },
-
-    /**
-     * 生命周期函数--监听页面初次渲染完成
-     */
-    onReady() {
-
-    },
-
-    /**
-     * 生命周期函数--监听页面显示
-     */
-    onShow() {
-
-    },
-
-    /**
-     * 生命周期函数--监听页面隐藏
-     */
-    onHide() {
-
-    },
-
-    /**
-     * 生命周期函数--监听页面卸载
-     */
-    onUnload() {
-
-    },
-
-    /**
-     * 页面相关事件处理函数--监听用户下拉动作
-     */
-    onPullDownRefresh() {
-
-    },
-
-    /**
-     * 页面上拉触底事件的处理函数
-     */
-    onReachBottom() {
-
-    },
-
-    /**
-     * 用户点击右上角分享
-     */
-    onShareAppMessage() {
-
-    }
+  data: {
+    BASE_URL,
+  },
+  toChooseFriend() {
+    wx.navigateTo({url: ChooseFriendPath + '?mode=' + ChooseMode.friends})
+  },
+  storeBindings: {} as StoreBindings,
+  onLoad() {
+    this.storeBindings = createStoreBindings(this, {
+      store: userStore,
+      fields: ['groups']
+    })
+    userStore.getGroups()
+  },
+  onUnload() {
+    this.storeBindings.destroyStoreBindings()
+  },
 })

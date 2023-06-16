@@ -1,8 +1,10 @@
 {
-  "navigationBarTitleText": "选择联系人",
-    "usingComponents": {
-      "van-cell": "@vant/weapp/cell",
-      "van-checkbox": "@vant/weapp/checkbox",
-      "van-field": "@vant/weapp/field"
-    }
+  "usingComponents": {
+    "van-cell": "@vant/weapp/cell",
+    "van-checkbox": "@vant/weapp/checkbox",
+    "van-field": "@vant/weapp/field",
+    "van-index-bar": "@vant/weapp/index-bar",
+    "van-index-anchor": "@vant/weapp/index-anchor",
+    "van-dialog": "@vant/weapp/dialog"
+  }
 }

@@ -19,12 +19,14 @@ export enum MsgRead {
 }
 
 export enum ChatType {
-  single = '1', group = '2'
+  single = '1',
+  group = '2'
 }
 
 export enum MsgState {
-  loading = 'loading',
-  error = 'error'
+  loading = 1,
+  error = 2,
+  delete = 3
 }
 
 export enum SysMsgContType {

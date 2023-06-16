@@ -1,19 +1,13 @@
 @import "../../style/public";
 @import "../../style/animate";
+@import "../../style/vant";
+@import "../../style/index";
 
 .message-item {
   display: flex;
   justify-content: space-around;
   align-items: center;
   height: 100rpx;
-
-  .left {
-    display: block;
-    width: 80rpx;
-    height: 80rpx;
-    margin: 0 20rpx;
-    border-radius: 8rpx;
-  }
 
   .right {
     display: flex;
@@ -74,7 +68,7 @@
   }
 
   &.top {
-    background: #ccc;
+    background: #f1f1f1;
   }
 
   &.active {
@@ -82,30 +76,8 @@
   }
 }
 
-.hover-btn-box {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-
-  .opts {
-    position: fixed;
-    padding: 10px;
-    border-radius: 4px;
-    box-shadow: 0 0 6px #ccc;
-    background: #fff;
-    font-size: 14px;
-  }
-
+.float-menu {
   .item {
     padding: 20rpx;
-  }
-}
-
-.van-dialog__button {
-  text-align: center;
-
-  .van-button {
-    width: unset !important;
   }
 }

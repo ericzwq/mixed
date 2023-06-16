@@ -2,11 +2,11 @@ import {executeSocketSql} from '../../../db'
 import {User, Users} from '../../../router/user/user-types'
 import {InsertModal, UpdateModal} from '../../../types/sql-types'
 import {ExtWebSocket, MsgRead, MsgStatus} from '../../socket-types'
-import {SgMsgReq, SgMsgs, SgMsgRes, GetHisSgMsgReq} from './single-types'
+import {SendSgMsgReq, SgMsgs, SgMsgRes, GetHisSgMsgReq} from './single-types'
 import {Contacts} from "../contact/contact-types";
 import {FriendApls} from "../user/user-types";
 import Status = FriendApls.Status;
-import {GpMsgReq} from "../group/group-types";
+import {SendGpMsgReq} from "../group/group-types";
 
 export async function selectFriendAplByAddUser(ws: ExtWebSocket, to: Users.Username, from: Users.Username) {
   const {result} = await executeSocketSql<{ id: Contacts.Id }[]>(ws,
@@ -80,8 +80,8 @@ export function updateSgMsgNext(ws: ExtWebSocket, next: SgMsgs.Next, id: SgMsgs.
     'update single_chat set next = ? where id = ?;', [next, id])
 }
 
-export function addSgMsg(ws: ExtWebSocket, from: Users.Username, data: SgMsgReq, createdAt: SgMsgs.CreatedAt) {
-  const {fakeId, to, content, type, pre} = data
+export function addSgMsg(ws: ExtWebSocket, from: Users.Username, to: Users.Username, data: Omit<SendSgMsgReq, 'pre' | 'to'>, pre: SgMsgs.Pre, createdAt: SgMsgs.CreatedAt) {
+  const {fakeId, content, type} = data
   return executeSocketSql<InsertModal>(ws,
     'insert into single_chat(fakeId, pre, `from`, `to`, content, type, createdAt, status) values(?, ?, ?, ?, ?, ?, ?, ?);',
     [fakeId, pre, from, to, content, type, createdAt, MsgStatus.normal])

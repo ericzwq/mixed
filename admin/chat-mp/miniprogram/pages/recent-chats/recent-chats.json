@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "van-checkbox": "@vant/weapp/checkbox",
+    "van-field": "@vant/weapp/field"
+  },
+  "navigationBarTitleText": "选择聊天"
+}

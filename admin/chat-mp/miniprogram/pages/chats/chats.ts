@@ -2,18 +2,20 @@ import {createStoreBindings} from 'mobx-miniprogram-bindings'
 import {userStore} from "../../store/store"
 import {BASE_URL} from '../../consts/consts'
 import {ChatDetailPath} from '../../consts/routes'
+// @ts-ignore
 import Dialog from "@vant/weapp/dialog/dialog";
 
+// const app = getApp()
 Page({
   data: {
-    showHoverBtn: false,
     activeIndex: -1,
     left: '',
     right: '',
     top: '',
     bottom: '',
     isActive: false,
-    STATIC_BASE_URL: BASE_URL,
+    BASE_URL,
+    floatMenu: {} as FloatMenu
   },
   onTouchStart(e: WechatMiniprogram.CustomEvent) {
     this.setData({activeIndex: +e.currentTarget.dataset.i})
@@ -23,15 +25,12 @@ Page({
     this.setData({activeIndex: -1})
   },
   handleLongPress(e: LongPressEvent) {
-    const {x, y} = e.detail
-    const {windowHeight, windowWidth} = wx.getWindowInfo()
-    let left = '', right = '', top = '', bottom = ''
-    x < windowWidth - 200 ? left = x + 'px' : right = windowWidth - x + 'px'
-    y < windowHeight - 250 ? top = y + 'px' : bottom = windowHeight - y + 'px'
-    this.setData({showHoverBtn: true, left: left || 'unset', right: right || 'unset', top: top || 'unset', bottom: bottom || 'unset', isActive: true})
+    const {clientX, clientY} = e.touches[0]
+    this.selectComponent('.float-menu').open(clientX, clientY)
+    this.setData({isActive: true})
   },
-  clickMask() {
-    this.setData({showHoverBtn: false, isActive: false, activeIndex: -1})
+  onClose() {
+    this.setData({isActive: false, activeIndex: -1})
   },
   toDetail(e: WechatMiniprogram.CustomEvent) {
     const {to, chatType} = userStore.chats[e.currentTarget.dataset.i]
@@ -42,12 +41,16 @@ Page({
     chats[this.data.activeIndex].newCount = 0
     userStore.setChats([...chats])
     wx.setStorageSync('chats-' + username, JSON.stringify(chats))
+    this.data.floatMenu.close()
+    this.onClose()
   },
   cancelRead() {
     const {chats, user: {username}} = userStore
     chats[this.data.activeIndex].newCount = 1
     userStore.setChats([...chats])
     wx.setStorageSync('chats-' + username, JSON.stringify(chats))
+    this.data.floatMenu.close()
+    this.onClose()
   },
   setTop() {
     const {chats, user: {username}} = userStore
@@ -61,6 +64,8 @@ Page({
     chats.splice(index, 0, chat)
     userStore.setChats([...chats], false)
     wx.setStorageSync('chats-' + username, JSON.stringify(chats))
+    this.data.floatMenu.close()
+    this.onClose()
   },
   cancelTop() {
     const {chats, user: {username}} = userStore
@@ -78,15 +83,21 @@ Page({
     chats.splice(index, 0, chat)
     userStore.setChats([...chats], false)
     wx.setStorageSync('chats-' + username, JSON.stringify(chats))
+    this.data.floatMenu.close()
+    this.onClose()
   },
   hiddenChat() {
     const {chats, user: {username}} = userStore
     chats.splice(this.data.activeIndex, 1)
     userStore.setChats([...chats])
     wx.setStorageSync('chats-' + username, JSON.stringify(chats))
+    this.data.floatMenu.close()
+    this.onClose()
   },
   deleteChat() {
-    Dialog.confirm({title: '警告', message: '删除后聊天记录将会清空，是否继续？'}).then(() => {
+    this.data.floatMenu.close()
+    this.onClose()
+    Dialog.confirm({message: '删除后聊天记录将会清空，是否继续？'}).then(() => {
       const {chats, user: {username}} = userStore
       const chat = chats.splice(this.data.activeIndex, 1)[0]
       userStore.setChats([...chats])
@@ -103,11 +114,13 @@ Page({
   onLoad() {
     this.storeBindings = createStoreBindings(this, {
       store: userStore,
-      fields: ['chats', 'unameUserMap']
+      fields: ['chats', 'unameUserMap', 'user']
     })
-
+    this.data.floatMenu = this.selectComponent('.float-menu') as FloatMenu
+    // const messageInfo = app.getMessageInfo('eric', '1')
+    // console.log(messageInfo)
     // todo test
-    let a = [
+    /*let a = [
       {
         "nickname": "ff",
         "avatar": "/uploads/upload_5e1789b5c1a7fa55ca5d7c78030f8075.jpg",
@@ -184,9 +197,10 @@ Page({
         "isTop": false,
         "state": "error"
       }, {"content": "2", "createdAt": "2023-05-26 15:15:57", "newCount": 0, "type": 1, "from": "eric", "chatType": "1", "isTop": false}]
+
     a.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     userStore.setChats(a as any)
-    wx.setStorageSync('chats-' + userStore.user.username, JSON.stringify(a))
+    wx.setStorageSync('chats-' + userStore.user.username, JSON.stringify(a))*/
   },
 
   /**

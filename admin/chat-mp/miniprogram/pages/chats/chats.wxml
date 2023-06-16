@@ -3,20 +3,21 @@
   <view class="message-item {{item.isTop ? 'top' : ''}} {{index === activeIndex ? 'active' : ''}}" wx:for="{{chats}}" wx:key="nickname" bindlongpress="handleLongPress"
         data-i="{{index}}"
         bindtap="toDetail" bindtouchstart="onTouchStart" bindtouchcancel="onTouchCancel" bindtouchend="onTouchCancel">
-    <image class="left" src="{{STATIC_BASE_URL + item.avatar}}"></image>
+    <image class="avatar" src="{{BASE_URL + item.avatar}}"></image>
     <view class="right">
       <view class="content-box">
         <view class="remark">{{item.nickname}}</view>
         <view class="content">
-          <image src="../../static/image/loading.svg" wx:if="{{item.state === 'loading'}}" width="20" class="status loading"></image>
-          <image src="../../static/image/error.svg" wx:if="{{item.state === 'error'}}" width="20" color="red" class="status error"></image>
-          <text wx:if="{{item.type === 2}}">[图片]</text>
+          <image src="../../static/image/loading.svg" wx:if="{{item.state === 1}}" width="20" class="status loading"></image>
+          <image src="../../static/image/error.svg" wx:if="{{item.state === 2}}" width="20" color="red" class="status error"></image>
+          <text wx:if="{{item.type === 1}}">{{item.content}}</text>
+          <text wx:elif="{{item.type === 2}}">[图片]</text>
           <text wx:elif="{{item.type === 3}}">[语音]</text>
           <text wx:elif="{{item.type === 4}}">[视频]</text>
-          <text wx:elif="{{item.type === 6}}">
-            <block wx:for="{{item.content}}" wx:key="index">{{item.type === 2 ? unameUserMap[item.value].nickname : item.value}}</block>
+          <text wx:elif="{{item.type === 5}}">{{item.from === user.username ? '你' : unameUserMap[item.from].nickname}}[撤回了一条消息]</text>
+          <text wx:elif="{{item.type === 6}}" decode>
+            <block wx:for="{{item.content}}" wx:key="index">&nbsp;{{item.type === 2 ? unameUserMap[item.value].nickname : item.value}}&nbsp;</block>
           </text>
-          <text wx:else>{{item.content}}</text>
         </view>
       </view>
       <view class="time">
@@ -25,16 +26,14 @@
       </view>
     </view>
   </view>
-  <view class="hover-btn-box" hidden="{{!showHoverBtn}}" bindtap="clickMask">
-    <view class="opts" style="left: {{left}}; right: {{right}}; top: {{top}}; bottom: {{bottom}}">
-      <view wx:if="{{chats[activeIndex].newCount > 0}}" class="item" bindtap="setRead">标为已读</view>
-      <view wx:else class="item" bindtap="cancelRead">标为未读</view>
-      <view wx:if="{{chats[activeIndex].isTop}}" class="item" bindtap="cancelTop">取消置顶该聊天</view>
-      <view wx:else class="item" bindtap="setTop">置顶该聊天</view>
-      <view class="item" bindtap="hiddenChat">不显示该聊天</view>
-      <view class="item" bindtap="deleteChat">删除该聊天</view>
-    </view>
-  </view>
+  <float-menu class="float-menu" bind:close="onClose">
+    <view wx:if="{{chats[activeIndex].newCount > 0}}" class="item" bindtap="setRead">标为已读</view>
+    <view wx:else class="item" bindtap="cancelRead">标为未读</view>
+    <view wx:if="{{chats[activeIndex].isTop}}" class="item" bindtap="cancelTop">取消置顶该聊天</view>
+    <view wx:else class="item" bindtap="setTop">置顶该聊天</view>
+    <view class="item" bindtap="hiddenChat">不显示该聊天</view>
+    <view class="item" bindtap="deleteChat">删除该聊天</view>
+  </float-menu>
   <more/>
   <van-dialog id="van-dialog"/>
 </view>

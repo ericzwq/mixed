@@ -7,7 +7,7 @@ import {userStore} from '../../store/store'
 
 Page({
   data: {
-    STATIC_BASE_URL: BASE_URL,
+    BASE_URL,
     newFriendCount: ''
   },
   toDetail(e: WechatMiniprogram.CustomEvent) {

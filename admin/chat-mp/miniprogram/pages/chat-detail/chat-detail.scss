@@ -1,5 +1,6 @@
-@import '../../style/public.scss';
 @import '../../style/animate.scss';
+@import '../../style/vant.scss';
+@import '../../style/index.scss';
 
 .chat-box {
   background-color: #eee;
@@ -17,7 +18,7 @@
   }
 }
 
-image {
+.img {
   display: block;
   height: 60rpx;
   width: 60rpx;
@@ -26,14 +27,18 @@ image {
 
 .content {
   position: relative;
-  padding: 10rpx 20rpx;
+  display: flex;
+  align-items: center;
+  height: 60rpx;
+  padding: 0 20rpx;
   max-width: 490rpx;
-  line-height: 1.5;
-  // line-height: 80rpx;
-  box-sizing: border-box;
   background-color: #fff;
   border-radius: 8rpx;
   word-break: break-word;
+
+  .active {
+    background: #4cd964;
+  }
 
   &::before {
     content: '';
@@ -41,14 +46,6 @@ image {
     border: 12rpx transparent solid;
     top: 50%;
     transform: translateY(-50%);
-  }
-}
-
-.audio {
-  display: block;
-
-  &.play {
-    animation: zoom 1.5s linear infinite;
   }
 }
 
@@ -74,22 +71,15 @@ image {
   margin-top: 20rpx;
   font-size: 28rpx;
 
-  .avatar {
-    border-radius: 8rpx;
-  }
-}
-
-@keyframes zoom {
-  0% {
-    transform: scale(1);
+  .info {
+    display: flex;
+    flex: 1;
+    justify-content: flex-end;
+    align-items: center;
   }
 
-  50% {
-    transform: scale(1.5);
-  }
-
-  100% {
-    transform: scale(1);
+  .checkbox {
+    margin-left: 20rpx;
   }
 }
 
@@ -229,22 +219,36 @@ image {
   top: 0;
 }
 
-.hover-btn-box {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
+.float-menu {
+  .f-item {
+    padding: 6rpx;
+    margin-top: 20rpx;
+  }
+}
 
-  .opts {
-    position: fixed;
-    padding: 10px;
-    border-radius: 4px;
-    box-shadow: 0 0 6px #ccc;
-    background: #fff;
-    font-size: 14px;
+.mul-sel-opt {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: #fff;
+  width: 100%;
+  height: 92rpx;
+
+  .opt-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8rpx 0;
+    box-sizing: border-box;
+    font-size: 12px;
+    height: 100%;
   }
 
-  .item {
-    padding: 6rpx;
+  .van-icon {
+    font-size: 18px !important;
   }
 }

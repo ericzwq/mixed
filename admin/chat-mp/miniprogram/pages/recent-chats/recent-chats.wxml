@@ -1,0 +1,16 @@
+<view class="recent-chats-box">
+  <scroll-view scroll-x enable-flex class="header">
+    <image class="img avatar" wx:for="{{selecteds}}" wx:key="index" src="{{BASE_URL + unameUserMap[item.username].avatar}}" data-u="{{item.username}}"
+           bindtap="unselect"></image>
+    <van-field class="search" value="{{keyword}}" left-icon="search" placeholder="搜索" bind:input="search" bindtouchstart="touchSearch"/>
+  </scroll-view>
+  <view class="title">
+    <text class="text">最近聊天</text>
+    <button size="mini" type="primary" class="btn">从通讯录选择</button>
+  </view>
+  <view wx:for="{{chats}}" wx:key="to" class="item {{item.isTop ? 'top': ''}}" data-i="{{index}}" bindtap="toggle">
+    <van-checkbox checked-color="{{primaryColor}}"/>
+    <image class="avatar" src="{{BASE_URL + item.avatar}}"></image>
+    <view class="right">{{item.nickname}}</view>
+  </view>
+</view>

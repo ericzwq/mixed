@@ -7,19 +7,32 @@ import {
   JOIN_GROUP_RET,
   ADD_USER,
   ADD_USER_RET,
-  ANSWER, CREAT_GROUP,
+  ANSWER,
+  CREAT_GROUP,
   GET_CONTACTS,
   GET_FRIEND_APLS,
-  GET_HIS_SG_MSGS, GROUP_INVITE_RET,
-  OFFER, READ_SG_MSGS,
+  GET_HIS_SG_MSGS,
+  GROUP_INVITE_RET,
+  OFFER,
+  READ_SG_MSGS,
   REC_SG_MSGS,
   SEARCH_USERS,
   SEND_SG_MSG,
-  VOICE_RESULT, GET_GROUP_APLS, READ_GP_MSGS, SEND_GP_MSG, GROUP_INVITE, GET_HIS_GP_MSGS, GET_GROUP_INFO, GET_GROUP_MEMBERS
+  VOICE_RESULT,
+  GET_GROUP_APLS,
+  READ_GP_MSGS,
+  SEND_GP_MSG,
+  GROUP_INVITE,
+  GET_HIS_GP_MSGS,
+  GET_GROUP_INFO,
+  GET_GROUP_MEMBERS,
+  GET_GROUPS,
+  TRANSMIT_SG_MSGS,
+  TRANSMIT_GP_MSGS
 } from '../socket-actions'
 import {formatDate, log} from '../../common/utils'
 import client from '../../redis/redis'
-import {usernameClientMap, sendSgMsg, getHisSgMsgs, readSgMsgs} from './single/single'
+import {usernameClientMap, sendSgMsg, getHisSgMsgs, readSgMsgs, transmitSgMsgs} from './single/single'
 import {getContacts} from './contact/contact'
 import {answer, candidate, offer, voiceResult} from './mediaCall/mediaCall'
 import {CANCELLED} from 'dns'
@@ -35,10 +48,10 @@ import {
   groupInvite,
   getHisGpMsgs,
   getGroupInfo,
-  getGroupMembers
+  getGroupMembers, getGroups, transmitGpMsgs
 } from './group/group'
 import {commitSocketSql, rollbackSocketSql, socketSqlMiddleware} from '../../db'
-import {SgMsgReq} from './single/single-types'
+import {SendSgMsgReq} from './single/single-types'
 
 const socketMessageRouter = {
   actionHandlerMap: {} as ActionHandlerMap,
@@ -71,7 +84,7 @@ export async function handleMessage(user: User, cookie: string, ws: ExtWebSocket
       }
       Object.assign(user, JSON.parse(newValue))
     }
-    let data: RequestMessage<SgMsgReq>
+    let data: RequestMessage<SendSgMsgReq>
     if (isBinary) {
 
     } else {
@@ -134,6 +147,7 @@ socketMessageRouter.addHandlers([
   {action: SEND_SG_MSG, handler: sendSgMsg},
   {action: GET_HIS_SG_MSGS, handler: getHisSgMsgs},
   {action: READ_SG_MSGS, handler: readSgMsgs},
+  {action: TRANSMIT_SG_MSGS, handler: transmitSgMsgs},
 ])
 socketMessageRouter.addHandlers([{action: GET_CONTACTS, handler: getContacts}])
 socketMessageRouter.addHandlers([
@@ -160,4 +174,6 @@ socketMessageRouter.addHandlers([
   {action: GET_HIS_GP_MSGS, handler: getHisGpMsgs},
   {action: GET_GROUP_INFO, handler: getGroupInfo},
   {action: GET_GROUP_MEMBERS, handler: getGroupMembers},
+  {action: GET_GROUPS, handler: getGroups},
+  {action: TRANSMIT_GP_MSGS, handler: transmitGpMsgs},
 ])

@@ -1,24 +1,24 @@
 <view class="contact-box">
   <view class="contact-item">
-    <image class="left" src="../../static/image/add.svg" style="background: #FFC125;"></image>
+    <image class="avatar" src="../../static/image/add.svg" style="background: #FFC125;"></image>
     <view class="right" bindtap="toNewFriends">
       新的朋友
       <van-tag round>{{newFriendCount}}</van-tag>
     </view>
   </view>
   <view class="contact-item">
-    <image class="left" src="../../static/image/add.svg" style="background: #FFC125;"></image>
+    <image class="avatar" src="../../static/image/add.svg" style="background: #FFC125;"></image>
     <view class="right">
       群通知
       <!-- <van-tag>{{newFriendCount}}</van-tag> -->
     </view>
   </view>
   <view class="contact-item" bindtap="toGroups">
-    <image class="left" src="../../static/image/group-chat.svg" style="background: #FFC125;"></image>
+    <image class="avatar" src="../../static/image/group-chat.svg" style="background: #FFC125;"></image>
     <view class="right">群聊</view>
   </view>
   <view class="contact-item" wx:for="{{contacts}}" wx:key="username" data-i="{{index}}" bindtap="toDetail">
-    <image class="left" src="{{STATIC_BASE_URL + unameUserMap[item.username].avatar}}"></image>
+    <image class="avatar" src="{{BASE_URL + unameUserMap[item.username].avatar}}"></image>
     <view class="right">{{ unameUserMap[item.username].nickname }}</view>
   </view>
   <more/>

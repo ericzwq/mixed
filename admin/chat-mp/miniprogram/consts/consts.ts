@@ -1,9 +1,10 @@
 // export const DOMAIN = '192.168.8.207'
-// export const DOMAIN = 'localhost'
-export const DOMAIN = '192.168.8.207'
+export const DOMAIN = 'localhost'
+// export const DOMAIN = '192.168.8.207'
 export const PORT = 5001
 export const PROTOCOL = 'http'
 export const WS_PROTOCOL = 'ws'
 export const BASE_URL = `${PROTOCOL}://${DOMAIN}:${PORT}`
 export const LOAD_MESSAGE_COUNT = 16 // 默认加载消息数
+export const SAVE_MESSAGE_LENGTH = 16 // 默认保存消息长度 需大于等于默认加载消息数
 export const primaryColor = '#00FF7F'

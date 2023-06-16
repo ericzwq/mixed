@@ -1,36 +1,35 @@
-  .contact-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 110rpx;
-  }
+@import "../../style/index";
+@import "../../style/public";
 
-  .left {
-    display: block;
-    width: 80rpx;
-    height: 80rpx;
-    margin: 20rpx;
-    border-radius: 8rpx;
-  }
+.contact-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 110rpx;
+}
 
-  .right {
-    display: flex;
-    flex-grow: 1;
-    justify-content: space-between;
-    align-items: center;
-    height: 100%;
-    border-bottom: 1px solid #efefef;
-  }
+.avatar {
+  margin: 20rpx;
+}
 
-  .van-badge {
-    background: #fff !important;
-    padding-left: 12px !important;
+.right {
+  display: flex;
+  flex-grow: 1;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  border-bottom: 1px solid $border-color;
+}
 
-    &::after {
-      border: transparent !important;
-    }
-  }
+.van-badge {
+  background: #fff !important;
+  padding-left: 12px !important;
 
-  .van-info {
-    right: 2rpx !important;
+  &::after {
+    border: transparent !important;
   }
+}
+
+.van-info {
+  right: 2rpx !important;
+}

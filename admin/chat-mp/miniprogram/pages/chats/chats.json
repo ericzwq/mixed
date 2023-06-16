@@ -1,6 +1,7 @@
 {
   "usingComponents": {
     "more": "../../components/more/more",
+    "float-menu": "../../components/float-menu/float-menu",
     "van-dialog": "@vant/weapp/dialog"
   }
 }

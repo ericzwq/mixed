@@ -51,14 +51,19 @@ declare enum GpMemberOrigin {
   apply = 2, // 申请
 }
 
-interface GpMsgReq {
+interface SendGpMsgReq {
   type: MsgType
   content: GpMsgs.Content
   fakeId: GpMsgs.FakeId
   ext?: GpMsgs.Ext
-  lastId?: GpMsgs.Id
+  lastId: GpMsgs.Id | null
   to: GpMsgs.To
-  pre: GpMsgs.Pre // 额外的
+}
+
+interface TransmitGpMsgsReq {
+  to: GpMsgs.To
+  lastId: GpMsgs.Id | null
+  msgs: Omit<SendGpMsgReq, 'to' | 'lastId'>
 }
 
 interface GpMsgRes {
@@ -170,4 +175,10 @@ interface File {
   status?: 'uploading' | 'failed' | 'done'
   message?: string
   shortUrl?: string
+}
+
+interface GetGroupsRes {
+  id: Groups.Id
+  name: Groups.Name
+  avatar: Groups.Avatar
 }

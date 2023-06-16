@@ -1,7 +1,7 @@
 import {executeSocketSql} from "../../../db";
 import {ExtWebSocket, MsgStatus} from "../../socket-types";
 import {Users} from "../../../router/user/user-types";
-import {CreateGroupReq, GetHisGpMsgReq, GpMemberOrigin, GpMembers, GpMsgReq, GpMsgRes, GpMsgs, Group, GroupApls, Groups} from "./group-types";
+import {CreateGroupReq, GetGroupsRes, GetHisGpMsgReq, GpMemberOrigin, GpMembers, SendGpMsgReq, GpMsgRes, GpMsgs, Group, GroupApls, Groups} from "./group-types";
 import {InsertModal, UpdateModal} from "../../../types/sql-types";
 import c = require("koa-session/lib/context");
 import {GetHisSgMsgReq, SgMsgs} from "../single/single-types";
@@ -18,8 +18,12 @@ export function addGroupMember(ws: ExtWebSocket, from: Users.Username, groupId: 
     [groupId, from, prohibition, origin, inviter, checker])
 }
 
-export function addGpMsg(ws: ExtWebSocket, from: Users.Username, data: GpMsgReq, createdAt: Groups.CreatedAt, reads: GpMsgs.Reads) {
-  const {fakeId, pre, to, content, type} = data
+export function selectGroupInfo(ws: ExtWebSocket, groupId: string | Groups.Id) {
+  return executeSocketSql<GetGroupsRes[]>(ws, 'select id, name, avatar from `groups` where id = ?;', [groupId])
+}
+
+export function addGpMsg(ws: ExtWebSocket, from: Users.Username, data: SendGpMsgReq, createdAt: Groups.CreatedAt, reads: GpMsgs.Reads) {
+  const {fakeId, content, type, to, pre} = data
   return executeSocketSql<InsertModal>(ws, 'insert into group_chat(fakeId, pre, `from`, `to`, content, type, status, createdAt, `reads`) values(?, ?, ?, ?, ?, ?, ?, ?, ?);',
     [fakeId, pre, from, to, content, type, MsgStatus.normal, createdAt, reads])
 }

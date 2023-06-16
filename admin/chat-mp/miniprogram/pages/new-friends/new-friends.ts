@@ -10,7 +10,7 @@ Page({
    * 页面的初始数据
    */
   data: {
-    STATIC_BASE_URL: BASE_URL,
+    BASE_URL,
     friendApls: [] as FriendApl[]
   },
 

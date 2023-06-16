@@ -16,14 +16,19 @@ interface GetHisSgMsgReq {
   minId: SgMsgs.Id | null
 }
 
-interface SgMsgReq {
+interface SendSgMsgReq {
   type: MsgType
   content: SgMsgs.Content
   fakeId: SgMsgs.FakeId
   ext?: SgMsgs.Ext
-  lastId?: SgMsgs.Id
+  lastId: SgMsgs.Id | null
   to: SgMsgs.To
-  pre: SgMsgs.Pre // 额外的
+}
+
+interface TransmitSgMsgsReq {
+  to: Users.Username
+  lastId: SgMsgs.Id | null
+  msgs: Omit<SendSgMsgReq, 'to' | 'lastId'>[]
 }
 
 interface SgMsgRes {
@@ -63,12 +68,12 @@ interface SgMsg extends Partial<SgMsgRes> {
   isPlay?: boolean
 }
 
-interface MessageInfo<T> {
+interface MessageInfo<T extends SgMsg | GpMsg> {
   fakeIdIndexMap: FakeIdIndexMap,
   messages: T[],
-  maxMessagesIndex: number, // messages最大本地缓存分页索引，默认0
-  loadedMessagesMinIndex: number, // messages已加载本地缓存分页最小索引，默认-1
-  loadedMessagesPageMinIndex: number, // 本地缓存中已加载的分页最小索引，默认Infinity
+  maxMsgsIndex: number, // messages最大本地缓存分页索引，默认0
+  loadedMsgsMinIndex: number, // messages已加载本地缓存的最小分页索引，默认0
+  showedMsgsMinIndex: number // 已展示的messages最小索引, 默认为messages长度（初始未展示）
 }
 
 interface UnameMessageInfoMap {

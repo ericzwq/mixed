@@ -9,7 +9,7 @@ import {REC_ADD_USER, REC_ADD_USER_RET, REC_SG_MSGS} from '../../socket-actions'
 import {Contacts} from '../contact/contact-types'
 import {beginSocketSql} from '../../../db'
 import client from '../../../redis/redis'
-import {SgMsgReq, SgMsgRes} from '../single/single-types'
+import {SendSgMsgReq, SgMsgRes} from '../single/single-types'
 import {
   addFriendApl,
   addSgMsg,
@@ -89,14 +89,14 @@ export async function addUserRet(ws: ExtWebSocket, user: User, data: RequestMess
     if (!affectedRows) return ws.json({status: 1019, message: 'contactId不匹配'})
     await addContactByMasterAndSub(ws, to, from, Contacts.Status.normal, remark)
   }
-  const message = {
+  const message: SendSgMsgReq = {
     pre: null,
     content: '你们已成为好友，可以一起尬聊了',
     type: MsgType.system,
     fakeId: createFakeId(from, to),
     to
-  } as SgMsgReq
-  const {result: {insertId}} = await addSgMsg(ws, from, message, formatDate())
+  }
+  const {result: {insertId}} = await addSgMsg(ws, from, to, message, null, formatDate())
   const res: SgMsgRes = {
     ...message,
     from,

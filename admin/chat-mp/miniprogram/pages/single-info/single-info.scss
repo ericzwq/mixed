@@ -1,3 +1,5 @@
+@import "../../style/index";
+
 .gap::after {
   content: '';
   display: block;
@@ -6,11 +8,7 @@
 }
 
 .avatar {
-  display: block;
-  width: 80rpx;
-  height: 80rpx;
   margin: 20rpx;
-  border-radius: 8rpx;
   flex: 0;
 }
 

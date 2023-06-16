@@ -15,7 +15,7 @@ import {
 } from './single-sql'
 import {REC_READ_SG_MSGS, REC_SG_MSGS} from '../../socket-actions'
 import {getHisSgMsgsSchema, readSgMsgSchema, sendSgMsgSchema} from './single-schema'
-import {GetHisSgMsgReq, ReadSgMsgReq, SgMsgReq, SgMsgRes, SgMsgs} from './single-types'
+import {GetHisSgMsgReq, ReadSgMsgsReq, SendSgMsgReq, TransmitSgMsgsReq, SgMsgRes, SgMsgs} from './single-types'
 import {beginSocketSql} from '../../../db'
 import client from "../../../redis/redis";
 import {selectContactBySub} from "../contact/contact-sql";
@@ -24,24 +24,17 @@ import Status = Contacts.Status;
 
 export const usernameClientMap = {} as { [key in string]?: ExtWebSocket }
 
-export async function sendSgMsg(ws: ExtWebSocket, user: User, data: RequestMessage<SgMsgReq>) {
+export async function sendSgMsg(ws: ExtWebSocket, user: User, data: RequestMessage<SendSgMsgReq>) {
   await checkMessageParams(ws, sendSgMsgSchema, data.data, 1001)
   const body = data.data
   const from = user.username
   const createdAt = formatDate()
-  const {type, to, fakeId} = body
+  const {type, to, fakeId, lastId} = body
   const {action} = data
-  if (to !== from) {
-    const contactStatus = await getUserContactStatus(ws, from, to)
-    if (contactStatus !== Status.normal) {
-      if (contactStatus === Status.never) return ws.json({action, status: 1002, message: '你们不是好友'})
-      if (contactStatus === Status.blackList) return ws.json({action, status: 1003, message: '对方已将你拉黑'})
-      return ws.json({action, status: 1008, message: '对方已将你删除'})
-    }
-  }
+  if (!(await checkContactStatus(ws, from, to, action))) return
   const {result} = await selectSgMsgByFakeId(ws, fakeId)
   if (result.length) return ws.json({action, status: 1004, message: 'fakeId重复'})
-  const {result: result2} = await selectLastSgMsg(ws, body.lastId!, from, to)
+  const {result: result2} = await selectLastSgMsg(ws, lastId!, from, to)
   if (!result2.length) return ws.json({action, status: 1005, message: 'lastId错误'})
   await beginSocketSql(ws)
   if (type === MsgType.audio) handleAudio(body, createdAt) // 音频
@@ -50,7 +43,7 @@ export async function sendSgMsg(ws: ExtWebSocket, user: User, data: RequestMessa
   const messages: SgMsgRes[] = JSON.parse((await selectNewSgMsgs(ws, lastMsg.id)).result[0][0].messages)
   if (messages.length > 0) lastMsg = messages[messages.length - 1]
   body.pre = lastMsg.id
-  const {result: {insertId}} = await addSgMsg(ws, from, body, createdAt)
+  const {result: {insertId}} = await addSgMsg(ws, from, to, body, body.pre, createdAt)
   await updateSgMsgNext(ws, insertId, lastMsg.id)
   if (messages.length > 0) lastMsg.next = insertId
   const message: SgMsgRes = {
@@ -71,6 +64,70 @@ export async function sendSgMsg(ws: ExtWebSocket, user: User, data: RequestMessa
   usernameClientMap[body.to]?.json({data: [message], action: REC_SG_MSGS}) // 给好友发送消息
 }
 
+async function checkContactStatus(ws: ExtWebSocket, from: Users.Username, to: Users.Username, action: string) {
+  if (to !== from) {
+    const contactStatus = await getUserContactStatus(ws, from, to)
+    if (contactStatus !== Status.normal) {
+      if (contactStatus === Status.never) return ws.json({action, status: 1002, message: '你们不是好友'})
+      if (contactStatus === Status.blackList) return ws.json({action, status: 1003, message: '对方已将你拉黑'})
+      return ws.json({action, status: 1008, message: '对方已将你删除'})
+    }
+  }
+  return true
+}
+
+// 逐条转发消息
+export async function transmitSgMsgs(ws: ExtWebSocket, user: User, data: RequestMessage<TransmitSgMsgsReq>) {
+  await checkMessageParams(ws, sendSgMsgSchema, data.data, 1001)
+  const body = data.data
+  const from = user.username
+  const createdAt = formatDate()
+  const {lastId, to, msgs} = body
+  const {action} = data
+  if (!(await checkContactStatus(ws, from, to, action))) return
+  const {result: result2} = await selectLastSgMsg(ws, lastId!, from, to)
+  if (!result2.length) return ws.json({action, status: 1005, message: 'lastId错误'})
+  let lastMsg = result2[0]
+  const messages: SgMsgRes[] = JSON.parse((await selectNewSgMsgs(ws, lastMsg.id)).result[0][0].messages)
+  if (messages.length > 0) lastMsg = messages[messages.length - 1]
+  await beginSocketSql(ws)
+  let fakeIdRepeat = false
+  let pre: SgMsgs.Pre
+  const newMsgs: SgMsgRes[] = []
+  let i = 0
+  for (const msg of msgs) {
+    const {fakeId, content, type} = msg
+    const {result} = await selectSgMsgByFakeId(ws, fakeId)
+    if (result.length) {
+      fakeIdRepeat = true
+      ws.json({action, status: 1004, message: 'fakeId重复'})
+      break
+    }
+    pre = lastMsg.id
+    const {result: {insertId}} = await addSgMsg(ws, from, to, msg, pre, createdAt)
+    await updateSgMsgNext(ws, insertId, lastMsg.id)
+    if ((i++ === 0 && messages.length > 0) || i > 0) lastMsg.next = insertId
+    const message: SgMsgRes = {
+      id: insertId,
+      pre,
+      next: null,
+      status: MsgStatus.normal,
+      content,
+      type,
+      fakeId,
+      from,
+      to,
+      createdAt,
+      read: MsgRead.no
+    }
+    newMsgs.push(message)
+    lastMsg = message
+  }
+  if (fakeIdRepeat) return Promise.reject('单聊：fakeId重复')
+  ws.json({data: messages.concat(newMsgs), action: REC_SG_MSGS}) // 给自己返回消息
+  usernameClientMap[body.to]?.json({data: newMsgs, action: REC_SG_MSGS}) // 给好友发送消息
+}
+
 // 获取历史消息
 export async function getHisSgMsgs(ws: ExtWebSocket, user: User, data: RequestMessage<GetHisSgMsgReq>) {
   await checkMessageParams(ws, getHisSgMsgsSchema, data.data, 1007)
@@ -79,7 +136,7 @@ export async function getHisSgMsgs(ws: ExtWebSocket, user: User, data: RequestMe
 }
 
 // 处理撤回
-async function handleRetract(ws: ExtWebSocket, message: SgMsgReq, from: SgMsgs.From) {
+async function handleRetract(ws: ExtWebSocket, message: SendSgMsgReq, from: SgMsgs.From) {
   const handler = async () => {
     const id = message.content as number
     const {result} = await selectSgMsgByIdAndFrom(ws, id, from)
@@ -95,7 +152,7 @@ async function handleRetract(ws: ExtWebSocket, message: SgMsgReq, from: SgMsgs.F
 }
 
 // 消息已读
-export async function readSgMsgs(ws: ExtWebSocket, user: User, data: RequestMessage<ReadSgMsgReq>) {
+export async function readSgMsgs(ws: ExtWebSocket, user: User, data: RequestMessage<ReadSgMsgsReq>) {
   await checkMessageParams(ws, readSgMsgSchema, data.data, 1013)
   await beginSocketSql(ws)
   const {ids, to} = data.data

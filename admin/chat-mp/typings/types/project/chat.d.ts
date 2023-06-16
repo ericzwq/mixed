@@ -18,8 +18,9 @@ interface ChatItem {
 }
 
 declare enum MsgState {
-  loading = 'loading',
-  error = 'error'
+  loading = 1,
+  error = 2,
+  delete = 3
 }
 
 declare enum SysMsgContType {
@@ -30,4 +31,10 @@ declare enum SysMsgContType {
 interface SysMsgCont {
   type: SysMsgContType
   value: Users.Username
+}
+
+// 转发类型
+declare enum TransmitType {
+  single = 1, // 单独
+  union= 2, // 合并
 }

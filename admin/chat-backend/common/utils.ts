@@ -4,7 +4,7 @@ import {ResponseSchema} from '../response/response'
 import {ExtWebSocket} from '../socket/socket-types'
 import {usernameClientMap} from "../socket/message/single/single";
 import {User, Users} from "../router/user/user-types";
-import {SgMsgReq, SgMsgs} from "../socket/message/single/single-types";
+import {SendSgMsgReq, SgMsgs} from "../socket/message/single/single-types";
 import fs = require("fs");
 import path = require("path");
 import client from "../redis/redis";
@@ -64,7 +64,7 @@ export function createFakeId(from: Users.Username, to: Users.Username | number) 
 }
 
 // 处理音频
-export function handleAudio(message: Pick<SgMsgReq, 'content' | 'ext'>, createdAt: SgMsgs.CreatedAt) {
+export function handleAudio(message: Pick<SendSgMsgReq, 'content' | 'ext'>, createdAt: SgMsgs.CreatedAt) {
   const uint8Array = new Uint8Array(message.content as [])
   const urlDir = '/staging/' + createdAt.slice(0, -9) + '/'
   const dir = path.resolve(__dirname, '../public' + urlDir)

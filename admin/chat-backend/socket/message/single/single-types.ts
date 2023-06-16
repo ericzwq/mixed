@@ -19,7 +19,7 @@ export interface GetHisSgMsgReq {
   minId: SgMsgs.Id | null
 }
 
-export interface SgMsgReq {
+export interface SendSgMsgReq {
   type: MsgType
   content: SgMsgs.Content
   fakeId: SgMsgs.FakeId
@@ -27,6 +27,12 @@ export interface SgMsgReq {
   lastId?: SgMsgs.Id
   to: SgMsgs.To
   pre: SgMsgs.Pre // 额外的
+}
+
+export interface TransmitSgMsgsReq {
+  to: SgMsgs.To
+  lastId?: SgMsgs.Id
+  msgs: Omit<SendSgMsgReq, 'to' | 'lastId'>[]
 }
 
 export interface SgMsgRes {
@@ -43,7 +49,7 @@ export interface SgMsgRes {
   read: MsgRead
 }
 
-export interface ReadSgMsgReq {
+export interface ReadSgMsgsReq {
   ids: SgMsgs.Id[]
   to: SgMsgs.To
 }

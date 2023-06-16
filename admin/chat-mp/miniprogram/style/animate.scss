@@ -11,3 +11,27 @@
     }
   }
 }
+
+.audio {
+  display: block;
+  height: 40rpx;
+  width: 60rpx;
+
+  &.play {
+    animation: audio-zoom 2s linear infinite;
+  }
+}
+
+@keyframes audio-zoom {
+  0% {
+    transform: scaleX(1);
+  }
+
+  50% {
+    transform: scaleX(1.5);
+  }
+
+  100% {
+    transform: scaleX(1);
+  }
+}

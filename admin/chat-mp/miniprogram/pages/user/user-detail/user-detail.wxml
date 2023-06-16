@@ -1,6 +1,6 @@
 <view class="user-detail-box">
   <view class="header">
-    <image src="{{STATIC_BASE_URL + unameUserMap[target.username].avatar}}"></image>
+    <image src="{{BASE_URL + unameUserMap[target.username].avatar}}"></image>
     <view class="right">
       <text class="nickname">{{unameUserMap[target.username].nickname}}</text>
       <text class="id">{{target.username}}</text>

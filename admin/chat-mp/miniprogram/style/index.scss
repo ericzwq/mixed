@@ -1,0 +1,25 @@
+@import "./public";
+
+.hidden {
+  display: none !important;
+}
+
+.avatar {
+  display: block;
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 8rpx;
+  margin: 0 20rpx;
+}
+
+.avatar-s {
+  display: block;
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 8rpx;
+  margin: 0 10rpx;
+}
+
+.clickable:active {
+  background: $active-background-color;
+}

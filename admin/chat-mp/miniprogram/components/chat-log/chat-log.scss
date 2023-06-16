@@ -1,0 +1,25 @@
+@import "../../style/public";
+
+.chat-log-box {
+  width: fit-content;
+  font-size: 12px;
+  background: #ddd;
+  border-radius: 10rpx;
+  padding: 20rpx;
+}
+
+.header {
+  color: #000;
+  font-size: 14px;
+}
+
+.main {
+  color: #ccc;
+  border-bottom: $border-color 1px solid;
+  padding: 20rpx 0;
+}
+
+.footer {
+  color: #ccc;
+  margin-top: 10rpx;
+}

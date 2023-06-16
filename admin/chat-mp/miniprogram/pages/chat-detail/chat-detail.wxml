@@ -8,38 +8,48 @@
           <text wx:elif="{{item.type === 2}}" class="link" data-i="{{index}}" bindtap="toDetail"> {{unameUserMap[item.value].nickname}} </text>
         </block>
       </view>
-      <view wx:elif="{{user.username !== item.from}}" class="item left">
-        <image class="avatar" src="{{STATIC_BASE_URL + target.avatar}}" data-i="{{index}}" bindtap="toUserDetail"></image>
-        <view class="content" bindlongpress="handleLongPress" bindtouchstart="onTouchStart" bindtouchcancel="onTouchCancel" bindtouchend="onTouchCancel" data-i="{{index}}">
-          <text wx:if="{{item.type === 1}}">{{item.content}}</text>
-          <image src="../../static/image/voice.svg" wx:elif="{{item.type === 3}}" width="30" data-i="{{index}}" class="audio {{item.isPlay ? 'play' : ''}}"
-                 bindtap="audioPlay"></image>
+      <block wx:elif="{{user.username !== item.from}}">
+        <view wx:if="{{item.state !== 3}}" class="item left" bindtap="onTap" data-i="{{index}}">
+          <van-checkbox value="{{fakeIdSelectedMap[item.fakeId]}}" mark:toggle="1" class="checkbox box-{{index}} {{showSelects ? '' : 'hidden'}}" checked-color="{{primaryColor}}"/>
+          <view class="info">
+            <image mark:toUserDetail="1" class="avatar-s" src="{{BASE_URL + target.avatar}}"></image>
+            <view class="content" bindlongpress="handleLongPress" bindtouchstart="onTouchStart" bindtouchcancel="onTouchCancel"
+                  bindtouchend="onTouchCancel" data-i="{{index}}">
+              <text class="{{index === activeIndex ? 'active' : ''}}" wx:if="{{item.type === 1}}">{{item.content}}</text>
+              <image mark:audioPlay="1" src="../../static/image/voice.svg" wx:elif="{{item.type === 3}}" width="30" class="audio {{item.isPlay ? 'play' : ''}}"></image>
+            </view>
+            <image src="../../static/image/loading.svg" wx:if="{{item.state === 1}}" width="20" class="status loading"></image>
+            <image src="../../static/image/error.svg" wx:if="{{item.state === 2}}" width="20" color="red" class="status error">
+            </image>
+          </view>
         </view>
-        <image src="../../static/image/loading.svg" wx:if="{{item.state === 'loading'}}" width="20" class="status loading"></image>
-        <image src="../../static/image/error.svg" wx:if="{{item.state === 'error'}}" width="20" color="red" class="status error">
-        </image>
-      </view>
-      <view wx:else class="item right">
-        <image src="../../static/image/loading.svg" wx:if="{{item.state === 'loading'}}" class="status loading"></image>
-        <image src="../../static/image/error.svg" wx:if="{{item.state === 'error'}}" color="red" class="status error">
-        </image>
-        <view class="content" bindlongpress="handleLongPress" bindtouchstart="onTouchStart" bindtouchcancel="onTouchCancel" bindtouchend="onTouchCancel" data-i="{{index}}">
-          <text wx:if="{{item.type === 1}}">{{item.content}}</text>
-          <image src="../../static/image/voice.svg" wx:elif="{{item.type === 3}}" width="30" data-i="{{index}}" class="audio {{item.isPlay ? 'play' : ''}}"
-                 bindtap="audioPlay"></image>
+      </block>
+      <block wx:else>
+        <view wx:if="{{item.state !== 3}}" class="item right" bindtap="onTap" data-i="{{index}}" data-right="1">
+          <van-checkbox value="{{fakeIdSelectedMap[item.fakeId]}}" mark:toggle="1" class="checkbox box-{{index}} {{showSelects ? '' : 'hidden'}}" checked-color="{{primaryColor}}"/>
+          <view class="info">
+            <image src="../../static/image/loading.svg" wx:if="{{item.state === 1}}" class="status loading"></image>
+            <image src="../../static/image/error.svg" wx:if="{{item.state === 2}}" color="red" class="status error">
+            </image>
+            <view class="content" bindlongpress="handleLongPress" bindtouchstart="onTouchStart" bindtouchcancel="onTouchCancel"
+                  bindtouchend="onTouchCancel" data-i="{{index}}">
+              <text class="{{index === activeIndex ? 'active' : ''}}" wx:if="{{item.type === 1}}">{{item.content}}</text>
+              <image mark:audioPlay="1" src="../../static/image/voice.svg" wx:elif="{{item.type === 3}}" width="30" class="audio {{item.isPlay ? 'play' : ''}}"></image>
+            </view>
+            <image mark:toUserDetail="1" class="avatar-s" src="{{BASE_URL + user.avatar}}"></image>
+          </view>
         </view>
-        <image class="avatar" src="{{STATIC_BASE_URL + user.avatar}}" data-right="1" data-i="{{index}}" bindtap="toUserDetail"></image>
-      </view>
+      </block>
     </block>
   </view>
   <view class="{{['bottom', showOpts ? 'showOpt' : '']}}">
     <view class="input-box">
-      <image src="../../static/image/mic.svg" hidden="{{inputState !== 0}}" style="margin: 0;" bindtap="handleMic"></image>
-      <image src="../../static/image/keyboard.svg" hidden="{{inputState !== 1}}" bindtap="retKeybroad"></image>
+      <image class="img" src="../../static/image/mic.svg" hidden="{{inputState !== 0}}" style="margin: 0;" bindtap="handleMic"></image>
+      <image class="img" src="../../static/image/keyboard.svg" hidden="{{inputState !== 1}}" bindtap="retKeybroad"></image>
       <input id="content" focus="{{true}}" hidden="{{inputState !== 0}}" model:value="{{content}}" bindconfirm="send" bindinput="contentInput"/>
       <wxs module="chat" src="./chat-detail.wxs"></wxs>
       <button hidden="{{inputState !== 1}}" class="btn-small" size="mini" bindtap="handleRecording">{{chat.getRecordStateText(recordState)}}</button>
-      <image id="showOpt" src="../../static/image/more.svg" hidden="{{!(!content && !recorder)}}" bindtap="handleShowOpts">
+      <image class="img" id="showOpt" src="../../static/image/more.svg" hidden="{{!(!content && !recorder)}}" bindtap="handleShowOpts">
       </image>
       <button hidden="{{!(content || recordState === 2 )}}" size="mini" type="primary" bindtap="send">发送</button>
       <button hidden="{{!(inputState === 1 && recordState === 2)}}" size="mini" type="default" class="cancel" bindtap="cancel">取消</button>
@@ -80,14 +90,39 @@
     </view>
   </uni-popup> -->
   <van-icon name="ellipsis" class="float-btn" bindtap="toChatInfo"/>
-  <view class="hover-btn-box" hidden="{{!showHoverBtn}}" bindtap="clickMask">
-    <view class="opts" style="left: {{left}}; right: {{right}}; top: {{top}}; bottom: {{bottom}}">
-      <view class="item">复制</view>
-      <view class="item">转发</view>
-      <view class="item">收藏</view>
-      <view class="item">多选</view>
-      <view class="item">引用</view>
-      <view class="item">删除</view>
+  <float-menu class="float-menu" bind:close="onClose">
+    <view hidden="{{activeIndex > -1 && viewMessages[activeIndex].type !== 1}}" class="f-item" bindtap="copy">复制</view>
+    <view class="f-item" bindtap="transmit">转发</view>
+    <view class="f-item" bindtap="collect">收藏</view>
+    <view class="f-item" bindtap="multipleChoice">多选</view>
+    <view class="f-item" bindtap="reply">回复</view>
+    <view class="f-item" bindtap="delete">删除</view>
+  </float-menu>
+  <van-dialog id="van-dialog"/>
+  <view class="mul-sel-opt {{showSelects ? '' : 'hidden'}}">
+    <view class="opt-item" bindtap="transmit">
+      <van-icon name="share-o"/>
+      <text>转发</text>
+    </view>
+    <view class="opt-item" bindtap="collect">
+      <van-icon name="star-o"/>
+      <text>收藏</text>
+    </view>
+    <view class="opt-item" bindtap="delete">
+      <van-icon name="delete-o"/>
+      <text>删除</text>
+    </view>
+    <view class="opt-item" bindtap="closeMulSelOpt">
+      <van-icon name="close"/>
+      <text>取消</text>
     </view>
   </view>
+  <van-action-sheet
+    show="{{ showActions }}"
+    actions="{{ actions }}"
+    cancel-text="取消"
+    bind:cancel="onCloseActions"
+    bind:select="onSelectAction"
+  />
+
 </view>

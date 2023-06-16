@@ -1,3 +1,7 @@
+@import "../../style/index";
+@import "../../style/animate";
+@import "../../style/vant";
+
 .box {
   display: flex;
   flex-direction: column;
@@ -7,65 +11,107 @@
 .header {
   display: flex;
   align-items: flex-start;
-  padding: 20rpx 0;
-  margin: 0 30rpx;
+  padding: 20rpx;
   border-bottom: 1px solid #efefef;
+  box-sizing: border-box;
 
   .img {
-    display: block;
-    width: 80rpx;
-    height: 80rpx;
-    border-radius: 8rpx;
     flex-shrink: 0;
     margin: 4rpx;
   }
-}
 
-.search {
-  display: flex;
-  height: 88rpx;
-  align-items: center;
-  flex: 1;
-  min-width: 200rpx;
+  .search {
+    display: flex;
+    height: 88rpx;
+    align-items: center;
+    flex: 1;
+    min-width: 200rpx;
+    width: 100%;
+  }
 
+  van-cell {
+    width: 100%;
+  }
 
   .van-cell {
     padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 }
 
-.main {
-  flex: 1;
-}
-
-.van-icon-search::before {
-  font-size: 16px !important;
-  margin-top: 2px;
-}
-
-
-.van-cell {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-
-  &::after {
-    border: none !important;
-  }
-}
-
-.item {
+.title {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 110rpx;
+  padding: 10rpx 20rpx;
+  font-size: 12px;
+
+  .text {
+    font-weight: 700;
+  }
+
+  .btn {
+    font-size: 12px;
+    margin: unset;
+    font-weight: 300;
+  }
 }
 
-.left {
-  display: block;
-  width: 80rpx;
-  height: 80rpx;
-  margin: 20rpx;
-  border-radius: 8rpx;
+.p-text {
+  margin-left: 20rpx;
+  padding: 10rpx 0;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.chat-main {
+  flex: 1;
+  overflow: scroll;
+
+  .chat-item {
+    display: flex;
+    align-items: center;
+    padding: 0 20rpx;
+
+    &.top {
+      background: #f1f1f1;
+    }
+
+    .avatar {
+      margin: 10rpx 20rpx 10rpx 0;
+    }
+
+    .master {
+      font-size: 13px;
+    }
+
+    .right {
+      padding: 0;
+      height: 100rpx;
+    }
+  }
+
+  .status {
+    display: inline-block;
+    height: 24rpx;
+    width: 24rpx;
+    margin: 0 10rpx;
+  }
+
+  .content {
+    display: flex;
+    align-items: center;
+    font-size: 24rpx;
+    color: #aaa;
+  }
+
+  .van-cell {
+    padding: 0 !important;
+  }
+}
+
+.van-cell::after {
+  border: none !important;
 }
 
 .right {
@@ -79,21 +125,91 @@
   padding: 16rpx 0;
   box-sizing: border-box;
 
-  .nickname {
+  .master {
     color: #000;
   }
-  .username {
+
+  .sub {
     font-size: 11px;
+    color: #aaa;
+  }
+}
+
+.main {
+  flex: 1;
+  overflow: scroll;
+
+  .van-index-anchor {
+    background: #eee !important;
+    font-size: 11px !important;
+  }
+
+  //.van-icon-search::before {
+  //  font-size: 16px !important;
+  //  margin-top: 2px;
+  //}
+
+  .item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100rpx;
+    font-size: 12px;
+    padding: 0 20rpx;
+  }
+
+  .avatar {
+    margin: 10rpx 20rpx 10rpx 0;
   }
 }
 
 .footer {
-  padding: 20rpx 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   text-align: right;
+  padding: 0 30rpx;
   background: #efefef;
 
   .btn {
     font-weight: 400;
     font-size: 13px;
+    margin: unset;
+
+    &.pl {
+      background: unset;
+    }
+
+    &:first-of-type {
+      margin: 20rpx 0 !important;
+    }
+  }
+}
+
+.dialog {
+  padding: 0 20rpx;
+
+  .header {
+    height: 128rpx;
+    padding-left: 0;
+  }
+
+  .d-title {
+    text-align: left;
+    font-size: 15px;
+    font-weight: bold;
+  }
+
+  .content {
+    padding: 30rpx 0;
+    font-size: 12px;
+    color: #ccc;
+  }
+
+  .input {
+    border: 1px solid #ddd;
+    border-radius: 8rpx;
+    padding: 10rpx 20rpx;
+    font-size: 12px;
   }
 }

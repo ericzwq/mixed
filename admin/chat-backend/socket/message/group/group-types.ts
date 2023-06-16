@@ -38,7 +38,7 @@ export enum GpMemberOrigin {
   apply = 2, // 申请
 }
 
-export interface GpMsgReq {
+export interface SendGpMsgReq {
   type: MsgType
   content: GpMsgs.Content
   fakeId: GpMsgs.FakeId
@@ -46,6 +46,12 @@ export interface GpMsgReq {
   lastId?: GpMsgs.Id
   to: GpMsgs.To
   pre: GpMsgs.Pre // 额外的
+}
+
+export interface TransmitGpMsgsReq {
+  to: GpMsgs.To
+  lastId?: GpMsgs.Id
+  msgs: Omit<SendGpMsgReq, 'to' | 'lastId'>[]
 }
 
 export interface GpMsgRes {
@@ -72,6 +78,12 @@ export interface Group {
   member: Groups.Member
   members: Groups.Members
   createdAt: Groups.CreatedAt
+}
+
+export interface GetGroupsRes {
+  id: Groups.Id
+  name: Groups.Name
+  avatar: Groups.Avatar
 }
 
 export namespace GroupApls {

@@ -1,11 +1,5 @@
-function isUsernameHidden(username, keyword) {
-  return !keyword || username.indexOf(keyword) === -1
+function isNotInclude(str, keyword) {
+  return !keyword || str.indexOf(keyword) === -1
 }
 
-function isSelected(username, selecteds) {
-  return selecteds.filter(function (c) {
-    return c.username === username
-  }).length > 0
-}
-module.exports.isUsernameHidden = isUsernameHidden
-module.exports.isSelected = isSelected
+module.exports.isNotInclude = isNotInclude

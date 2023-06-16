@@ -14,9 +14,9 @@ declare namespace Contacts {
 
 interface Contact {
   username: Users.Username,
-  nickname?: Users.Nickname,
-  avatar?: Users.Avatar,
-  email?: Users.Email
+  nickname?: Users.Nickname, // 只在从后端获取时存在
+  avatar?: Users.Avatar, // 只在从后端获取时存在
+  email?: Users.Email // 只在从后端获取时存在
   status: Contacts.Status,
   remark: Contacts.Remark
 }

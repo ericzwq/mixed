@@ -1,0 +1,5 @@
+<view class="hover-btn-box {{show ? '' : 'hidden'}}" bindtouchstart="touchMask" bindtap="touchMask">
+  <view mark:opts="1" class="opts {{show ? '' : 'hidden'}}" style="left: {{left}}; right: {{right}}; top: {{top}}; bottom: {{bottom}}">
+    <slot/>
+  </view>
+</view>

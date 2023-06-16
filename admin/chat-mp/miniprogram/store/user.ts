@@ -1,12 +1,13 @@
 import {observable, action} from 'mobx-miniprogram'
 import {chatSocket} from '../socket/socket'
-import {GET_CONTACTS, GET_FRIEND_APLS, GET_GROUP_INFO} from '../socket/socket-actions'
+import {GET_CONTACTS, GET_FRIEND_APLS, GET_GROUP_INFO, GET_GROUPS} from '../socket/socket-actions'
 
 const store = observable({
   contacts: [] as Contact[],
   contactMap: {} as ContactMap,
   user: {} as User,
   chats: [] as ChatItem[],
+  groups: null as GetGroupsRes[] | null,
   unameMessageInfoMap: {} as UnameMessageInfoMap, // 单聊用户对应的数据
   groupIdMessageInfoMap: {} as GroupIdMessageInfoMap, // 群聊用户对应的数据
   groupIdGroupInfoMap: {} as GroupIdGroupInfoMap, // 群id对应的群信息
@@ -108,11 +109,35 @@ const store = observable({
   getFriendApls() {
     const friendApls: FriendApl[] = JSON.parse(wx.getStorageSync('friendApplications-' + this.user.username) || '[]')
     chatSocket.send({action: GET_FRIEND_APLS, data: {lastFriendAplId: friendApls.length ? friendApls[0].friendAplId : null}})
-    chatSocket.addSuccessHandler<FriendApl[]>(GET_FRIEND_APLS, data => {
+    const handler = (data: SocketResponse<FriendApl[]>) => {
       data.data.forEach(friendApl => {
         const id = friendApl.friendAplId
         console.log(id) // todo
       })
+    }
+    chatSocket.addSuccessHandler<FriendApl[]>(GET_FRIEND_APLS, handler)
+  },
+  setGroups: action(function (value: GetGroupsRes[]) {
+    store.groups = value
+  }),
+  async getGroups() {
+    const {username} = this.user
+    return new Promise(resolve => {
+      if (store.groups) return resolve(store.groups)
+      const storage = wx.getStorageSync('groups-' + username)
+      if (storage) {
+        const data = JSON.parse(storage)
+        store.setGroups(data)
+        return resolve(data)
+      }
+      chatSocket.send({action: GET_GROUPS})
+      const handler = (data: SocketResponse<GetGroupsRes[]>) => {
+        chatSocket.removeSuccessHandler(GET_GROUPS, handler)
+        wx.setStorageSync('groups-' + username, JSON.stringify(data.data))
+        store.setGroups(data.data)
+        resolve(data.data)
+      }
+      chatSocket.addSuccessHandler(GET_GROUPS, handler)
     })
   },
   async init() {

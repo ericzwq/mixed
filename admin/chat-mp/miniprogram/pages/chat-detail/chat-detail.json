@@ -1,6 +1,10 @@
 {
   "usingComponents": {
-    "van-icon": "@vant/weapp/icon"
+    "van-icon": "@vant/weapp/icon",
+    "van-dialog": "@vant/weapp/dialog",
+    "van-checkbox": "@vant/weapp/checkbox",
+    "van-action-sheet": "@vant/weapp/action-sheet",
+    "float-menu": "../../components/float-menu/float-menu"
   },
   "enablePullDownRefresh": true
 }

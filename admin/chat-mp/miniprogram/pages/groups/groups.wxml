@@ -5,8 +5,8 @@
       创建群
     </view>
   </view>
-  <!-- <view class="group-item" wx:for="{{groups}}" wx:key="username" data-i="{{index}}" bindtap="toDetail">
-    <image class="left" src="{{STATIC_BASE_URL + item.avatar}}"></image>
-    <view class="right">{{ item.nickname }}</view>
-  </view> -->
+  <view class="group-item" wx:for="{{groups}}" wx:key="id" data-i="{{index}}" bindtap="toDetail">
+    <image class="left" src="{{BASE_URL + item.avatar}}"></image>
+    <view class="right">{{ item.name }}</view>
+  </view>
 </view>
