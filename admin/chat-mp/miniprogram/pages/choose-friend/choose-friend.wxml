@@ -122,7 +122,7 @@
              bindtap="playAudio"/>
     </view>
     <view wx:else class="content">
-      <block wx:if="{{chatLog.type === 1}}">[单独转发]共{{chatLog.data.length}}条消息</block>
+      <block wx:if="{{chatLog.type === 1}}">[逐条转发]共{{chatLog.data.length}}条消息</block>
       <block wx:else>[合并转发]{{chatLog.chatType === '1' ? chatLog.title : '群聊中的消息'}}</block>
     </view>
     <input class="input" placeholder="给对方留言"/>

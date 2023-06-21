@@ -3,7 +3,7 @@ import {userStore} from '../../store/user'
 import {BASE_URL, LOAD_MESSAGE_COUNT, primaryColor, SAVE_MESSAGE_LENGTH} from '../../consts/consts'
 import {chatSocket} from '../../socket/socket'
 import {formatDate, formatDetailDate} from '../../common/utils'
-import {REC_GP_MSGS, REC_SG_MSGS, SEND_SG_MSG} from '../../socket/socket-actions'
+import {REC_GP_MSGS, REC_SG_MSGS, SEND_GP_MSG, SEND_SG_MSG} from '../../socket/socket-actions'
 import {ChooseFriendPath, GroupInfoPath, SingleInfoPath, UserDetailPath} from '../../consts/routes'
 import {ChatType, MsgState, MsgType} from '../../socket/socket-types'
 // @ts-ignore
@@ -82,9 +82,9 @@ Page({
     let target: Contact | GroupInfo, title: string, plus = ''
     new Promise<void>(resolve => {
       if (type === ChatType.single) {
-        target = {...userStore.unameUserMap[to], username: to} as Contact
+        target = {...userStore.contactMap[to], ...userStore.unameUserMap[to], username: to}
         if (!target) return
-        title = target.nickname!
+        title = target.remark
         resolve()
       } else {
         userStore.getGroupIdGroupInfo(+to).then(groupInfo => {
@@ -421,11 +421,19 @@ Page({
     this.sgMsgSuccessHandler = ((data: SocketResponse<SgMsg[]>) => {
       const viewMessages = this.data.viewMessages as SgMsg[]
       data.data.forEach((message: SgMsg) => {
+        let flag = false
         if (message.from === userStore.user.username) { // 自己发的
-          const ownMessage = viewMessages.find(msg => msg.fakeId === message.fakeId)!
-          delete ownMessage.state
-          ownMessage.createdAt = message.createdAt
-        } else { // 别人发的
+          let ownMessage = viewMessages.find(msg => msg.fakeId === message.fakeId) as SgMsg | GpMsg
+          if (!ownMessage) {
+            ownMessage = app.getMessageInfo(message.to!, data.action === REC_SG_MSGS ? ChatType.single : ChatType.group).messages.find(msg => msg.fakeId === message.fakeId) as SgMsg | GpMsg
+            flag = true
+            if (ownMessage) {
+              delete ownMessage.state
+              ownMessage.createdAt = message.createdAt
+            }
+          }
+        }
+        if (flag) {
           const length = viewMessages.push(message as SgMsg)
           viewMessages.splice(length - 2, 2, ...this.handleViewMessageTime(undefined, length - 2) as SgMsg[])
         }
@@ -542,6 +550,7 @@ Page({
     // console.log(this.data.recordState, this.data.inputState)
     const type = this.data.recordState === 2 && this.data.inputState === 1 ? MsgType.audio : MsgType.text // 语音或文字
     const {target, chatType, title} = this.data
+    const isSingle = chatType === ChatType.single
     const to = this.getTo()
     const username = userStore.user.username
     const fakeId = username + '-' + to + '-' + Date.now().toString(36)
@@ -563,17 +572,18 @@ Page({
       status: 0
     }
     const messageInfo = app.getMessageInfo(to, this.data.chatType)
+    const {messages} = messageInfo
     const viewMessages = this.data.viewMessages
-    chatSocket.send<SendSgMsgReq>({
+    chatSocket.send({
       data: {
-        to: to as SgMsgs.To,
+        to,
         content: data,
         fakeId,
         type,
         ext: type === MsgType.audio ? '.aac' : '',
-        lastId: null // todo
+        lastId: messages.length ? messages[messages.length - 1].id! : null
       },
-      action: SEND_SG_MSG
+      action: isSingle ? SEND_SG_MSG : SEND_GP_MSG
     }).catch(() => message.state = MsgState.error)
       .finally(() => {
         const length = viewMessages.push(message)
@@ -583,7 +593,7 @@ Page({
         this.setData({viewMessages})
         this.scrollView()
       })
-    app.setToSaveFakeIds(to, [fakeId], chatType === ChatType.single)
+    app.setToSaveFakeIds(to, [fakeId], isSingle)
     this.setData({content: '', _recordFilePath: '', recordState: 0})
     app.saveChats(message, {nickname: title, avatar: target.avatar!}, 0, chatType)
     app.saveMessages()

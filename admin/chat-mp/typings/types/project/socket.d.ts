@@ -13,6 +13,8 @@ declare enum MsgType { // 消息类型
   video = 4, // 视频
   retract = 5, // 撤回
   dynamicSys = 6, // 动态的系统消息  '#创建了群聊/' + encodeURIComponent(from)
+  chatLogs = 7, // 聊天记录
+  reply = 8, // 回复
 }
 
 declare enum MsgStatus {

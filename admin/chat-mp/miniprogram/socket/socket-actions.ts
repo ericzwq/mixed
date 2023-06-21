@@ -1,6 +1,6 @@
 export const SEND_SG_MSG = 'sendSgMsg'
 export const REC_SG_MSGS = 'receiveSgMsgs'
-export const SEND_GP_MSGS = 'sendGpMsgs'
+export const SEND_GP_MSG = 'sendGpMsg'
 export const REC_GP_MSGS = 'receiveGpMsgs'
 export const VOICE_RESULT = 'voiceResult'
 export const OFFER = 'offer'

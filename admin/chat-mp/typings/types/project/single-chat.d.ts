@@ -1,6 +1,6 @@
 declare namespace SgMsgs {
   type Id = number
-  type Content = string | number[] | number
+  type Content = string | number[] | number | SgMsg[] | GpMsg[]
   type From = Users.Username
   type To = Users.Username
   type FakeId = string // 前端消息id

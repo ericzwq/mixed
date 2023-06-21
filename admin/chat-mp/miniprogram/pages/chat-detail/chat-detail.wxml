@@ -95,7 +95,7 @@
     <view class="f-item" bindtap="transmit">转发</view>
     <view class="f-item" bindtap="collect">收藏</view>
     <view class="f-item" bindtap="multipleChoice">多选</view>
-    <view class="f-item" bindtap="reply">回复</view>
+    <view hidden="{{viewMessages[activeIndex].state}}" class="f-item" bindtap="reply">回复</view>
     <view class="f-item" bindtap="delete">删除</view>
   </float-menu>
   <van-dialog id="van-dialog"/>

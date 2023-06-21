@@ -1,7 +1,7 @@
 import {createStoreBindings} from "mobx-miniprogram-bindings";
 import {userStore} from "../../store/user";
-import {BASE_URL, primaryColor} from '../../consts/consts'
-import {CreateGroupPath} from "../../consts/routes";
+import {BASE_URL, primaryColor, SAVE_MESSAGE_LENGTH} from '../../consts/consts'
+import {ChatsPath, CreateGroupPath} from "../../consts/routes";
 import {ChooseMode, ListState, PageState} from './choose-friend-types'
 // @ts-ignore
 import py from 'wl-pinyin'
@@ -9,9 +9,10 @@ import {ChatType, MsgState, MsgType} from "../../socket/socket-types";
 import {stagingStore} from "../../store/staging";
 import {TransmitType} from "../chat-detail/chat-detail-types";
 import {chatSocket} from "../../socket/socket";
-import {SEND_SG_MSG} from "../../socket/socket-actions";
+import {SEND_GP_MSG, SEND_SG_MSG, TRANSMIT_GP_MSGS, TRANSMIT_SG_MSGS} from "../../socket/socket-actions";
 import {formatDate} from "../../common/utils";
 
+const app = getApp<IAppOption>()
 Page({
   data: {
     selecteds: [] as Selected[],
@@ -172,47 +173,62 @@ Page({
   lookMore() {
     this.setData({showMore: true})
   },
-  confirm() {
-    const {selecteds, singleSel} = this.data
+  async confirm() { // todo 测试
+    const {selecteds} = this.data
     const {chatType, data, type, isMul} = stagingStore.chatLog
-    const {username} = userStore.user
-    console.log(chatType, data, isMul)
-    if (type === TransmitType.single) { // 逐条发送
-      // todo
-      selecteds.forEach(({to, chatType}) => {
-        const msgs: Omit<SendSgMsgReq, 'to' | 'lastId'>[] = []
-        const fakeId = username + '-' + to + '-' + Date.now().toString(36)
-        const {messages} = app.getMessageInfo(to, chatType)
-        data.forEach((msg: SgMsg | GpMsg) => msgs.push({content: msg.content, type: msg.type, fakeId}))
-        const req: TransmitSgMsgsReq | TransmitGpMsgsReq = {
-          to: to as any,
-          lastId: messages.length ? messages[messages.length - 1].id! : null,
-          msgs
-        }
-        chatSocket.send({action: SEND_SG_MSG, data: req})
-      })
-      /*const message = {
-        from: username,
-        content: type === MsgType.audio ? '' : data, // 音频不保存在本地
-        type,
-        fakeId,
-        state: MsgState.loading,
-        createdAt: formatDate(),
-        status: 0
-      }*/
-      chatSocket.send({
-        data: {
-          to,
-          content: data,
-          fakeId,
+    const {user: {username}, contactMap} = userStore
+    console.log(chatType, data, isMul, selecteds, type)
+    wx.showLoading({title: '加载中...'})
+    for (const {to, chatType, avatar} of selecteds) {
+      const isSingle = chatType === ChatType.single
+      const fakeId = username + '-' + to + '-' + Date.now().toString(36)
+      const messageInfo = app.getMessageInfo(to, chatType)
+      const {messages} = messageInfo
+      const lastId = messages.length ? messages[messages.length - 1].id! : null
+      const msgs: Omit<SendSgMsgReq, 'to' | 'lastId'>[] = []
+      let p: Promise<void>
+      if (type === TransmitType.single) { // 逐条转发
+        data.forEach((msg: SgMsg | GpMsg, i: number) => msgs.push({content: msg.content, type: msg.type, fakeId: fakeId + i}))
+        p = chatSocket.send({
+          action: isSingle ? TRANSMIT_SG_MSGS : TRANSMIT_GP_MSGS,
+          data: {to, lastId, msgs}
+        })
+      } else {
+        msgs.push({content: data, fakeId, type: MsgType.chatLogs})
+        p = chatSocket.send({
+          action: isSingle ? SEND_SG_MSG : SEND_GP_MSG,
+          data: {to, content: data, fakeId, type: MsgType.chatLogs, lastId}
+        })
+      }
+      const createdAt = formatDate()
+      const fakeIds: SgMsgs.FakeId[] = []
+      const newMsgs: SgMsg[] | GpMsg[] = msgs.map(({type, content, fakeId}) => {
+        fakeIds.push(fakeId)
+        const msg = {
+          from: username,
+          content,
           type,
-          ext: type === MsgType.audio ? '.aac' : ''
-        },
-        action: SEND_SG_MSG
+          fakeId,
+          state: MsgState.loading,
+          createdAt,
+          status: 0
+        }
+        messageInfo.fakeIdIndexMap[fakeId] = messageInfo.messages.push(msg) - 1
+        return msg
       })
-    } else {
-
+      try {
+        await p
+      } catch (e) {
+        newMsgs.forEach((msg: SgMsg | GpMsg) => msg.state = MsgState.error)
+      }
+      const nickname = isSingle ? contactMap[to].remark : (await userStore.getGroupIdGroupInfo(to as GpMsgs.To)).name
+      app.saveChats(newMsgs[newMsgs.length - 1], {nickname, avatar}, 0, chatType)
+      messageInfo.maxMsgsIndex = messageInfo.loadedMsgsMinIndex + Math.floor((messageInfo.messages.length - 1) / SAVE_MESSAGE_LENGTH)
+      app.setToSaveFakeIds(to, fakeIds, isSingle)
     }
+    app.saveMessages()
+    wx.hideLoading()
+    wx.switchTab({url: ChatsPath})
   },
   playAudio() {
     let {iac, BASE_URL, isAudioPlay} = this.data

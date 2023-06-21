@@ -12,7 +12,7 @@ import {
   groupInviteRetSchema,
   groupInviteSchema,
   readGpMsgsSchema,
-  sendGpMsgSchema
+  sendGpMsgSchema, transmitGpMsgsSchema
 } from "./group-schema";
 import {
   addGpMsg,
@@ -311,7 +311,8 @@ export async function sendGpMsg(ws: ExtWebSocket, user: User, data: RequestMessa
 // 逐条转发群消息
 export async function transmitGpMsgs(ws: ExtWebSocket, user: User, data: RequestMessage<TransmitGpMsgsReq>) {
   const {action, data: body} = data
-  await checkMessageParams(ws, sendGpMsgSchema, body, 1007)
+  await checkMessageParams(ws, transmitGpMsgsSchema, body, 1007)
+  console.log(action, data)
   const {to, lastId, msgs} = body
   const group = await getGroupById(ws, to)
   const from = user.username

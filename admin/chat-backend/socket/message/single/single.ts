@@ -14,7 +14,7 @@ import {
   updateSgMsgStatus
 } from './single-sql'
 import {REC_READ_SG_MSGS, REC_SG_MSGS} from '../../socket-actions'
-import {getHisSgMsgsSchema, readSgMsgSchema, sendSgMsgSchema} from './single-schema'
+import {getHisSgMsgsSchema, readSgMsgSchema, sendSgMsgSchema, transmitSgMsgsSchema} from './single-schema'
 import {GetHisSgMsgReq, ReadSgMsgsReq, SendSgMsgReq, TransmitSgMsgsReq, SgMsgRes, SgMsgs} from './single-types'
 import {beginSocketSql} from '../../../db'
 import client from "../../../redis/redis";
@@ -78,8 +78,9 @@ async function checkContactStatus(ws: ExtWebSocket, from: Users.Username, to: Us
 
 // 逐条转发消息
 export async function transmitSgMsgs(ws: ExtWebSocket, user: User, data: RequestMessage<TransmitSgMsgsReq>) {
-  await checkMessageParams(ws, sendSgMsgSchema, data.data, 1001)
   const body = data.data
+  await checkMessageParams(ws, transmitSgMsgsSchema, body, 1001)
+  console.log(data.action, body)
   const from = user.username
   const createdAt = formatDate()
   const {lastId, to, msgs} = body

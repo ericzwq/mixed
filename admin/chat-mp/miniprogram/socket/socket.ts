@@ -1,5 +1,5 @@
-import { DOMAIN, PORT, WS_PROTOCOL } from "../consts/consts"
-import { LoginPath } from "../consts/routes"
+import {DOMAIN, PORT, WS_PROTOCOL} from "../consts/consts"
+import {LoginPath} from "../consts/routes"
 
 export const chatSocket = createSocket()
 export const voiceSocket = createSocket()
@@ -36,11 +36,11 @@ function createSocket() {
         })
         socketTask.onError(r => {
           this.connected = false
-          wx.showToast({ title: '网络异常', duration: 2000, icon: 'error' })
+          wx.showToast({title: '网络异常', duration: 2000, icon: 'error'})
           console.log('error socket连接异常', r)
           setTimeout(() => resolve(this.connect(this.url)), this.timeout);
         })
-        socketTask.onMessage(async ({ data }) => {
+        socketTask.onMessage(async ({data}) => {
           let obj = {} as SocketResponse<unknown>
           try {
             obj = JSON.parse(data as string)
@@ -49,7 +49,7 @@ function createSocket() {
           if (obj.status !== 0) {
             if (obj.status === 401) {
               this.close('未登录关闭连接')
-              wx.navigateTo({ url: LoginPath })
+              wx.navigateTo({url: LoginPath})
             } else {
               wx.showToast({
                 title: obj.message || '网络异常',
@@ -97,11 +97,11 @@ function createSocket() {
     close(reason?: string) {
       this.shouldClose = true
       console.log('关闭socket连接', reason)
-      this.socketTask && this.socketTask.close({ reason })
+      this.socketTask && this.socketTask.close({reason})
       this.connected = false
     },
     send<T = any>(data: { action: string, data?: T }) {
-      return new Promise((resolve, reject) => {
+      return new Promise<void>((resolve, reject) => {
         this.socketTask.send({
           data: JSON.stringify(data),
           fail(e) {
@@ -113,7 +113,7 @@ function createSocket() {
             })
             reject(e)
           },
-          success: resolve
+          success: () => resolve()
         })
       })
     }

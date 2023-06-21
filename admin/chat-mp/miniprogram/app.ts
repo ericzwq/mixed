@@ -76,10 +76,12 @@ App<IAppOption>({
     const to = isSingle ? msg.to === username ? msg.from! : msg.to! : msg.to!
     const messageInfo = this.getMessageInfo(to, isSingle ? ChatType.single : ChatType.group)
     const {messages, fakeIdIndexMap} = messageInfo
+    let self = false
     data.data.forEach((message: T) => {
       const ownMessage = messages[fakeIdIndexMap[message.fakeId!]]
       console.log('接收到消息', message, ownMessage);
       if (ownMessage) { // 自己发的
+        self = true
         delete ownMessage.state
         ownMessage.createdAt = message.createdAt
         if (ownMessage.type === MsgType.audio) { // 音频数据处理
@@ -93,11 +95,12 @@ App<IAppOption>({
       }
       this.setToSaveFakeIds(to, [message.fakeId!], isSingle)
     })
+    const newCount = self ? 0 : data.data.length
     if (isSingle) {
-      this.saveChats(data.data[data.data.length - 1], userStore.unameUserMap[to], data.data.length, ChatType.single)
+      this.saveChats(data.data[data.data.length - 1], userStore.unameUserMap[to], newCount, ChatType.single)
     } else {
       const groupInfo = await userStore.getGroupIdGroupInfo(to as Groups.Id)
-      this.saveChats(data.data[data.data.length - 1], {nickname: groupInfo.name, avatar: groupInfo.avatar}, data.data.length, ChatType.group)
+      this.saveChats(data.data[data.data.length - 1], {nickname: groupInfo.name, avatar: groupInfo.avatar}, newCount, ChatType.group)
     }
     this.saveMessages()
     if (!isSingle) {

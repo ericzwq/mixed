@@ -15,7 +15,7 @@ const gpMsgSchemas = {
   id: Joi.number(),
   content: Joi.required(),
   fakeId: Joi.string().required(), // 前端消息id
-  type: Joi.valid(1, 2, 3, 4, 5, 6),
+  type: Joi.valid(1, 2, 3, 4, 5, 6, 7),
   ext: Joi.string().allow(null, ''),
 }
 
@@ -26,6 +26,12 @@ export const sendGpMsgSchema = Joi.object({
   type: gpMsgSchemas.type,
   ext: gpMsgSchemas.ext,
   lastId: gpMsgSchemas.id.allow(null)
+}).unknown().required()
+
+export const transmitGpMsgsSchema = Joi.object({
+  to: groupSchemas.id,
+  lastId: gpMsgSchemas.id.allow(null),
+  msgs: Joi.array()
 }).unknown().required()
 
 export const createGroupSchema = Joi.object({

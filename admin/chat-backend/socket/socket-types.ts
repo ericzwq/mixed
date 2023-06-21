@@ -9,6 +9,7 @@ export interface ExtWebSocket extends WebSocket.WebSocket {
   json: (socketResponseOptions: SocketResponseOptions, options?: any, cb?: any) => void
   sqlCommit: boolean
   shouldUpdateUser: boolean // 是否需要更新用户数据
+  reqCount: number // 同时处理的请求数
 }
 
 export interface RequestMessage<T = null> {
@@ -80,6 +81,8 @@ export enum MsgType { // 消息类型
   video = 4, // 视频
   retract = 5, // 撤回
   dynamicSys = 6, // 动态的系统消息
+  chatLogs = 7, // 聊天记录
+  reply = 8, // 回复
 }
 
 export enum MsgStatus {

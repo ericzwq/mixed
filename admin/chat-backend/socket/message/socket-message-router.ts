@@ -96,6 +96,7 @@ export async function handleMessage(user: User, cookie: string, ws: ExtWebSocket
       }
       const handler = socketMessageRouter.actionHandlerMap[data.action]
       if (!handler) return ws.json({status: 1002, message: '未知的action'})
+      ws.reqCount = (ws.reqCount || 0) + 1
       await socketSqlMiddleware(ws)
       try {
         log('======> action：' + data.action)
@@ -106,7 +107,7 @@ export async function handleMessage(user: User, cookie: string, ws: ExtWebSocket
         if (ws.sqlCommit) await rollbackSocketSql(ws)
       }
       log('<====== action：' + data.action)
-      ws.connection.release()
+      if (ws.reqCount-- === 0) ws.connection.release()
     }
   })
 
