@@ -3,10 +3,9 @@ import {User, Users} from '../../../router/user/user-types'
 import {InsertModal, UpdateModal} from '../../../types/sql-types'
 import {ExtWebSocket, MsgRead, MsgStatus} from '../../socket-types'
 import {SendSgMsgReq, SgMsgs, SgMsgRes, GetHisSgMsgReq} from './single-types'
-import {Contacts} from "../contact/contact-types";
-import {FriendApls} from "../user/user-types";
-import Status = FriendApls.Status;
-import {SendGpMsgReq} from "../group/group-types";
+import {Contacts} from '../contact/contact-types'
+import {FriendApls} from '../user/user-types'
+import Status = FriendApls.Status
 
 export async function selectFriendAplByAddUser(ws: ExtWebSocket, to: Users.Username, from: Users.Username) {
   const {result} = await executeSocketSql<{ id: Contacts.Id }[]>(ws,
@@ -84,7 +83,7 @@ export function addSgMsg(ws: ExtWebSocket, from: Users.Username, to: Users.Usern
   const {fakeId, content, type} = data
   return executeSocketSql<InsertModal>(ws,
     'insert into single_chat(fakeId, pre, `from`, `to`, content, type, createdAt, status) values(?, ?, ?, ?, ?, ?, ?, ?);',
-    [fakeId, pre, from, to, content, type, createdAt, MsgStatus.normal])
+    [fakeId, pre, from, to, typeof content !== 'string' ? JSON.stringify(content) : content, type, createdAt, MsgStatus.normal])
 }
 
 export function selectSgMsgByIdAndFrom(ws: ExtWebSocket, id: SgMsgs.Id, from: SgMsgs.From) {
@@ -104,8 +103,14 @@ export function updateSgMsgRead(ws: ExtWebSocket, id: SgMsgs.Id, from: SgMsgs.To
   return executeSocketSql<UpdateModal>(ws, 'update single_chat set `read` = ? where id = ? and `to` = ?;', [MsgRead.yes, id, from])
 }
 
-export function getChatData(ws: ExtWebSocket, user: User) {
+/*export function getChatData(ws: ExtWebSocket, user: User) {
   const {username, leaveTime, loginTime} = user
   return executeSocketSql<SgMsgRes[]>(ws, 'select `from`,`to`,content `data`,type,status,createdAt from single_chat where createdAt > ? and (`from` = ? or `to` = ?);',
     [leaveTime || loginTime, username, username])
+}*/
+
+// 根据id获取消息
+export function selectSgMsgById(ws: ExtWebSocket, id: SgMsgs.Id, simple = false) {
+  const join = simple ? 'count(1)' : '*'
+  return executeSocketSql<SgMsgRes[]>(ws, 'select ' + join + ' from single_chat where id = ?;', [id])
 }

@@ -2,10 +2,9 @@
   <wxs module="wxs" src="./choose-friend.wxs"></wxs>
   <scroll-view scroll-x enable-flex class="header">
     <block wx:if="{{!singleSel}}">
-      <image class="img avatar" wx:for="{{selecteds}}" wx:key="to" src="{{BASE_URL + item.avatar}}" data-to="{{item.to}}"
-             bindtap="unselect"/>
+      <image class="img avatar" wx:for="{{selecteds}}" wx:key="to" src="{{BASE_URL + item.avatar}}" data-to="{{item.to}}" bindtap="unselect" />
     </block>
-    <van-field class="search" clearable value="{{keyword}}" left-icon="search" placeholder="搜索" bind:input="search" bindtouchstart="touchSearch"/>
+    <van-field class="search" clearable value="{{keyword}}" left-icon="search" placeholder="搜索" bind:input="search" bindtouchstart="touchSearch" />
   </scroll-view>
   <block wx:if="{{pageState === '1'}}">
     <view class="title">
@@ -14,7 +13,7 @@
     </view>
     <scroll-view class="chat-main" scroll-y enable-flex>
       <view wx:for="{{curChats}}" wx:key="to" class="chat-item clickable {{item.isTop ? 'top': ''}}" data-i="{{index}}" bindtap="toggle">
-        <van-checkbox wx:if="{{!singleSel}}" value="{{toChatTypeSelectedMap[item.to + '-' + item.chatType]}}" checked-color="{{primaryColor}}"/>
+        <van-checkbox wx:if="{{!singleSel}}" value="{{toChatTypeSelectedMap[item.to + '-' + item.chatType]}}" checked-color="{{primaryColor}}" />
         <image class="avatar" src="{{BASE_URL + item.avatar}}"></image>
         <view class="right">
           <text class="master">{{item.nickname}}</text>
@@ -29,6 +28,7 @@
             <text wx:elif="{{item.type === 6}}" decode>
               <block wx:for="{{item.content}}" wx:key="index">&nbsp;{{item.type === 2 ? unameUserMap[item.value].nickname : item.value}}&nbsp;</block>
             </text>
+            <text wx:elif="{{item.type === 7}}">[聊天记录]</text>
           </view>
         </view>
       </view>
@@ -43,10 +43,9 @@
       </view>
       <van-index-bar class="main" index-list="{{indexList}}">
         <block wx:for="{{indexListData}}" wx:key="letter">
-          <van-index-anchor index="{{item.letter}}"/>
-          <view class="item clickable" wx:for="{{item.contacts}}" wx:for-item="item2" wx:for-index="index2" wx:key="username"
-                data-i="{{index}}-{{index2}}" bindtap="toggle">
-            <van-checkbox value="{{toChatTypeSelectedMap[item2.username + '-1']}}" checked-color="{{primaryColor}}"/>
+          <van-index-anchor index="{{item.letter}}" />
+          <view class="item clickable" wx:for="{{item.contacts}}" wx:for-item="item2" wx:for-index="index2" wx:key="username" data-i="{{index}}-{{index2}}" bindtap="toggle">
+            <van-checkbox value="{{toChatTypeSelectedMap[item2.username + '-1']}}" checked-color="{{primaryColor}}" />
             <image class="avatar" src="{{BASE_URL + unameUserMap[item2.username].avatar}}"></image>
             <view class="right">
               <text class="master"> {{unameUserMap[item2.username].nickname}} </text>
@@ -61,9 +60,8 @@
       <block wx:if="{{listState === 2 && searchedContacts.length}}">
         <text class="p-text">联系人</text>
         <scroll-view class="main" scroll-y enable-flex>
-          <view class="item clickable" wx:for="{{searchedContacts}}" wx:key="username" data-i="{{index + ''}}" data-t="1" bindtap="toggle"
-                hidden="{{!showMore && pageState === '2' && index > defaultCount - 1}}">
-            <van-checkbox value="{{toChatTypeSelectedMap[item.username + '-1']}}" checked-color="{{primaryColor}}"/>
+          <view class="item clickable" wx:for="{{searchedContacts}}" wx:key="username" data-i="{{index + ''}}" data-t="1" bindtap="toggle" hidden="{{!showMore && pageState === '2' && index > defaultCount - 1}}">
+            <van-checkbox value="{{toChatTypeSelectedMap[item.username + '-1']}}" checked-color="{{primaryColor}}" />
             <image class="avatar" src="{{BASE_URL + unameUserMap[item.username].avatar}}"></image>
             <view class="right">
               <text class="master"> {{item.remark}} </text>
@@ -85,7 +83,7 @@
         </view>
         <scroll-view class="main" scroll-y enable-flex>
           <view class="item clickable" wx:for="{{searchedGroups}}" wx:key="id" data-i="{{index + ''}}" data-t="2" bindtap="toggle">
-            <van-checkbox value="{{toChatTypeSelectedMap[item.id + '-2']}}" checked-color="{{primaryColor}}"/>
+            <van-checkbox value="{{toChatTypeSelectedMap[item.id + '-2']}}" checked-color="{{primaryColor}}" />
             <image class="avatar" src="{{BASE_URL + item.avatar}}"></image>
             <view class="right">
               <text class="master"> {{item.name}} </text>
@@ -93,7 +91,7 @@
           </view>
         </scroll-view>
       </block>
-      <view wx:else class="main"/>
+      <view wx:else class="main" />
     </block>
   </block>
   <view class="footer">
@@ -104,27 +102,19 @@
       <button wx:if="{{selecteds.length && !singleSel}}" type="primary" class="btn" size="mini" bindtap="finish">完成({{selecteds.length}})</button>
     </block>
   </view>
-  <van-dialog
-    use-slot
-    use-title-slot
-    show="{{ showDialog }}"
-    show-cancel-button
-    bind:confirm="confirm"
-    custom-class="dialog"
-  >
+  <van-dialog use-slot use-title-slot show="{{ showDialog }}" show-cancel-button bind:confirm="confirm" custom-class="dialog">
     <view slot="title" class="d-title">发送给：</view>
     <scroll-view scroll-x enable-flex class="header">
-      <image class="img avatar" wx:for="{{selecteds}}" wx:key="to" src="{{BASE_URL + item.avatar}}"/>
+      <image class="img avatar" wx:for="{{selecteds}}" wx:key="to" src="{{BASE_URL + item.avatar}}" />
     </scroll-view>
     <view wx:if="{{!chatLog.isMul}}" class="content">
       <text wx:if="{{chatLog.data[0].type === 1}}">{{chatLog.data[0].content}}</text>
-      <image src="../../static/image/voice.svg" wx:elif="{{chatLog.data[0].type === 3}}" width="30" class="audio {{isAudioPlay ? 'play' : ''}}"
-             bindtap="playAudio"/>
+      <image src="../../static/image/voice.svg" wx:elif="{{chatLog.data[0].type === 3}}" width="30" class="audio {{isAudioPlay ? 'play' : ''}}" bindtap="playAudio" />
     </view>
     <view wx:else class="content">
       <block wx:if="{{chatLog.type === 1}}">[逐条转发]共{{chatLog.data.length}}条消息</block>
       <block wx:else>[合并转发]{{chatLog.chatType === '1' ? chatLog.title : '群聊中的消息'}}</block>
     </view>
-    <input class="input" placeholder="给对方留言"/>
+    <input class="input" bindinput="messageInput" placeholder="给对方留言" />
   </van-dialog>
 </view>

@@ -69,10 +69,19 @@ insert contacts(master, sub, status, remark)
 values ('eric', 'eric2', 0, '等等');
 
 insert contacts(master, sub, status, remark)
+values ('eric2', 'eric', 0, '淡定');
+
+insert contacts(master, sub, status, remark)
 values ('eric', 'eric3', 0, '布露妮娅');
 
 insert contacts(master, sub, status, remark)
+values ('eric3', 'eric', 0, '淡定');
+
+insert contacts(master, sub, status, remark)
 values ('eric2', 'eric3', 0, '布露妮娅');
+
+insert contacts(master, sub, status, remark)
+values ('eric3', 'eric2', 0, '等等');
 
 /*单聊表*/
 drop table if exists single_chat;

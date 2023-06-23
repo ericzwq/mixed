@@ -16,8 +16,9 @@
           <text wx:elif="{{item.type === 4}}">[视频]</text>
           <text wx:elif="{{item.type === 5}}">{{item.from === user.username ? '你' : unameUserMap[item.from].nickname}}[撤回了一条消息]</text>
           <text wx:elif="{{item.type === 6}}" decode>
-            <block wx:for="{{item.content}}" wx:key="index">&nbsp;{{item.type === 2 ? unameUserMap[item.value].nickname : item.value}}&nbsp;</block>
+            <block wx:for="{{item.content}}" wx:key="index">{{item.type === 2 ? unameUserMap[item.value].nickname : item.value}}&nbsp;</block>
           </text>
+          <text wx:elif="{{item.type === 7}}">[聊天记录]</text>
         </view>
       </view>
       <view class="time">

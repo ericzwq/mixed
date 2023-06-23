@@ -28,13 +28,18 @@
 .content {
   position: relative;
   display: flex;
-  align-items: center;
-  height: 60rpx;
+  // align-items: center;
+  align-items: flex-start;
+  // height: 60rpx;
   padding: 0 20rpx;
   max-width: 490rpx;
-  background-color: #fff;
+  background-color: $color-primary;
   border-radius: 8rpx;
   word-break: break-word;
+
+  .text {
+    line-height: 60rpx;
+  }
 
   .active {
     background: #4cd964;
@@ -45,6 +50,19 @@
     position: absolute;
     border: 12rpx transparent solid;
     top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+.chat-log {
+  width: 490rpx;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    border: 12rpx transparent solid;
+    top: 30rpx;
     transform: translateY(-50%);
   }
 }
@@ -75,6 +93,11 @@
     display: flex;
     flex: 1;
     justify-content: flex-end;
+    align-items: flex-start;
+  }
+
+  .main-box {
+    display: flex;    
     align-items: center;
   }
 
@@ -84,17 +107,26 @@
 }
 
 .left {
+  .info {
+    justify-content: flex-start;
+  }
+
   .status {
     margin-left: 10rpx;
   }
 
-  .content {
+  .content,
+  .chat-log {
     margin-left: 16rpx;
 
     &::before {
       left: -24rpx;
-      border-right: 16rpx #fff solid;
+      border-right: 16rpx $color-primary solid;
     }
+  }
+
+  .chat-log::before {
+    border-right: 16rpx #fff solid;
   }
 }
 
@@ -105,14 +137,18 @@
     margin-right: 10rpx;
   }
 
-  .content {
+  .content,
+  .chat-log {
     margin-right: 16rpx;
-    background-color: $color-primary;
 
     &::before {
       right: -24rpx;
       border-left: 16rpx $color-primary solid;
     }
+  }
+
+  .chat-log::before {
+    border-left: 16rpx #fff solid;
   }
 
   .audio {

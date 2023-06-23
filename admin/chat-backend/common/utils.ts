@@ -2,12 +2,15 @@ import {Context} from 'koa'
 import {AnySchema} from 'joi'
 import {ResponseSchema} from '../response/response'
 import {ExtWebSocket} from '../socket/socket-types'
-import {usernameClientMap} from "../socket/message/single/single";
-import {User, Users} from "../router/user/user-types";
-import {SendSgMsgReq, SgMsgs} from "../socket/message/single/single-types";
-import fs = require("fs");
-import path = require("path");
-import client from "../redis/redis";
+import {usernameClientMap} from '../socket/message/single/single'
+import {User, Users} from '../router/user/user-types'
+import {SendSgMsgReq, SgMsgs} from '../socket/message/single/single-types'
+import fs = require('fs')
+import path = require('path')
+import client from '../redis/redis'
+import {ChatLog, ChatType} from '../socket/message/common/common-types'
+import {selectSgMsgById} from '../socket/message/single/single-sql'
+import {selectGpMsgById} from '../socket/message/group/group-sql'
 
 export const setExcelType = function (res: any) {
   // res.setHeader('Content-Type', 'application/vnd.ms-excel') // application/vnd.openxmlformats
@@ -82,4 +85,16 @@ export async function updateUser(username: Users.Username, key: keyof User, valu
     await client.set(sessionId, JSON.stringify(toUser))
   }
   notifyUpdateUser(username)
+}
+
+// 校验聊天记录里消息的真假
+export async function checkChatLog(ws: ExtWebSocket, data: ChatLog) {
+  console.log(data)
+  const {chatType, ids} = data
+  const fn = chatType === ChatType.single ? selectSgMsgById : selectGpMsgById
+  for (const id of ids) {
+    const {result} = await fn(ws, id, true)
+    if (!result.length) return Promise.reject('消息' + id + '不存在')
+  }
+  return true
 }

@@ -1,10 +1,11 @@
 import {Users} from '../../../router/user/user-types'
-import {MsgRead, MsgStatus, MsgType, SysMsgCont} from "../../socket-types";
-import {GpMsgRes} from "../group/group-types";
+import {MsgRead, MsgStatus, MsgType, SysMsgCont} from '../../socket-types'
+import {GpMsgRes} from '../group/group-types'
+import {ChatLog} from '../common/common-types'
 
 export namespace SgMsgs {
   export type Id = number
-  export type Content = string | number[] | number | SysMsgCont[] | SgMsgRes[] | GpMsgRes[]
+  export type Content = string | number[] | number | SysMsgCont[] | ChatLog[]
   export type From = Users.Username
   export type To = Users.Username
   export type FakeId = string // 前端消息id
@@ -53,4 +54,9 @@ export interface SgMsgRes {
 export interface ReadSgMsgsReq {
   ids: SgMsgs.Id[]
   to: SgMsgs.To
+}
+
+export interface GetSgMsgByIdsReq {
+  fakeId: string
+  data: SgMsgs.Id[]
 }

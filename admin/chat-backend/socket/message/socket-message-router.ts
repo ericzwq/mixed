@@ -1,7 +1,6 @@
 import {MessageHandler, ActionHandlerMap, ExtWebSocket, RequestMessage} from '../socket-types'
 import {User} from '../../router/user/user-types'
 import {IncomingMessage} from 'http'
-import {getChatData} from './single/single-sql'
 import {
   JOIN_GROUP,
   JOIN_GROUP_RET,
@@ -28,11 +27,11 @@ import {
   GET_GROUP_MEMBERS,
   GET_GROUPS,
   TRANSMIT_SG_MSGS,
-  TRANSMIT_GP_MSGS
+  TRANSMIT_GP_MSGS, GET_GP_MSGS_BY_IDS, GET_SG_MSGS_BY_IDS
 } from '../socket-actions'
 import {formatDate, log} from '../../common/utils'
 import client from '../../redis/redis'
-import {usernameClientMap, sendSgMsg, getHisSgMsgs, readSgMsgs, transmitSgMsgs} from './single/single'
+import {usernameClientMap, sendSgMsg, getHisSgMsgs, readSgMsgs, transmitSgMsgs, getSgMsgsByIds} from './single/single'
 import {getContacts} from './contact/contact'
 import {answer, candidate, offer, voiceResult} from './mediaCall/mediaCall'
 import {CANCELLED} from 'dns'
@@ -48,10 +47,11 @@ import {
   groupInvite,
   getHisGpMsgs,
   getGroupInfo,
-  getGroupMembers, getGroups, transmitGpMsgs
+  getGroupMembers, getGroups, transmitGpMsgs, getGpMsgsByIds
 } from './group/group'
 import {commitSocketSql, rollbackSocketSql, socketSqlMiddleware} from '../../db'
 import {SendSgMsgReq} from './single/single-types'
+import {getMsgsById} from './common/common'
 
 const socketMessageRouter = {
   actionHandlerMap: {} as ActionHandlerMap,
@@ -66,12 +66,12 @@ const socketMessageRouter = {
 }
 
 export async function handleMessage(user: User, cookie: string, ws: ExtWebSocket, req: IncomingMessage) {
-  await socketSqlMiddleware(ws)
+  // await socketSqlMiddleware(ws)
   usernameClientMap[user.username] = ws
-  const {result} = await getChatData(ws, user)
-  ws.connection.release()
+  // const {result} = await getChatData(ws, user)
+  // ws.connection.release()
 
-  ws.json({data: result, action: REC_SG_MSGS})
+  // ws.json({data: result, action: REC_SG_MSGS})
 
   ws.on('message', async (_data, isBinary) => {
     if (ws.shouldUpdateUser) {
@@ -107,7 +107,7 @@ export async function handleMessage(user: User, cookie: string, ws: ExtWebSocket
         if (ws.sqlCommit) await rollbackSocketSql(ws)
       }
       log('<====== action：' + data.action)
-      if (ws.reqCount-- === 0) ws.connection.release()
+      if (--ws.reqCount === 0) ws.connection.release()
     }
   })
 
@@ -149,6 +149,7 @@ socketMessageRouter.addHandlers([
   {action: GET_HIS_SG_MSGS, handler: getHisSgMsgs},
   {action: READ_SG_MSGS, handler: readSgMsgs},
   {action: TRANSMIT_SG_MSGS, handler: transmitSgMsgs},
+  {action: GET_SG_MSGS_BY_IDS, handler: getSgMsgsByIds},
 ])
 socketMessageRouter.addHandlers([{action: GET_CONTACTS, handler: getContacts}])
 socketMessageRouter.addHandlers([
@@ -177,4 +178,5 @@ socketMessageRouter.addHandlers([
   {action: GET_GROUP_MEMBERS, handler: getGroupMembers},
   {action: GET_GROUPS, handler: getGroups},
   {action: TRANSMIT_GP_MSGS, handler: transmitGpMsgs},
+  {action: GET_GP_MSGS_BY_IDS, handler: getGpMsgsByIds},
 ])

@@ -3,7 +3,7 @@ import {userSchemas} from "../../../router/user/user-schema";
 import {GroupApls} from "./group-types";
 import Status = GroupApls.Status;
 
-const groupSchemas = {
+export const groupSchemas = {
   id: Joi.number().required(),
   friendAplId: Joi.number().required(),
   reason: Joi.string().max(50).required(),
@@ -82,3 +82,5 @@ export const getGroupInfoSchema = Joi.object({
 export const getGroupMembersSchema = Joi.object({
   id: groupSchemas.id
 }).unknown().required()
+
+export const getGpMsgByIdsSchema = Joi.array().required()

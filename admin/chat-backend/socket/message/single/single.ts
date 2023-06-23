@@ -1,6 +1,6 @@
 import {User, Users} from '../../../router/user/user-types'
 import {ExtWebSocket, MsgRead, MsgStatus, MsgType, RequestMessage} from '../../socket-types'
-import {checkMessageParams, formatDate, handleAudio} from '../../../common/utils'
+import {checkChatLog, checkMessageParams, formatDate, handleAudio} from '../../../common/utils'
 import {
   addSgMsg,
   selectHisSgMsgs,
@@ -8,19 +8,20 @@ import {
   selectNewSgMsgs,
   selectSgMsgByFakeId,
   selectSgMsgByIdAndFrom,
-  selectSgMsgReadsById,
+  selectSgMsgReadsById, selectSgMsgById,
   updateSgMsgNext,
   updateSgMsgRead,
   updateSgMsgStatus
 } from './single-sql'
 import {REC_READ_SG_MSGS, REC_SG_MSGS} from '../../socket-actions'
-import {getHisSgMsgsSchema, readSgMsgSchema, sendSgMsgSchema, transmitSgMsgsSchema} from './single-schema'
-import {GetHisSgMsgReq, ReadSgMsgsReq, SendSgMsgReq, TransmitSgMsgsReq, SgMsgRes, SgMsgs} from './single-types'
+import {getHisSgMsgsSchema, getSgMsgByIdsSchema, readSgMsgSchema, sendSgMsgSchema, transmitSgMsgsSchema} from './single-schema'
+import {GetHisSgMsgReq, GetSgMsgByIdsReq, ReadSgMsgsReq, SendSgMsgReq, SgMsgRes, SgMsgs, TransmitSgMsgsReq} from './single-types'
 import {beginSocketSql} from '../../../db'
-import client from "../../../redis/redis";
-import {selectContactBySub} from "../contact/contact-sql";
-import {Contacts} from "../contact/contact-types";
-import Status = Contacts.Status;
+import client from '../../../redis/redis'
+import {selectContactBySub} from '../contact/contact-sql'
+import {Contacts} from '../contact/contact-types'
+import Status = Contacts.Status
+import {ChatLog} from '../common/common-types'
 
 export const usernameClientMap = {} as { [key in string]?: ExtWebSocket }
 
@@ -34,11 +35,12 @@ export async function sendSgMsg(ws: ExtWebSocket, user: User, data: RequestMessa
   if (!(await checkContactStatus(ws, from, to, action))) return
   const {result} = await selectSgMsgByFakeId(ws, fakeId)
   if (result.length) return ws.json({action, status: 1004, message: 'fakeId重复'})
-  const {result: result2} = await selectLastSgMsg(ws, lastId!, from, to)
+  const {result: result2, query} = await selectLastSgMsg(ws, lastId!, from, to)
   if (!result2.length) return ws.json({action, status: 1005, message: 'lastId错误'})
   await beginSocketSql(ws)
   if (type === MsgType.audio) handleAudio(body, createdAt) // 音频
-  if (type === MsgType.retract) await handleRetract(ws, body, from)
+  else if (type === MsgType.retract) await handleRetract(ws, body, from)
+  else if (type === MsgType.chatLogs) await checkChatLog(ws, body.content as unknown as ChatLog)
   let lastMsg = result2[0]
   const messages: SgMsgRes[] = JSON.parse((await selectNewSgMsgs(ws, lastMsg.id)).result[0][0].messages)
   if (messages.length > 0) lastMsg = messages[messages.length - 1]
@@ -62,6 +64,19 @@ export async function sendSgMsg(ws: ExtWebSocket, user: User, data: RequestMessa
   messages.push(message)
   ws.json({data: messages, action: REC_SG_MSGS}) // 给自己返回消息
   usernameClientMap[body.to]?.json({data: [message], action: REC_SG_MSGS}) // 给好友发送消息
+}
+
+// 根据id列表获取消息
+export async function getSgMsgsByIds(ws: ExtWebSocket, user: User, data: RequestMessage<GetSgMsgByIdsReq>) {
+  const {action, data: body} = data
+  await checkMessageParams(ws, getSgMsgByIdsSchema, body, 1001)
+  const res: SgMsgRes[] = []
+  for (const id of body.data) {
+    const {result} = await selectSgMsgById(ws, id)
+    if (!result.length) return ws.json({action, message: '消息' + id + '不存在', status: 1002})
+    res.push(result[0])
+  }
+  ws.json({action, data: {data: res, fakeId: body.fakeId}})
 }
 
 async function checkContactStatus(ws: ExtWebSocket, from: Users.Username, to: Users.Username, action: string) {

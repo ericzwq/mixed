@@ -1,10 +1,11 @@
-import {executeSocketSql} from "../../../db";
-import {ExtWebSocket, MsgStatus} from "../../socket-types";
-import {Users} from "../../../router/user/user-types";
-import {CreateGroupReq, GetGroupsRes, GetHisGpMsgReq, GpMemberOrigin, GpMembers, SendGpMsgReq, GpMsgRes, GpMsgs, Group, GroupApls, Groups} from "./group-types";
-import {InsertModal, UpdateModal} from "../../../types/sql-types";
-import c = require("koa-session/lib/context");
-import {GetHisSgMsgReq, SgMsgs} from "../single/single-types";
+import {executeSocketSql} from '../../../db'
+import {ExtWebSocket, MsgStatus} from '../../socket-types'
+import {Users} from '../../../router/user/user-types'
+import {CreateGroupReq, GetGroupsRes, GetHisGpMsgReq, GpMemberOrigin, GpMembers, SendGpMsgReq, GpMsgRes, GpMsgs, Group, GroupApls, Groups} from './group-types'
+import {InsertModal, UpdateModal} from '../../../types/sql-types'
+import c = require('koa-session/lib/context')
+import {GetHisSgMsgReq, SgMsgs} from '../single/single-types'
+import exp = require('constants')
 
 export function addGroup(ws: ExtWebSocket, from: Users.Username, data: CreateGroupReq, createdAt: Groups.CreatedAt) {
   const {name, avatar} = data
@@ -25,7 +26,7 @@ export function selectGroupInfo(ws: ExtWebSocket, groupId: string | Groups.Id) {
 export function addGpMsg(ws: ExtWebSocket, from: Users.Username, data: SendGpMsgReq, createdAt: Groups.CreatedAt, reads: GpMsgs.Reads) {
   const {fakeId, content, type, to, pre} = data
   return executeSocketSql<InsertModal>(ws, 'insert into group_chat(fakeId, pre, `from`, `to`, content, type, status, createdAt, `reads`) values(?, ?, ?, ?, ?, ?, ?, ?, ?);',
-    [fakeId, pre, from, to, content, type, MsgStatus.normal, createdAt, reads])
+    [fakeId, pre, from, to, typeof content !== 'string' ? JSON.stringify(content) : content, type, MsgStatus.normal, createdAt, reads])
 }
 
 export function selectGpMsgByFakeId(ws: ExtWebSocket, fakeId: GpMsgs.FakeId) {
@@ -113,6 +114,12 @@ export function updateGpMsgStatus(ws: ExtWebSocket, id: GpMsgs.Id, status: MsgSt
 export function selectHisGpMsgs(ws: ExtWebSocket, data: GetHisGpMsgReq) {
   const {maxId, count, minId} = data
   return executeSocketSql<[[{ messages: string }]]>(ws, `call selectHisGpMsgs(?, ?, ?);`, [maxId, count, minId])
+}
+
+// 根据id获取消息
+export function selectGpMsgById(ws: ExtWebSocket, id: GpMsgs.Id, simple = false) {
+  const join = simple ? 'count(1)' : '*'
+  return executeSocketSql<GpMsgRes[]>(ws, 'select ' + join + ' from group_chat where id = ?;', [id])
 }
 
 // export function addGroupApl(ws: ExtWebSocket, to: GroupApls.Id, from: Users.Username, reason: GroupApls.Reason) {

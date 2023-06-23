@@ -1,7 +1,7 @@
-import {createStoreBindings} from 'mobx-miniprogram-bindings'
-import {userStore} from "../../store/store"
-import {BASE_URL} from '../../consts/consts'
-import {ChatDetailPath} from '../../consts/routes'
+import { createStoreBindings } from 'mobx-miniprogram-bindings'
+import { userStore } from "../../store/store"
+import { BASE_URL } from '../../consts/consts'
+import { ChatDetailPath } from '../../consts/routes'
 // @ts-ignore
 import Dialog from "@vant/weapp/dialog/dialog";
 
@@ -18,26 +18,27 @@ Page({
     floatMenu: {} as FloatMenu
   },
   onTouchStart(e: WechatMiniprogram.CustomEvent) {
-    this.setData({activeIndex: +e.currentTarget.dataset.i})
+    this.setData({ activeIndex: +e.currentTarget.dataset.i })
   },
   onTouchCancel() {
     if (this.data.isActive) return
-    this.setData({activeIndex: -1})
+    this.setData({ activeIndex: -1 })
   },
   handleLongPress(e: LongPressEvent) {
-    const {clientX, clientY} = e.touches[0]
+    const { clientX, clientY } = e.touches[0]
     this.selectComponent('.float-menu').open(clientX, clientY)
-    this.setData({isActive: true})
+    this.setData({ isActive: true })
   },
   onClose() {
-    this.setData({isActive: false, activeIndex: -1})
+    this.setData({ isActive: false, activeIndex: -1 })
   },
   toDetail(e: WechatMiniprogram.CustomEvent) {
-    const {to, chatType} = userStore.chats[e.currentTarget.dataset.i]
-    wx.navigateTo({url: ChatDetailPath + '?to=' + to + '&type=' + chatType})
+    const { username } = userStore.user
+    const { to, chatType, from } = userStore.chats[e.currentTarget.dataset.i]
+    wx.navigateTo({ url: ChatDetailPath + '?to=' + (to === username ? from : to) + '&type=' + chatType })
   },
   setRead() {
-    const {chats, user: {username}} = userStore
+    const { chats, user: { username } } = userStore
     chats[this.data.activeIndex].newCount = 0
     userStore.setChats([...chats])
     wx.setStorageSync('chats-' + username, JSON.stringify(chats))
@@ -45,7 +46,7 @@ Page({
     this.onClose()
   },
   cancelRead() {
-    const {chats, user: {username}} = userStore
+    const { chats, user: { username } } = userStore
     chats[this.data.activeIndex].newCount = 1
     userStore.setChats([...chats])
     wx.setStorageSync('chats-' + username, JSON.stringify(chats))
@@ -53,7 +54,7 @@ Page({
     this.onClose()
   },
   setTop() {
-    const {chats, user: {username}} = userStore
+    const { chats, user: { username } } = userStore
     const chat = chats.splice(this.data.activeIndex, 1)[0]
     let index = 0
     for (let i = 0; i < chats.length; i++) {
@@ -68,7 +69,7 @@ Page({
     this.onClose()
   },
   cancelTop() {
-    const {chats, user: {username}} = userStore
+    const { chats, user: { username } } = userStore
     const chat = chats.splice(this.data.activeIndex, 1)[0]
     let index = 0
     for (let i = chats.length - 1; i > -1; i--) {
@@ -87,7 +88,7 @@ Page({
     this.onClose()
   },
   hiddenChat() {
-    const {chats, user: {username}} = userStore
+    const { chats, user: { username } } = userStore
     chats.splice(this.data.activeIndex, 1)
     userStore.setChats([...chats])
     wx.setStorageSync('chats-' + username, JSON.stringify(chats))
@@ -97,8 +98,8 @@ Page({
   deleteChat() {
     this.data.floatMenu.close()
     this.onClose()
-    Dialog.confirm({message: '删除后聊天记录将会清空，是否继续？'}).then(() => {
-      const {chats, user: {username}} = userStore
+    Dialog.confirm({ message: '删除后聊天记录将会清空，是否继续？' }).then(() => {
+      const { chats, user: { username } } = userStore
       const chat = chats.splice(this.data.activeIndex, 1)[0]
       userStore.setChats([...chats])
       wx.setStorageSync('chats-' + username, JSON.stringify(chats))

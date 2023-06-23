@@ -1,7 +1,7 @@
 import * as Joi from 'joi'
-import {userSchemas} from "../../../router/user/user-schema";
+import {userSchemas} from '../../../router/user/user-schema'
 
-const sgMsgSchemas = {
+export const sgMsgSchemas = {
   id: Joi.number(),
   content: Joi.required(),
   fakeId: Joi.string().required(), // 前端消息id
@@ -34,3 +34,5 @@ export const readSgMsgSchema = Joi.object({
   ids: Joi.array().required().min(1).max(100),
   to: userSchemas.username
 }).unknown().required()
+
+export const getSgMsgByIdsSchema = Joi.array().required()

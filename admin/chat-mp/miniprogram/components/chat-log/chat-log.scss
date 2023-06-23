@@ -1,25 +1,28 @@
-@import "../../style/public";
+@import "../../style/index";
 
 .chat-log-box {
-  width: fit-content;
+  width: 100%;
   font-size: 12px;
-  background: #ddd;
+  background: #fff;
   border-radius: 10rpx;
   padding: 20rpx;
+  box-sizing: border-box;
 }
 
 .header {
   color: #000;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .main {
   color: #ccc;
   border-bottom: $border-color 1px solid;
-  padding: 20rpx 0;
+  padding: 10rpx 0;
+  font-size: 11px;
 }
 
 .footer {
   color: #ccc;
   margin-top: 10rpx;
+  font-size: 10px;
 }

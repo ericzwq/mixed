@@ -4,7 +4,8 @@
     "van-dialog": "@vant/weapp/dialog",
     "van-checkbox": "@vant/weapp/checkbox",
     "van-action-sheet": "@vant/weapp/action-sheet",
-    "float-menu": "../../components/float-menu/float-menu"
+    "float-menu": "../../components/float-menu/float-menu",
+    "chat-log": "../../components/chat-log/chat-log"
   },
   "enablePullDownRefresh": true
 }

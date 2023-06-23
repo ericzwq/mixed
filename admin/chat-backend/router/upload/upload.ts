@@ -1,14 +1,21 @@
-import * as Router from "koa-router";
-import {upFileUrl, upPicUrl, upVideoUrl} from "../urls";
-import {picSet, UPLOAD_STATIC_PATH, videoSet} from "../../common/consts";
-import path = require("path");
-import * as fs from "fs";
-import {ResponseSchema} from "../../response/response";
-import {checkParams} from "../../common/utils";
-import {upFileSchema} from "./upload-schema";
-import * as formidable from "formidable";
+import * as Router from 'koa-router'
+import {upFileUrl, upPicUrl, upVideoUrl} from '../urls'
+import {picSet, UPLOAD_PATH, UPLOAD_STATIC_PATH, videoSet} from '../../common/consts'
+import path = require('path')
+import * as fs from 'fs'
+import {ResponseSchema} from '../../response/response'
+import {checkParams} from '../../common/utils'
+import {upFileSchema} from './upload-schema'
+import * as formidable from 'formidable'
 
 const upload = new Router
+
+const dir = path.join(__dirname, '../../', UPLOAD_PATH)
+try {
+  fs.lstatSync(dir)
+} catch (e) {
+  fs.mkdirSync(dir)
+}
 
 // 上传图片
 upload.post(upPicUrl, async ctx => {

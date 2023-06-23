@@ -1,10 +1,10 @@
-import {checkMessageParams, createFakeId, formatDate, handleAudio, updateUser} from "../../../common/utils";
-import {User, Users} from "../../../router/user/user-types";
-import {ExtWebSocket, MsgStatus, MsgType, RequestMessage, SysMsgCont, SysMsgContType} from "../../socket-types";
+import {checkChatLog, checkMessageParams, createFakeId, formatDate, handleAudio, updateUser} from '../../../common/utils'
+import {User, Users} from '../../../router/user/user-types'
+import {ExtWebSocket, MsgStatus, MsgType, RequestMessage, SysMsgCont, SysMsgContType} from '../../socket-types'
 import {
   addGroupRetSchema,
   addGroupSchema,
-  createGroupSchema,
+  createGroupSchema, getGpMsgByIdsSchema,
   getGroupAplsSchema,
   getGroupInfoSchema,
   getGroupMembersSchema,
@@ -13,14 +13,14 @@ import {
   groupInviteSchema,
   readGpMsgsSchema,
   sendGpMsgSchema, transmitGpMsgsSchema
-} from "./group-schema";
+} from './group-schema'
 import {
   addGpMsg,
   addGroup,
   addGroupApl,
   addGroupMember,
   resetGroupApl,
-  selectGpMsgByFakeId,
+  selectGpMsgByFakeId, selectGpMsgById,
   selectGpMsgByIdAndFrom,
   selectGpMsgReadsById,
   selectGroupAplByAddGroup,
@@ -36,7 +36,7 @@ import {
   updateGpMsgStatus,
   updateGroupAplStatus,
   updateGroupsMember
-} from "./group-sql";
+} from './group-sql'
 import {
   AddGroupReq,
   AddGroupRetReq,
@@ -53,13 +53,14 @@ import {
   GroupInviteRetReq,
   GroupInviteRetRes,
   Groups,
-  ReadGpMsgsReq, TransmitGpMsgsReq
-} from "./group-types";
-import client from "../../../redis/redis";
-import {usernameClientMap} from "../single/single";
-import {REC_ADD_GROUP, REC_GP_MSGS, REC_GROUP_INVITE, REC_GROUP_INVITE_RET, REC_READ_GP_MSGS} from "../../socket-actions";
-import {beginSocketSql, commitSocketSql} from "../../../db";
-import {addUserGroups, selectUserGroups} from "../user/user-sql";
+  ReadGpMsgsReq, TransmitGpMsgsReq, GetGpMsgByIdsReq
+} from './group-types'
+import client from '../../../redis/redis'
+import {usernameClientMap} from '../single/single'
+import {REC_ADD_GROUP, REC_GP_MSGS, REC_GROUP_INVITE, REC_GROUP_INVITE_RET, REC_READ_GP_MSGS} from '../../socket-actions'
+import {beginSocketSql, commitSocketSql} from '../../../db'
+import {addUserGroups, selectUserGroups} from '../user/user-sql'
+import {ChatLog} from '../common/common-types'
 
 // 创建群聊
 export async function createGroup(ws: ExtWebSocket, user: User, data: RequestMessage<CreateGroupReq>) {
@@ -283,7 +284,8 @@ export async function sendGpMsg(ws: ExtWebSocket, user: User, data: RequestMessa
   await beginSocketSql(ws)
   const createdAt = formatDate()
   if (type === MsgType.audio) handleAudio(body, createdAt) // 音频
-  if (type === MsgType.retract) await handleRetract(ws, body, from)
+  else if (type === MsgType.retract) await handleRetract(ws, body, from)
+  else if (type === MsgType.chatLogs) await checkChatLog(ws, body.content as unknown as ChatLog)
   let lastMsg = result2[0]
   const messages: GpMsgRes[] = JSON.parse((await selectNewGpMsgs(ws, lastMsg.id)).result[0][0].messages)
   if (messages.length > 0) lastMsg = messages[messages.length - 1]
@@ -376,10 +378,24 @@ export async function getGroupInfo(ws: ExtWebSocket, user: User, data: RequestMe
   ws.json({action: data.action, data: {id, name, avatar, leader, manager, count: 1 + managers.size + members.size}})
 }
 
+// 获取群成员
 export async function getGroupMembers(ws: ExtWebSocket, user: User, data: RequestMessage<{ id: Groups.Id }>) {
   await checkMessageParams(ws, getGroupMembersSchema, data.data, 1001)
   const {member} = await getGroupById(ws, data.data.id)
   ws.json({action: data.action, data: member})
+}
+
+// 根据id列表获取消息
+export async function getGpMsgsByIds(ws: ExtWebSocket, user: User, data: RequestMessage<GetGpMsgByIdsReq>) {
+  const {action, data: body} = data
+  await checkMessageParams(ws, getGpMsgByIdsSchema, body, 1001)
+  const res: GpMsgRes[] = []
+  for (const id of body.data) {
+    const {result} = await selectGpMsgById(ws, id)
+    if (!result.length) return ws.json({action, message: '消息' + id + '不存在', status: 1002})
+    res.push(result[0])
+  }
+  ws.json({action, data: {data: res, fakeId: body.fakeId}})
 }
 
 // 处理撤回

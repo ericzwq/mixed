@@ -1,6 +1,7 @@
-import {Users} from "../../../router/user/user-types";
-import {MsgStatus, MsgType, SysMsgCont} from "../../socket-types";
-import {SgMsgRes, SgMsgs} from "../single/single-types";
+import {Users} from '../../../router/user/user-types'
+import {MsgStatus, MsgType, SysMsgCont} from '../../socket-types'
+import {SgMsgRes, SgMsgs} from '../single/single-types'
+import {ChatLog} from '../common/common-types'
 
 export namespace Groups {
   export type Id = number
@@ -16,7 +17,7 @@ export namespace Groups {
 
 export namespace GpMsgs {
   export type Id = number
-  export type Content = string | number[] | number | SysMsgCont[] | GpMsgRes[] | SgMsgRes[]
+  export type Content = string | number[] | number | SysMsgCont[] | ChatLog[]
   export type From = Users.Username
   export type To = Groups.Id
   export type FakeId = string // 前端消息id
@@ -152,4 +153,9 @@ export interface GetHisGpMsgReq {
   count: number | null
   maxId: SgMsgs.Id
   minId: SgMsgs.Id | null
+}
+
+export interface GetGpMsgByIdsReq {
+  fakeId: string
+  data: GpMsgs.Id[]
 }
