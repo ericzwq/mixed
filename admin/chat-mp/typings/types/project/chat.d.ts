@@ -38,3 +38,13 @@ declare enum TransmitType {
   single = 1, // 单独
   union= 2, // 合并
 }
+
+ interface ChatLog {
+  chatType: ChatType
+  ids: SgMsgs.Id[]
+}
+
+interface GetMsgsByIdsRes {
+  fakeId: string
+  data: SgMsg[] | GpMsg[]
+}

@@ -35,4 +35,7 @@ export const readSgMsgSchema = Joi.object({
   to: userSchemas.username
 }).unknown().required()
 
-export const getSgMsgByIdsSchema = Joi.array().required()
+export const getSgMsgByIdsSchema = Joi.object({
+  fakeId: Joi.string().required(),
+  data: Joi.array().required()
+}).unknown().required()

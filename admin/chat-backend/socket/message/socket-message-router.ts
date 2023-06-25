@@ -97,16 +97,16 @@ export async function handleMessage(user: User, cookie: string, ws: ExtWebSocket
       const handler = socketMessageRouter.actionHandlerMap[data.action]
       if (!handler) return ws.json({status: 1002, message: '未知的action'})
       ws.reqCount = (ws.reqCount || 0) + 1
-      await socketSqlMiddleware(ws)
+      if (ws.reqCount === 1) await socketSqlMiddleware(ws)
       try {
-        log('======> action：' + data.action)
+        log('======> action：' + data.action, ws.reqCount)
         await handler(ws, user, data)
         if (ws.sqlCommit) await commitSocketSql(ws)
       } catch (e) {
         log('【handler error】', e)
         if (ws.sqlCommit) await rollbackSocketSql(ws)
       }
-      log('<====== action：' + data.action)
+      log('<====== action：' + data.action, ws.reqCount - 1)
       if (--ws.reqCount === 0) ws.connection.release()
     }
   })

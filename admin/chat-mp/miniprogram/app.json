@@ -16,7 +16,8 @@
     "pages/create-group/create-group",
     "pages/group-info/group-info",
     "pages/single-info/single-info",
-    "pages/recent-chats/recent-chats"
+    "pages/recent-chats/recent-chats",
+    "pages/chat-log-detail/chat-log-detail"
   ],
   "tabBar": {
     "custom": true,

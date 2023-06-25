@@ -1,7 +1,7 @@
-<view class="chat-log-box clickable">
+<view class="chat-log-box clickable" bindtap="toChatLogDetail">
   <view class="header">{{title}}</view>
   <view class="main">
-    <view wx:for="{{contents}}" wx:key="fakeId" wx:if="{{index < 4}}">
+    <view wx:for="{{contents}}" wx:key="fakeId" wx:if="{{index < maxLine}}">
       {{unameUserMap[item.from].nickname}}：
       <block wx:if="{{item.type === 1}}">{{item.content}}</block>
       <block wx:elif="{{item.type === 2}}">[图片]</block>
@@ -12,7 +12,7 @@
         <block wx:for="{{item.content}}" wx:key="index">{{item.type === 2 ? unameUserMap[item.value].nickname : item.value}}&nbsp;</block>
       </text>
       <block wx:elif="{{item.type === 7}}">[聊天记录]</block>
-      <text wx:if="{{contents.length > 4 && index === 3}}" decode>&nbsp;...</text>
+      <text wx:if="{{contents.length > maxLine && index === maxLine - 1}}" decode>&nbsp;...</text>
     </view>
   </view>
   <view class="footer">聊天记录</view>

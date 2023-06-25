@@ -83,4 +83,7 @@ export const getGroupMembersSchema = Joi.object({
   id: groupSchemas.id
 }).unknown().required()
 
-export const getGpMsgByIdsSchema = Joi.array().required()
+export const getGpMsgByIdsSchema = Joi.object({
+  fakeId: Joi.string().required(),
+  data: Joi.array().required()
+}).unknown().required()

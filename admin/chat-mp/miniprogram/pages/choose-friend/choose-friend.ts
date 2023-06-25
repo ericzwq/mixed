@@ -188,6 +188,11 @@ Page({
     moreMsg = moreMsg.trim()
     const { chatType, data, type, isMul } = stagingStore.chatLog
     const { user: { username }, contactMap } = userStore
+    const isSingleTran = type === TransmitType.single
+    if (!isSingleTran && data.some((m: SgMsg | GpMsg) => m.state)) {
+      wx.showToast({ title: '合并转发的数据中不能含有未发出的消息', icon: 'error' })
+      return
+    }
     console.log(chatType, data, isMul, selecteds, type)
     wx.showLoading({ title: '加载中...' })
     for (const { to, chatType, avatar } of selecteds) {
@@ -200,7 +205,7 @@ Page({
       let p: Promise<void>
       const newMsg = { content: moreMsg, type: MsgType.text, fakeId: fakeId + '-1' }
       let newMsgs: SgMsg[] = []
-      if (type === TransmitType.single) { // 逐条转发
+      if (isSingleTran) { // 逐条转发
         data.forEach((msg: SgMsg | GpMsg, i: number) => msgs.push({ content: msg.content, type: msg.type, fakeId: fakeId + i }))
         moreMsg && msgs.push(newMsg)
         p = chatSocket.send({
@@ -208,8 +213,8 @@ Page({
           data: { to, lastId, msgs }
         })
       } else {
-        msgs.push({ content: data, fakeId, type: MsgType.chatLogs })
-        const ids = (data as SgMsg[]).map(({ id }) => id)
+        const ids = (data as SgMsg[]).map(({ id }) => id!)
+        msgs.push({ content: { chatType, ids }, fakeId, type: MsgType.chatLogs })
         p = chatSocket.send({
           action: isSingle ? SEND_SG_MSG : SEND_GP_MSG,
           data: { to, content: { chatType, ids }, fakeId, type: MsgType.chatLogs, lastId }
@@ -238,6 +243,7 @@ Page({
         messageInfo.fakeIdIndexMap[fakeId] = messageInfo.messages.push(msg) - 1
         return msg
       })
+      console.log(newMsgs[0].state)
       try {
         await p
       } catch (e) {

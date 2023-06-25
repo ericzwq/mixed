@@ -12,7 +12,7 @@ declare namespace Groups {
 
 declare namespace GpMsgs {
   type Id = number
-  type Content = string | number[] | number | SgMsg[] | GpMsg[]
+  type Content = string | number[] | number | ChatLog
   type From = Users.Username
   type To = Groups.Id
   type FakeId = string // 前端消息id
