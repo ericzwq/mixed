@@ -39,7 +39,7 @@ Component({
         const memberSet = new Set<Users.Username>()
         res.some((selected: SgMsg | GpMsg) => memberSet.add(selected.from!).size === 2)
         const { chatLog } = stagingStore
-        chatLog.computeChatLogTitle(Array.from(memberSet)).then(title => {
+        chatLog.computeChatLogTitle(Array.from(memberSet), chatType).then(title => {
           this.setData({ title, contents: res })
         })
       }

@@ -13,8 +13,8 @@ export namespace FriendApls {
   }
 }
 
-export interface SearchUserQuery {
-  username: Users.Username
+export interface SearchUsersReq {
+  usernames: Users.Username[]
 }
 
 export interface AddUserReq {

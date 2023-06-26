@@ -1,16 +1,16 @@
-import { createStoreBindings } from 'mobx-miniprogram-bindings'
-import { userStore } from '../../store/user'
-import { BASE_URL, LOAD_MESSAGE_COUNT, primaryColor, SAVE_MESSAGE_LENGTH } from '../../consts/consts'
-import { chatSocket } from '../../socket/socket'
-import { formatDate, formatDetailDate } from '../../common/utils'
-import { REC_GP_MSGS, REC_SG_MSGS, SEND_GP_MSG, SEND_SG_MSG } from '../../socket/socket-actions'
-import { ChooseFriendPath, GroupInfoPath, SingleInfoPath, UserDetailPath } from '../../consts/routes'
-import { ChatType, MsgState, MsgType } from '../../socket/socket-types'
+import {createStoreBindings} from 'mobx-miniprogram-bindings'
+import {userStore} from '../../store/user'
+import {BASE_URL, LOAD_MESSAGE_COUNT, primaryColor, SAVE_MESSAGE_LENGTH} from '../../consts/consts'
+import {chatSocket} from '../../socket/socket'
+import {formatDate, formatDetailDate} from '../../common/utils'
+import {REC_GP_MSGS, REC_SG_MSGS, SEND_GP_MSG, SEND_SG_MSG} from '../../socket/socket-actions'
+import {ChooseFriendPath, GroupInfoPath, SingleInfoPath, UserDetailPath} from '../../consts/routes'
+import {ChatType, MsgState, MsgType} from '../../socket/socket-types'
 // @ts-ignore
 import Dialog from "@vant/weapp/dialog/dialog";
-import { ChooseMode } from "../choose-friend/choose-friend-types";
-import { stagingStore } from "../../store/staging";
-import { TransmitType } from "./chat-detail-types";
+import {ChooseMode} from "../choose-friend/choose-friend-types";
+import {stagingStore} from "../../store/staging";
+import {TransmitType} from "./chat-detail-types";
 
 const app = getApp<IAppOption>()
 Page({
@@ -57,24 +57,24 @@ Page({
     floatMenu: {} as FloatMenu,
     showActions: false,
     actions: [
-      { name: '逐条转发', type: TransmitType.single },
-      { name: '合并转发', type: TransmitType.union }
+      {name: '逐条转发', type: TransmitType.single},
+      {name: '合并转发', type: TransmitType.union}
     ],
   },
   storeBindings: {} as StoreBindings,
   containerTap(e: WechatMiniprogram.CustomEvent) {
     if (e.target.id !== 'showOpt' && !e.mark!['opts']) {
-      this.setData({ showOpts: false })
+      this.setData({showOpts: false})
     }
     // setTimeout(() => e.target.focus(), 500) todo
   },
   toDetail(e: WechatMiniprogram.CustomEvent) {
-    wx.navigateTo({ url: UserDetailPath + '?username=' + this.data.viewMessages[e.currentTarget.dataset.i].from })
+    wx.navigateTo({url: UserDetailPath + '?username=' + this.data.viewMessages[e.currentTarget.dataset.i].from})
   },
   onLoad(query: { to: string, type: ChatType }) {
     this.addSgMsgListener()
     this.addGpMsgListener()
-    const { to, type } = query
+    const {to, type} = query
     this.storeBindings = createStoreBindings(this, {
       store: userStore,
       fields: ['user', 'unameUserMap'],
@@ -82,7 +82,7 @@ Page({
     let target: Contact | GroupInfo, title: string, plus = ''
     new Promise<void>(resolve => {
       if (type === ChatType.single) {
-        target = { ...userStore.contactMap[to], ...userStore.unameUserMap[to], username: to }
+        target = {...userStore.contactMap[to], ...userStore.unameUserMap[to], username: to}
         if (!target) return
         title = target.remark
         resolve()
@@ -95,9 +95,9 @@ Page({
         })
       }
     }).then(() => {
-      this.setData({ target, chatType: type, title: title + plus })
+      this.setData({target, chatType: type, title: title + plus})
       this.clearChat()
-      wx.setNavigationBarTitle({ title })
+      wx.setNavigationBarTitle({title})
       const messageInfo = app.getMessageInfo(to, type)
       messageInfo.showedMsgsMinIndex = messageInfo.messages.length
       this.loadMsgs()
@@ -107,29 +107,29 @@ Page({
     const iac = wx.createInnerAudioContext()
     iac.onEnded(() => {
       this.data.viewMessages[this.data._audioPlayIndex].isPlay = false
-      this.setData({ audioPlayState: 0, viewMessages: this.data.viewMessages })
+      this.setData({audioPlayState: 0, viewMessages: this.data.viewMessages})
     })
     iac.onPause(() => {
-      this.setData({ audioPlayState: 0 })
+      this.setData({audioPlayState: 0})
     })
     iac.onPlay(() => {
-      this.setData({ audioPlayState: 1 })
+      this.setData({audioPlayState: 1})
     })
     iac.onError((res) => {
       console.log('音频播放异常', res)
       this.data.viewMessages[this.data._audioPlayIndex].isPlay = false
-      wx.showToast({ title: '音频播放异常' })
-      this.setData({ audioPlayState: 0, viewMessages: this.data.viewMessages })
+      wx.showToast({title: '音频播放异常'})
+      this.setData({audioPlayState: 0, viewMessages: this.data.viewMessages})
     })
-    this.data._recorderManager.onStop(listener => this.setData({ _recordFilePath: listener.tempFilePath }))
+    this.data._recorderManager.onStop(listener => this.setData({_recordFilePath: listener.tempFilePath}))
     this.data._recorderManager.onError(e => {
       console.log('音频录制异常', e)
-      wx.showToast({ title: e.errMsg })
+      wx.showToast({title: e.errMsg})
     })
     this.data.floatMenu = this.selectComponent('.float-menu') as FloatMenu
-    this.setData({ _innerAudioContext: iac, windowHeight: wx.getWindowInfo().windowHeight })
+    this.setData({_innerAudioContext: iac, windowHeight: wx.getWindowInfo().windowHeight})
     wx.onWindowResize(e => {
-      this.setData({ keyboardUp: this.data.windowHeight > e.size.windowHeight, windowHeight: e.size.windowHeight })
+      this.setData({keyboardUp: this.data.windowHeight > e.size.windowHeight, windowHeight: e.size.windowHeight})
       setTimeout(() => this.scrollView(0))
     })
     this.scrollView(0)
@@ -146,8 +146,8 @@ Page({
     wx.stopPullDownRefresh()
   },
   toUserDetail(e: WechatMiniprogram.CustomEvent) {
-    const { right, i } = e.currentTarget.dataset
-    const { target, chatType, viewMessages } = this.data
+    const {right, i} = e.currentTarget.dataset
+    const {target, chatType, viewMessages} = this.data
     let username!: Users.Username
     if (right) {
       username = userStore.user.username
@@ -158,7 +158,7 @@ Page({
         username = viewMessages[i].from!
       }
     }
-    wx.navigateTo({ url: UserDetailPath + '?username=' + username })
+    wx.navigateTo({url: UserDetailPath + '?username=' + username})
   },
   contentInput() {
   },
@@ -173,10 +173,10 @@ Page({
   },
   // 取消呼叫
   cancelCall() {
-    this.setData({ callState: 0 })
+    this.setData({callState: 0})
   },
   handleMic() {
-    this.setData({ inputState: 1 })
+    this.setData({inputState: 1})
   },
   // 麦克风
   handleMicoff() {
@@ -303,7 +303,7 @@ Page({
     // })
   },
   handleShowOpts() {
-    this.setData({ showOpts: !this.data.showOpts })
+    this.setData({showOpts: !this.data.showOpts})
   },
   // 语音通话
   handleVoiceCall() {
@@ -370,18 +370,18 @@ Page({
   },
   // 获取消息
   loadMsgs() {
-    const { chatType, viewMessages } = this.data
-    const { username } = userStore.user
+    const {chatType, viewMessages} = this.data
+    const {username} = userStore.user
     const to = this.getTo()
     const prefixKey = username + '-' + chatType + '-' + to + '-'
     const messageInfo = app.getMessageInfo(to, chatType)
     const msgsLen = messageInfo.messages.length
-    let { messages, validMsgCount } = this.getValidMsgFromMemory(messageInfo)
+    let {messages, validMsgCount} = this.getValidMsgFromMemory(messageInfo)
     const storageMsgs = this.getValidMsgFromStorage(messageInfo, LOAD_MESSAGE_COUNT - validMsgCount, prefixKey)
     messages = storageMsgs.concat(messages)
     messageInfo.showedMsgsMinIndex += messageInfo.messages.length - msgsLen - messages.length
     this.data.viewMessages = this.handleViewMessageTime(messages).concat(viewMessages) as typeof viewMessages
-    this.setData({ viewMessages: this.data.viewMessages })
+    this.setData({viewMessages: this.data.viewMessages})
   },
   getValidMsgFromMemory<T extends SgMsg | GpMsg>(messageInfo: MessageInfo<T>) {
     const msgs = []
@@ -391,8 +391,8 @@ Page({
       msgs.push(messageInfo.messages[i])
       messageInfo.messages[i].state !== MsgState.delete && validMsgCount++
     }
-    console.log('从内存中获取', { messages: [...msgs].reverse(), validMsgCount })
-    return { messages: msgs.reverse(), validMsgCount }
+    console.log('从内存中获取', {messages: [...msgs].reverse(), validMsgCount})
+    return {messages: msgs.reverse(), validMsgCount}
   },
   getValidMsgFromStorage<T extends SgMsg | GpMsg>(messageInfo: MessageInfo<T>, count: number, prefixKey: string) {
     const msgs = []
@@ -407,7 +407,7 @@ Page({
       }
     }
     this.resetMessagesMap(messageInfo)
-    console.log('从缓存中获取', { messages: [...msgs].reverse(), validMsgCount })
+    console.log('从缓存中获取', {messages: [...msgs].reverse(), validMsgCount})
     return msgs.reverse()
   },
   resetMessagesMap<T extends SgMsg | GpMsg>(messageInfo: MessageInfo<T>) {
@@ -422,8 +422,8 @@ Page({
   addSgMsgListener() {
     this.sgMsgSuccessHandler = ((data: SocketResponse<SgMsg[]>) => {
       const viewMessages = this.data.viewMessages as SgMsg[]
-      const { chatType } = this.data
-      const { user: { username } } = userStore
+      // const {chatType} = this.data
+      const {user: {username}} = userStore
       const msg = data.data[0]
       if (!msg) return
       // const to = chatType === ChatType.single ? msg.to === username ? msg.from! : msg.to! : msg.to!
@@ -448,7 +448,7 @@ Page({
           viewMessages.splice(length - 2, 2, ...this.handleViewMessageTime(undefined, length - 2) as SgMsg[])
         }
       })
-      this.setData({ viewMessages: [...viewMessages] })
+      this.setData({viewMessages: [...viewMessages]})
       this.scrollView()
       app.saveMessages()
     })
@@ -525,7 +525,7 @@ Page({
         this.data._innerAudioContext.pause()
         this.data.viewMessages[i].isPlay = false
       }
-      this.setData({ viewMessages: this.data.viewMessages })
+      this.setData({viewMessages: this.data.viewMessages})
       return
     }
     if (this.data.audioPlayState === 1) {
@@ -535,15 +535,15 @@ Page({
     const iac = this.data._innerAudioContext
     iac.src = BASE_URL + data.content
     iac.play()
-    this.setData({ _audioPlayIndex: i, viewMessages: this.data.viewMessages })
+    this.setData({_audioPlayIndex: i, viewMessages: this.data.viewMessages})
   },
   // 取消发送
   cancel() {
-    this.setData({ recordState: 0 })
+    this.setData({recordState: 0})
   },
   // 返回键盘输入
   retKeybroad() {
-    this.setData({ inputState: 0 })
+    this.setData({inputState: 0})
     this.cancel()
   },
   handleRecording() {
@@ -551,15 +551,15 @@ Page({
       this.data.recordState = 1
       this.data._recorderManager.start({})
     } else if (this.data.recordState === 1) { // 录制中
-      this.setData({ recordState: 2 }) // 录制结束
+      this.setData({recordState: 2}) // 录制结束
       this.data._recorderManager.stop()
     }
-    this.setData({ recordState: this.data.recordState })
+    this.setData({recordState: this.data.recordState})
   },
   async send() {
     // console.log(this.data.recordState, this.data.inputState)
     const type = this.data.recordState === 2 && this.data.inputState === 1 ? MsgType.audio : MsgType.text // 语音或文字
-    const { target, chatType, title } = this.data
+    const {target, chatType, title} = this.data
     const isSingle = chatType === ChatType.single
     const to = this.getTo()
     const username = userStore.user.username
@@ -582,7 +582,7 @@ Page({
       status: 0
     }
     const messageInfo = app.getMessageInfo(to, this.data.chatType)
-    const { messages } = messageInfo
+    const {messages} = messageInfo
     const viewMessages = this.data.viewMessages
     let validIndex = messages.length - 1
     for (; validIndex > -1; validIndex--) {
@@ -604,12 +604,12 @@ Page({
         messageInfo.fakeIdIndexMap[fakeId] = messageInfo.messages.push(message) - 1
         viewMessages.splice(length - 2, 2, ...this.handleViewMessageTime(undefined, length - 2) as SgMsg[])
         messageInfo.maxMsgsIndex = messageInfo.loadedMsgsMinIndex + Math.floor((messageInfo.messages.length - 1) / SAVE_MESSAGE_LENGTH)
-        this.setData({ viewMessages })
+        this.setData({viewMessages})
         this.scrollView()
       })
     app.setToSaveFakeIds(to, [fakeId], isSingle)
-    this.setData({ content: '', _recordFilePath: '', recordState: 0 })
-    app.saveChats({ ...message, to: to as unknown as number }, { nickname: title, avatar: target.avatar! }, 0, chatType)
+    this.setData({content: '', _recordFilePath: '', recordState: 0})
+    app.saveChats({...message, to: to as unknown as number}, {nickname: title, avatar: target.avatar!}, 0, chatType)
     app.saveMessages()
   },
   clearChat() {
@@ -622,49 +622,49 @@ Page({
     }
   },
   getTo() {
-    const { chatType, target } = this.data
+    const {chatType, target} = this.data
     return chatType === ChatType.single ? (target as Contact).username : (target as GroupInfo).id
   },
   toChatInfo() {
-    this.data.chatType === ChatType.group ? wx.navigateTo({ url: GroupInfoPath + '?id=' + this.getTo() }) : wx.navigateTo({ url: SingleInfoPath + '?username=' + this.getTo() })
+    this.data.chatType === ChatType.group ? wx.navigateTo({url: GroupInfoPath + '?id=' + this.getTo()}) : wx.navigateTo({url: SingleInfoPath + '?username=' + this.getTo()})
   },
   onClose() {
-    this.setData({ isActive: false, activeIndex: -1 })
+    this.setData({isActive: false, activeIndex: -1})
   },
   handleLongPress(e: LongPressEvent) {
-    const { clientX, clientY } = e.touches[0]
+    const {clientX, clientY} = e.touches[0]
     this.selectComponent('.float-menu').open(clientX, clientY)
-    this.setData({ isActive: true })
-    this.toggle({ currentTarget: { dataset: { i: this.data.activeIndex } } })
+    this.setData({isActive: true})
+    this.toggle({currentTarget: {dataset: {i: this.data.activeIndex}}})
   },
   onTouchStart(e: WechatMiniprogram.CustomEvent) {
     if (this.data.showSelects) return
-    this.setData({ activeIndex: +e.currentTarget.dataset.i })
+    this.setData({activeIndex: +e.currentTarget.dataset.i})
   },
   onTouchCancel() {
     if (this.data.isActive) return
-    this.setData({ activeIndex: -1 })
+    this.setData({activeIndex: -1})
   },
   copy() {
     wx.setClipboardData({
       data: this.data.viewMessages[this.data.activeIndex].content as string,
       success() {
-        wx.showToast({ title: '复制成功' })
+        wx.showToast({title: '复制成功'})
       },
       fail() {
-        wx.showToast({ title: '复制失败', icon: 'error' })
+        wx.showToast({title: '复制失败', icon: 'error'})
       }
     })
-    this.setData({ activeIndex: -1 })
+    this.setData({activeIndex: -1})
     this.data.floatMenu.close()
   },
   transmit() {
-    const { showSelects, chatType, selecteds, floatMenu, viewMessages, activeIndex } = this.data
+    const {showSelects, chatType, selecteds, floatMenu, viewMessages, activeIndex} = this.data
     if (showSelects && !selecteds.length) {
-      wx.showToast({ title: '请至少选择一条消息', icon: 'error' })
+      wx.showToast({title: '请至少选择一条消息', icon: 'error'})
       return
     }
-    const { chatLog } = stagingStore
+    const {chatLog} = stagingStore
     chatLog.chatType = chatType
     if (showSelects) {
       chatLog.isMul = true
@@ -672,24 +672,24 @@ Page({
       const memberSet = new Set<Users.Username>()
       selecteds.some((selected: SgMsg | GpMsg) => memberSet.add(selected.from!).size === 2)
       chatLog.members = Array.from(memberSet)
-      chatLog.computeChatLogTitle(chatLog.members).then(r => chatLog.title = r)
-      this.setData({ showActions: true })
+      chatLog.computeChatLogTitle(chatLog.members, chatType).then(r => chatLog.title = r)
+      this.setData({showActions: true})
     } else {
       chatLog.type = TransmitType.single
       chatLog.isMul = false
       chatLog.data = [viewMessages[activeIndex]] as SgMsg[] | GpMsg[]
-      wx.navigateTo({ url: ChooseFriendPath + '?mode=' + ChooseMode.chats })
+      wx.navigateTo({url: ChooseFriendPath + '?mode=' + ChooseMode.chats})
     }
-    this.setData({ activeIndex: -1 })
+    this.setData({activeIndex: -1})
     floatMenu.close()
   },
   collect() {
-    wx.showToast({ title: '敬请期待！' })
-    this.setData({ activeIndex: -1 })
+    wx.showToast({title: '敬请期待！'})
+    this.setData({activeIndex: -1})
     this.data.floatMenu.close()
   },
   multipleChoice() {
-    this.setData({ showSelects: true, activeIndex: -1 })
+    this.setData({showSelects: true, activeIndex: -1})
     this.data.floatMenu.close()
   },
   onTap(e: WechatMiniprogram.CustomEvent) {
@@ -700,15 +700,15 @@ Page({
     if (mark['toUserDetail']) return this.toUserDetail(e)
   },
   toggle(e: { currentTarget: { dataset: { i?: string | number } } }) {
-    const { i } = e.currentTarget.dataset
+    const {i} = e.currentTarget.dataset
     const checkbox = this.selectComponent('.box-' + i)
-    const { value } = checkbox.data
-    checkbox.setData({ value: !value })
-    const { viewMessages, fakeIdSelectedMap, selecteds } = this.data
+    const {value} = checkbox.data
+    checkbox.setData({value: !value})
+    const {viewMessages, fakeIdSelectedMap, selecteds} = this.data
     const message = viewMessages[i as number] as SgMsg
     if (!value) {
       if (selecteds.length >= 100) {
-        wx.showToast({ title: '最多选100个', icon: 'error' })
+        wx.showToast({title: '最多选100个', icon: 'error'})
         return
       }
       selecteds.push(message as SgMsg & GpMsg)
@@ -717,21 +717,21 @@ Page({
       selecteds.splice(selecteds.findIndex((m: SgMsg | GpMsg) => m.fakeId === message.fakeId), 1)
       delete fakeIdSelectedMap[message.fakeId!]
     }
-    console.log({ selecteds })
+    console.log({selecteds})
   },
   reply() {
-    wx.showToast({ title: '敬请期待！' })
-    this.setData({ activeIndex: -1 })
+    wx.showToast({title: '敬请期待！'})
+    this.setData({activeIndex: -1})
     this.data.floatMenu.close()
   },
   delete() {
-    const { viewMessages, activeIndex, chatType, showSelects, selecteds } = this.data
+    const {viewMessages, activeIndex, chatType, showSelects, selecteds} = this.data
     this.data.floatMenu.close()
     if (showSelects && !selecteds.length) {
-      wx.showToast({ title: '请至少选择一条消息', icon: 'error' })
+      wx.showToast({title: '请至少选择一条消息', icon: 'error'})
       return
     }
-    Dialog.confirm({ message: '确认删除该消息吗？' }).then(() => {
+    Dialog.confirm({message: '确认删除该消息吗？'}).then(() => {
       let fakeIds: SgMsgs.FakeId[] = []
       let indexes: number[] = []
       if (showSelects) {
@@ -752,8 +752,8 @@ Page({
       app.setToSaveFakeIds(this.getTo(), fakeIds, chatType === ChatType.single)
       this.handleDelSysTimeMsg(viewMessages, indexes)
       app.saveMessages()
-      this.setData({ activeIndex: -1, viewMessages, showSelects: false })
-    }).catch(() => this.setData({ activeIndex: -1, showSelects: false })).finally(() => this.setData({ selecteds: [], fakeIdSelectedMap: {} }))
+      this.setData({activeIndex: -1, viewMessages, showSelects: false})
+    }).catch(() => this.setData({activeIndex: -1, showSelects: false})).finally(() => this.setData({selecteds: [], fakeIdSelectedMap: {}}))
   },
   handleDelSysTimeMsg(viewMessages: SgMsg[] | GpMsg[], indexes: number[]) {
     indexes.forEach(index => {
@@ -783,13 +783,13 @@ Page({
     })
   },
   closeMulSelOpt() {
-    this.setData({ showSelects: false, selecteds: [], fakeIdSelectedMap: {} })
+    this.setData({showSelects: false, selecteds: [], fakeIdSelectedMap: {}})
   },
   onCloseActions() {
-    this.setData({ showActions: false })
+    this.setData({showActions: false})
   },
   onSelectAction(e: WechatMiniprogram.CustomEvent<{ type: TransmitType }>) {
     stagingStore.chatLog.type = e.detail.type
-    wx.navigateTo({ url: ChooseFriendPath + '?mode=' + ChooseMode.chats })
+    wx.navigateTo({url: ChooseFriendPath + '?mode=' + ChooseMode.chats})
   },
 })

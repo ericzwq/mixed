@@ -1,6 +1,6 @@
 import {checkMessageParams, createFakeId, formatDate, notifyUpdateUser, updateUser} from '../../../common/utils'
 import {User, Users} from '../../../router/user/user-types'
-import {AddUserReq, AddUserRetReq, FriendApls, SearchUserQuery} from './user-types'
+import {AddUserReq, AddUserRetReq, FriendApls, SearchUsersReq} from './user-types'
 import {getUserByUsername} from './user-sql'
 import {addUserRetSchema, addUserSchema, getFriendAplsSchema, searchUserSchema} from './user-schema'
 import {ExtWebSocket, MsgRead, MsgStatus, MsgType, RequestMessage} from '../../socket-types'
@@ -22,10 +22,13 @@ import {
 import {addContactByMasterAndSub, resetContactById, selectContactBySub, updateContactStatus} from "../contact/contact-sql";
 
 
-export async function searchUsers(ws: ExtWebSocket, user: User, data: RequestMessage<SearchUserQuery>) {
+export async function searchUsers(ws: ExtWebSocket, user: User, data: RequestMessage<SearchUsersReq>) {
   await checkMessageParams(ws, searchUserSchema, data.data, 1011)
-  const {result} = await getUserByUsername(ws, data.data.username)
-  ws.json({action: data.action, message: '查询成功', data: result})
+  const res = []
+  for (const username of data.data.usernames) {
+    res.push((await getUserByUsername(ws, username)).result)
+  }
+  ws.json({action: data.action, message: '查询成功', data: res})
 }
 
 // 获取好友申请记录

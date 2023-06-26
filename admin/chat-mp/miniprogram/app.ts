@@ -1,7 +1,7 @@
 import { createStoreBindings } from 'mobx-miniprogram-bindings'
 import { ChatDetailPath, LoginPath } from './consts/routes'
 import { chatSocket } from "./socket/socket"
-import { REC_GP_MSGS, REC_SG_MSGS, SEARCH_USERS } from './socket/socket-actions'
+import { REC_GP_MSGS, REC_SG_MSGS } from './socket/socket-actions'
 import { userStore } from "./store/user"
 import { ChatType, MsgState, MsgType } from './socket/socket-types'
 import { SAVE_MESSAGE_LENGTH } from "./consts/consts";
@@ -70,7 +70,7 @@ App<IAppOption>({
     return messageInfo
   },
   async recMsgSuccessHandler<T extends SgMsg | GpMsg>(data: SocketResponse<T[]>, isSingle: boolean) {
-    const { unameUserMap, user: { username } } = userStore
+    const { user: { username } } = userStore
     const msg = data.data[0]
     if (!msg) return
     const to = isSingle ? msg.to === username ? msg.from! : msg.to! : msg.to!
@@ -112,7 +112,7 @@ App<IAppOption>({
       this.saveChats(data.data[data.data.length - 1], { nickname: groupInfo.name, avatar: groupInfo.avatar }, newCount, ChatType.group)
     }
     this.saveMessages()
-    if (!isSingle) userStore.getUser(msg.from!)
+    if (!isSingle) await userStore.getUsers([msg.from!])
   },
   addRecSgMsgsListener() {
     chatSocket.addSuccessHandler(REC_SG_MSGS, (data: SocketResponse<SgMsg[]>) => this.recMsgSuccessHandler(data, true))

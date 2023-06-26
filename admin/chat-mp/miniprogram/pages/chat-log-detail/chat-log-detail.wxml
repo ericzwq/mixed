@@ -1,3 +1,18 @@
 <view>
-  <view wx:for="{{contents}}" wx:key="id">{{item.content}}</view>
+  <view wx:for="{{contents}}" wx:key="id">
+    <view>
+      <view>
+        <image src="{{BASE_URL + unameUserMap[item.from].avatar}}"/>
+        <text>{{unameUserMap[item.from].nickname}}</text>
+        <text>{{item.createdAt}}</text>
+      </view>
+      <view>
+        <chat-log class="chat-log" data="{{item.content}}" wx:if="{{item.type === 7}}"/>
+        <view wx:else class="content" data-i="{{index}}">
+          <text class="{{index === activeIndex ? 'active' : ''}} text" wx:if="{{item.type === 1}}">{{item.content}}</text>
+          <image mark:audioPlay="1" src="../../static/image/voice.svg" wx:elif="{{item.type === 3}}" width="30" class="audio {{item.isPlay ? 'play' : ''}}"></image>
+        </view>
+      </view>
+    </view>
+  </view>
 </view>

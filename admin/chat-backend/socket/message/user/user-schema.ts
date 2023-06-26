@@ -6,7 +6,7 @@ import {FriendApls} from './user-types'
 import Status = FriendApls.Status
 
 export const searchUserSchema = Joi.object({
-  username: userSchemas.username
+  usernames: Joi.array().required()
 }).unknown().required()
 
 export const getFriendAplsSchema = Joi.object({
