@@ -1,1 +1,37 @@
-/* pages/chat-log-detail/chat-log-detail.wxss */
+@import '../../style//index.scss';
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  margin: 20rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1px solid $border-color;
+
+  .avatar {
+    margin-left: 0;
+    flex-shrink: 0;
+  }
+
+  .main {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10px;
+  }
+
+  .right {
+    color: #ccc;
+    flex-shrink: 0;
+  }
+
+  .content {
+    word-break: break-word;
+  }
+}
