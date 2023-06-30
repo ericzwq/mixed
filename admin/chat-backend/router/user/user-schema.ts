@@ -8,8 +8,6 @@ export const userSchemas = {
   avatar: Joi.string().max(100).required(),
   email: Joi.string().email().required(),
   code: Joi.required(),
-  lastFriendAplId: Joi.number().allow(null),
-  lastGroupAplId: Joi.number().allow(null)
 }
 export const registerSchema = Joi.object({
   username: userSchemas.username,

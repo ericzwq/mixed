@@ -1,4 +1,4 @@
-<view wx:for="{{friendApls}}" wx:key="from" class="item">
+<view wx:for="{{groupApls}}" wx:key="from" class="item">
   <image src="{{BASE_URL + item.avatar}}" class="left"></image>
   <view class="middle">
     <view class="nickname">{{item.nickname}}</view>

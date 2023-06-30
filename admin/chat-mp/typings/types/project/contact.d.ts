@@ -2,6 +2,7 @@ declare namespace Contacts {
   export type Id = number
   export type Master = Users.Username
   export type Sub = Users.Username
+
   export enum Status {
     normal = 0, // 正常
     delete = 1, // 已删除
@@ -30,6 +31,7 @@ declare namespace FriendApls {
   export type Id = number
   export type Remark = string
   export type UpdatedAt = string
+
   export enum Status {
     pending = 0, // 待确认
     accept = 1, // 同意
@@ -37,8 +39,8 @@ declare namespace FriendApls {
   }
 }
 
-declare interface FriendApl {
-  friendAplId: FriendApls.Id
+interface FriendApl {
+  id: FriendApls.Id
   contactId: Contacts.Id
   from: Users.Username
   reason: FriendApls.Reason

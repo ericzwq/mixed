@@ -3,6 +3,8 @@ import * as WebSocket from 'ws'
 import {IncomingMessage} from 'http'
 import {SocketResponseOptions} from "../response/response";
 import {PoolConnection} from "mysql";
+import {ReplyContent} from "./message/single/single-types";
+import {ChatLog} from "./message/common/common-types";
 
 export interface ExtWebSocket extends WebSocket.WebSocket {
   connection: PoolConnection
@@ -82,12 +84,12 @@ export enum MsgType { // 消息类型
   retract = 5, // 撤回
   dynamicSys = 6, // 动态的系统消息
   chatLogs = 7, // 聊天记录
-  reply = 8, // 回复
 }
 
 export enum MsgStatus {
-  normal = 0,
-  retract = 1
+  normal = 0, // 普通
+  retract = 1, // 撤回
+  reply = 2, // 回复
 }
 
 export enum MsgRead {
@@ -100,7 +102,10 @@ export enum SysMsgContType {
   username = 2 // 用户名
 }
 
+// 动态系统消息类型
 export interface SysMsgCont {
   type: SysMsgContType
   value: Users.Username
 }
+
+export type MsgContent = string | number[] | number | ChatLog | ReplyContent | SysMsgCont[]

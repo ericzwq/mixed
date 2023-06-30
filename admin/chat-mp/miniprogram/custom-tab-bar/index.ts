@@ -1,8 +1,9 @@
-import {ChatsPath, ContactPath, FoundPath, PersonalPath} from "../consts/routes";
+import {ChatsPath, ContactPath, FoundPath, GroupNoticePath, NewFriendsPath, PersonalPath} from "../consts/routes";
 import {chatSocket} from "../socket/socket";
-import {REC_ADD_USER} from "../socket/socket-actions";
+import {REC_ADD_GROUP, REC_ADD_USER, REC_GROUP_INVITE} from "../socket/socket-actions";
 import {userStore} from "../store/user";
 import {createStoreBindings} from "mobx-miniprogram-bindings";
+import storage from "../common/storage";
 
 Component({
   options: {
@@ -13,17 +14,34 @@ Component({
     attached() {
       this.data.storeBindings = createStoreBindings(this, {
         store: userStore,
-        fields: ['newMsgCount']
+        fields: ['newMsgCount', 'newCatAplCount', 'newGroupAplCount']
       })
       chatSocket.addSuccessHandler<FriendApl>(REC_ADD_USER, (data) => {
-        this.data.list[1].info = (+this.data.list[1].info + 1) + ''
-        this.setData({list: [...this.data.list]})
-        const {username} = userStore.user
-        wx.setStorageSync('newFriendCount-' + username, this.data.list[1].info)
-        const friendApls: FriendApl[] = JSON.parse(wx.getStorageSync('friendApplications-' + username) || '[]')
+        const pages = getCurrentPages()
+        if (!pages[pages.length - 1].url.includes(NewFriendsPath)) {
+          userStore.setNewCatAplCount(userStore.newCatAplCount + 1)
+          const count = userStore.newCatAplCount + userStore.newGroupAplCount
+          this.data.list[0].info = count ? count + '' : ''
+          this.setData({list: [...this.data.list]})
+        }
+        const friendApls: FriendApl[] = storage.getFriendApls()
         friendApls.unshift(data.data)
-        wx.setStorageSync('friendApplications-' + username, JSON.stringify(friendApls))
+        storage.setFriendApls(friendApls)
       }, 0)
+      const recGroupNoticeHandler = (data: SocketResponse<GroupApl>) => {
+        const pages = getCurrentPages()
+        if (!pages[pages.length - 1].url.includes(GroupNoticePath)) {
+          userStore.setNewGroupMsgCount(userStore.newGroupAplCount + 1)
+          const count = userStore.newCatAplCount + userStore.newGroupAplCount
+          this.data.list[0].info = count ? count + '' : ''
+          this.setData({list: [...this.data.list]})
+        }
+        const groupApls: GroupApl[] = storage.getGroupApls()
+        groupApls.unshift(data.data)
+        storage.setGroupApls(groupApls)
+      }
+      chatSocket.addSuccessHandler<GroupApl>(REC_GROUP_INVITE, recGroupNoticeHandler) // 群邀请
+      chatSocket.addSuccessHandler<GroupApl>(REC_ADD_GROUP, recGroupNoticeHandler) // 申请入群
     },
     detached() {
       this.data.storeBindings.destroyStoreBindings()
@@ -82,7 +100,10 @@ Component({
     },
     init() {
       const page = getCurrentPages().pop()
-      this.data.list[1].info = wx.getStorageSync('newFriendCount-' + userStore.user.username)
+      userStore.setNewCatAplCount(storage.getNewCatAplCount())
+      userStore.setNewGroupMsgCount(storage.getNewGroupAplCount())
+      const count = userStore.newCatAplCount + userStore.newGroupAplCount
+      this.data.list[0].info = count ? count + '' : ''
       this.setData({active: this.data.list.findIndex(v => v.url === '/' + page!.route) + 1, list: [...this.data.list]})
     }
   }

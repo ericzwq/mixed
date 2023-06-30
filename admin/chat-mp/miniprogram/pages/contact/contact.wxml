@@ -3,14 +3,14 @@
     <image class="avatar" src="../../static/image/add.svg" style="background: #FFC125;"></image>
     <view class="right" bindtap="toNewFriends">
       新的朋友
-      <van-tag round>{{newFriendCount}}</van-tag>
+      <van-tag round>{{newCatAplCount === 0 ? '' : newCatAplCount}}</van-tag>
     </view>
   </view>
   <view class="contact-item">
     <image class="avatar" src="../../static/image/add.svg" style="background: #FFC125;"></image>
     <view class="right">
       群通知
-      <!-- <van-tag>{{newFriendCount}}</van-tag> -->
+      <!-- <van-tag>{{newGroupAplCount}}</van-tag> -->
     </view>
   </view>
   <view class="contact-item" bindtap="toGroups">

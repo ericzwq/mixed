@@ -1,6 +1,7 @@
-import { observable, action } from 'mobx-miniprogram'
-import { chatSocket } from '../socket/socket'
-import { GET_CONTACTS, GET_FRIEND_APLS, GET_GROUP_INFO, GET_GROUPS, SEARCH_USERS } from '../socket/socket-actions'
+import {observable, action} from 'mobx-miniprogram'
+import {chatSocket} from '../socket/socket'
+import {GET_CONTACTS, GET_FRIEND_APLS, GET_GROUP_APLS, GET_GROUP_INFO, GET_GROUPS, SEARCH_USERS} from '../socket/socket-actions'
+import storage from "../common/storage";
 
 const store = observable({
   contacts: [] as Contact[],
@@ -12,7 +13,17 @@ const store = observable({
   groupIdMessageInfoMap: {} as GroupIdMessageInfoMap, // 群聊用户对应的数据
   groupIdGroupInfoMap: {} as GroupIdGroupInfoMap, // 群id对应的群信息
   unameUserMap: {} as UnameUserMap, // 群成员对应的用户信息
+  newCatAplCount: 0,
+  newGroupAplCount: 0,
   newMsgCount: '',
+  setNewCatAplCount: action(function (value: number) {
+    store.newCatAplCount = value
+    storage.setNewCatAplCount(value)
+  }),
+  setNewGroupMsgCount: action(function (value: number) {
+    store.newGroupAplCount = value
+    storage.setNewGroupAplCount(value)
+  }),
   setNewMsgCount: action(function (value: number) {
     store.newMsgCount = value === 0 ? '' : value + ''
   }),
@@ -22,19 +33,19 @@ const store = observable({
   setGroupIdMessageInfoMap: action(function (value: GroupIdMessageInfoMap) {
     store.groupIdMessageInfoMap = value
   }),
-  getGroupIdGroupInfoMap() {
-    this.setGroupIdGroupInfoMap(JSON.parse(wx.getStorageSync('groupIdGroupInfoMap-' + this.user.username) || '{}'))
+  initGroupIdGroupInfoMap() {
+    this.setGroupIdGroupInfoMap(storage.getGroupIdGroupInfoMap())
   },
   getGroupIdGroupInfo(id: Groups.Id): Promise<GroupInfo> {
     return new Promise(resolve => {
-      let groupInfo = store.groupIdGroupInfoMap[id]
+      let groupInfo = this.groupIdGroupInfoMap[id]
       if (!groupInfo) {
-        chatSocket.send({ action: GET_GROUP_INFO, data: { id } }).then(() => {
+        chatSocket.send({action: GET_GROUP_INFO, data: {id}}).then(() => {
           const handler = (data: SocketResponse<GroupInfo>) => {
             chatSocket.removeSuccessHandler(GET_GROUP_INFO, handler)
-            store.groupIdGroupInfoMap[id] = data.data
-            store.setGroupIdGroupInfoMap(store.groupIdGroupInfoMap)
-            wx.setStorageSync('groupIdGroupInfoMap-' + this.user.username, JSON.stringify(store.groupIdGroupInfoMap))
+            this.groupIdGroupInfoMap[id] = data.data
+            this.setGroupIdGroupInfoMap(this.groupIdGroupInfoMap)
+            storage.setGroupIdGroupInfoMap(this.groupIdGroupInfoMap)
             resolve(data.data)
           }
           chatSocket.addSuccessHandler(GET_GROUP_INFO, handler)
@@ -47,14 +58,14 @@ const store = observable({
   setGroupIdGroupInfoMap: action(function (value: GroupIdGroupInfoMap) {
     store.groupIdGroupInfoMap = value
   }),
-  getUnameUserMap() {
-    this.setUnameUserMap(JSON.parse(wx.getStorageSync('unameUserMap-' + this.user.username) || '{}'))
+  initUnameUserMap() {
+    this.setUnameUserMap(storage.getUnameUserMap())
   },
   setUnameUserMap: action(function (value: UnameUserMap) {
     store.unameUserMap = value
   }),
-  getChats() {
-    const chats: ChatItem[] = JSON.parse(wx.getStorageSync('chats-' + this.user.username) || '[]')
+  initChats() {
+    const chats: ChatItem[] = storage.getChats()
     this.setChats(chats)
     this.setNewMsgCount(chats.reduce((pre, cur) => pre + cur.newCount, 0))
   },
@@ -69,29 +80,29 @@ const store = observable({
     store.contactMap = contactMap
   }),
   // 获取通讯录
-  getContacts() {
+  initContacts() {
     return new Promise<void>(resolve => {
-      const { username, nickname, avatar, email } = this.user
-      let contacts = wx.getStorageSync('contacts-' + username)
+      const {username, nickname, avatar, email} = this.user
+      let contacts = storage.getContacts()
       if (!contacts) {
         chatSocket.addSuccessHandler<Required<Contact>[]>(GET_CONTACTS, (r) => {
           const contacts: Contact[] = []
           const unameUserMap = this.unameUserMap
-          r.data.forEach(({ username, remark, status, avatar, nickname, email }) => {
-            contacts.push({ username, remark, status })
-            unameUserMap[username] = { avatar, nickname, email }
+          r.data.forEach(({username, remark, status, avatar, nickname, email}) => {
+            contacts.push({username, remark, status})
+            unameUserMap[username] = {avatar, nickname, email}
           })
           if (username && !contacts.find(c => c.username === username)) { // 已获取用户信息
-            contacts.push({ username, remark: nickname, status: 0 })
-            unameUserMap[username] = { avatar, nickname, email }
+            contacts.push({username, remark: nickname, status: 0})
+            unameUserMap[username] = {avatar, nickname, email}
           }
-          wx.setStorageSync('unameUserMap-' + username, JSON.stringify(unameUserMap))
-          wx.setStorageSync('contacts-' + username, JSON.stringify(contacts))
-          this.setUnameUserMap({ ...unameUserMap })
+          storage.setUnameUserMap(unameUserMap)
+          storage.setContacts(contacts)
+          this.setUnameUserMap({...unameUserMap})
           this.setContacts(contacts)
           resolve()
         }, 0)
-        chatSocket.send({ action: GET_CONTACTS })
+        chatSocket.send({action: GET_CONTACTS})
       } else {
         this.setContacts(JSON.parse(contacts))
         resolve()
@@ -101,39 +112,45 @@ const store = observable({
   setUser: action(function (value: User) {
     store.user = value
     if (store.contacts.length) { // 已获取通讯录
-      store.setContacts([...store.contacts, { avatar: value.avatar, username: value.username, nickname: value.nickname, status: 0, remark: value.nickname }])
-      wx.setStorageSync('contacts-' + userStore.user.username, JSON.stringify(store.contacts))
+      store.setContacts([...store.contacts, {avatar: value.avatar, username: value.username, nickname: value.nickname, status: 0, remark: value.nickname}])
+      storage.setContacts(store.contacts)
     }
-    wx.setStorageSync('user', JSON.stringify(value))
+    storage.setUsername(value.username)
+    storage.setUser(value)
   }),
-  getFriendApls() {
-    const friendApls: FriendApl[] = JSON.parse(wx.getStorageSync('friendApplications-' + this.user.username) || '[]')
-    chatSocket.send({ action: GET_FRIEND_APLS, data: { lastFriendAplId: friendApls.length ? friendApls[0].friendAplId : null } })
+  // 获取好友申请
+  requestFriendApls() {
+    const friendApls = storage.getFriendApls()
+    chatSocket.send({action: GET_FRIEND_APLS, data: {index: 1, size: 10} as PageQuery})
+    let count = this.newCatAplCount
     const handler = (data: SocketResponse<FriendApl[]>) => {
+      const idUpdatedMap = {} as { [k in string]: FriendApls.UpdatedAt }
+      friendApls.forEach(fa => idUpdatedMap[fa.id] = fa.updatedAt)
       data.data.forEach(friendApl => {
-        const id = friendApl.friendAplId
-        console.log(id) // todo
+        if (idUpdatedMap[friendApl.id] !== friendApl.updatedAt) ++count && friendApls.push(friendApl)
       })
+      storage.setFriendApls(friendApls)
+      this.setNewCatAplCount(count)
     }
     chatSocket.addSuccessHandler<FriendApl[]>(GET_FRIEND_APLS, handler)
   },
   setGroups: action(function (value: GetGroupsRes[]) {
     store.groups = value
   }),
+  // 获取群列表
   async getGroups() {
-    const { username } = this.user
     return new Promise(resolve => {
       if (store.groups) return resolve(store.groups)
-      const storage = wx.getStorageSync('groups-' + username)
-      if (storage) {
-        const data = JSON.parse(storage)
+      const groups = storage.getGroups()
+      if (groups) {
+        const data = JSON.parse(groups)
         store.setGroups(data)
         return resolve(data)
       }
-      chatSocket.send({ action: GET_GROUPS })
+      chatSocket.send({action: GET_GROUPS})
       const handler = (data: SocketResponse<GetGroupsRes[]>) => {
         chatSocket.removeSuccessHandler(GET_GROUPS, handler)
-        wx.setStorageSync('groups-' + username, JSON.stringify(data.data))
+        store.setGroups(data.data)
         store.setGroups(data.data)
         resolve(data.data)
       }
@@ -141,7 +158,7 @@ const store = observable({
     })
   },
   getUsers(usernames: Users.Username[]): Promise<Omit<User, 'username'>[]> {
-    const { unameUserMap, user: { username: _username } } = this
+    const {unameUserMap, user: {username: _username}} = this
     return new Promise(async (resolve, reject) => {
       const res: Omit<User, 'username'>[] = []
       const usernameIndexMap = {} as { [k in string]: number }
@@ -156,7 +173,7 @@ const store = observable({
         resolve(res)
         return
       }
-      chatSocket.send({ action: SEARCH_USERS, data: { usernames: fetchUsers } })
+      chatSocket.send({action: SEARCH_USERS, data: {usernames: fetchUsers}})
       const handler = (data: SocketResponse<User[]>) => {
         chatSocket.removeSuccessHandler(SEARCH_USERS, handler)
         if (!data.data.length) {
@@ -164,23 +181,40 @@ const store = observable({
           return console.error('无该用户信息', usernames, data)
         }
         data.data.forEach(user => {
-          const { username, nickname, avatar, email } = user
-          unameUserMap[username] = { nickname, avatar, email }
+          const {username, nickname, avatar, email} = user
+          unameUserMap[username] = {nickname, avatar, email}
           res[usernameIndexMap[username]] = unameUserMap[username]
         })
         this.setUnameUserMap(unameUserMap)
-        wx.setStorageSync('unameUserMap-' + _username, JSON.stringify(unameUserMap))
+        store.setUnameUserMap(unameUserMap)
         resolve(res)
       }
       chatSocket.addSuccessHandler(SEARCH_USERS, handler)
     })
   },
+  // 获取群申请
+  async requestGroupApls() {
+    const groupApls: GroupApl[] = storage.getGroupApls()
+    chatSocket.send({action: GET_GROUP_APLS, data: {index: 1, size: 10} as PageQuery})
+    let count = +this.newGroupAplCount
+    const handler = (data: SocketResponse<GroupApl[]>) => {
+      const idUpdatedMap = {} as { [k in string]: GroupApls.UpdatedAt }
+      groupApls.forEach(ga => idUpdatedMap[ga.id] = ga.updatedAt)
+      data.data.forEach(groupApl => {
+        if (idUpdatedMap[groupApl.id] !== groupApl.updatedAt) ++count && groupApls.push(groupApl)
+      })
+      storage.setGroupApls(groupApls)
+      this.setNewGroupMsgCount(count)
+    }
+    chatSocket.addSuccessHandler<GroupApl[]>(GET_FRIEND_APLS, handler)
+  },
   async init() {
-    this.getUnameUserMap()
-    await this.getContacts()
-    await this.getChats()
-    await this.getGroupIdGroupInfoMap()
-    await this.getFriendApls()
+    this.initUnameUserMap()
+    await this.initContacts()
+    await this.initChats()
+    await this.initGroupIdGroupInfoMap()
+    await this.requestFriendApls()
+    await this.requestGroupApls()
   },
 })
 

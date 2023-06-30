@@ -4,6 +4,7 @@ import {CustomQueryFunction, CustomSocketQueryFunction, PageParameter, SqlConfig
 import {ResponseSchema} from './response/response'
 import {ExtWebSocket} from "./socket/socket-types";
 import {log} from "./common/utils";
+import {PageQuery} from "./socket/message/common/common-types";
 
 const mysql = require('mysql')
 const pool = mysql.createPool({
@@ -17,11 +18,11 @@ const pool = mysql.createPool({
   multipleStatements: true,
   timezone: '08:00'
 })
-export const getLimitSql = function (query: PageParameter) {
-  let {pageIndex, pageSize} = query
-  if (!pageIndex) pageIndex = '1'
-  if (!pageSize) pageSize = '100'
-  return `LIMIT ${(+pageIndex - 1) * +pageSize},${pageSize}`
+export const getLimitSql = function (query: PageQuery) {
+  let {index, size} = query
+  if (!index) index = 1
+  if (!size) size = 10
+  return `LIMIT ${(index - 1) * size},${size}`
 }
 
 export const sqlMiddleware: Middleware = (context, next) => {

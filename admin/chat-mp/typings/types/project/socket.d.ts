@@ -14,12 +14,19 @@ declare enum MsgType { // 消息类型
   retract = 5, // 撤回
   dynamicSys = 6, // 动态的系统消息  '#创建了群聊/' + encodeURIComponent(from)
   chatLogs = 7, // 聊天记录
-  reply = 8, // 回复
 }
 
+interface ReplyContent { // 回复的消息格式
+  id: SgMsgs.Id
+  data: MsgContent
+}
+
+type MsgContent = string | number[] | number | ChatLog | ReplyContent
+
 declare enum MsgStatus {
-  normal = 0,
-  retract = 1
+  normal = 0, // 普通
+  retract = 1, // 撤回
+  reply = 2, // 回复
 }
 
 declare enum MsgRead {

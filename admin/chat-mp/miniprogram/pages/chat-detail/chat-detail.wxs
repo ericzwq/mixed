@@ -1,4 +1,10 @@
-  function getRecordStateText(recordState) {
-    return [0, 2].indexOf(recordState) > -1 ? '开始录制' : '停止录制'
-  }
-  module.exports.getRecordStateText = getRecordStateText
+function getRecordStateText(recordState) {
+  return [0, 2].indexOf(recordState) > -1 ? '开始录制' : '停止录制'
+}
+
+function canRetract(createdAt) {
+  return getDate(createdAt).getTime() + 120000 < getDate().getTime()
+}
+
+module.exports.getRecordStateText = getRecordStateText
+module.exports.canRetract = canRetract

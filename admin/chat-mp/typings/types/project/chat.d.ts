@@ -28,6 +28,7 @@ declare enum SysMsgContType {
   username = 2 // 用户名
 }
 
+// 动态系统消息类型
 interface SysMsgCont {
   type: SysMsgContType
   value: Users.Username
@@ -36,10 +37,10 @@ interface SysMsgCont {
 // 转发类型
 declare enum TransmitType {
   single = 1, // 单独
-  union= 2, // 合并
+  union = 2, // 合并
 }
 
- interface ChatLog {
+interface ChatLog {
   chatType: ChatType
   ids: SgMsgs.Id[]
 }
@@ -47,4 +48,14 @@ declare enum TransmitType {
 interface GetMsgsByIdsRes {
   fakeId: string
   data: SgMsg[] | GpMsg[]
+}
+
+interface ReadSgMsgsRes {
+  ids: SgMsgs.Id[]
+  to: SgMsgs.To
+}
+
+interface ReadGpMsgsRes {
+  ids: GpMsgs.Id[]
+  to: GpMsgs.To
 }

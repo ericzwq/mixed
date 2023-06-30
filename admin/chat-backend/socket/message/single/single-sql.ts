@@ -1,11 +1,12 @@
-import {executeSocketSql} from '../../../db'
-import {User, Users} from '../../../router/user/user-types'
+import {executeSocketSql, getLimitSql} from '../../../db'
+import {Users} from '../../../router/user/user-types'
 import {InsertModal, UpdateModal} from '../../../types/sql-types'
 import {ExtWebSocket, MsgRead, MsgStatus} from '../../socket-types'
 import {SendSgMsgReq, SgMsgs, SgMsgRes, GetHisSgMsgReq} from './single-types'
 import {Contacts} from '../contact/contact-types'
 import {FriendApls} from '../user/user-types'
 import Status = FriendApls.Status
+import {PageQuery} from "../common/common-types";
 
 export async function selectFriendAplByAddUser(ws: ExtWebSocket, to: Users.Username, from: Users.Username) {
   const {result} = await executeSocketSql<{ id: Contacts.Id }[]>(ws,
@@ -19,17 +20,12 @@ export function addFriendApl(ws: ExtWebSocket, contactId: Contacts.Id, reason: F
     'insert into friend_applications(contactId, reason, status) values (?, ?, 0);', [contactId, reason])
 }
 
-export function selectFriendAplsById(ws: ExtWebSocket, username: Users.Username, preId: Users.LastFriendAplId, lastFriendAplId: Users.LastFriendAplId) {
-  const join = preId == null ? '=' : '>=' // 传空则只取一条
+export function selectFriendAplsById(ws: ExtWebSocket, username: Users.Username, data: PageQuery) {
   return executeSocketSql<[]>(ws,
-    `select f.id friendAplId, contactId, c.master "from", c.sub "to", f.status, f.createdAt
-     from friend_applications f
-              left join contacts c on f.contactId = c.id
-     where f.id ${join} ? and (c.master = ? or c.sub = ?);`, [preId || lastFriendAplId, username, username])
-}
-
-export function updateLastFriendAplId(ws: ExtWebSocket, usernames: Users.Username[], id: Users.LastFriendAplId) {
-  return executeSocketSql<UpdateModal>(ws, 'update users set last_friend_apl_id = ? where username in (?);', [id, usernames])
+    `select fa.id friendAplId, contactId, c.master "from", c.sub "to", fa.status, fa.createdAt
+     from friend_applications fa
+              left join contacts c on fa.contactId = c.id
+     where (c.master = ? or c.sub = ?) ${getLimitSql(data)};`, [username, username])
 }
 
 export function resetFriendAplById(ws: ExtWebSocket, id: FriendApls.Id, reason: FriendApls.Reason) {
@@ -80,10 +76,10 @@ export function updateSgMsgNext(ws: ExtWebSocket, next: SgMsgs.Next, id: SgMsgs.
 }
 
 export function addSgMsg(ws: ExtWebSocket, from: Users.Username, to: Users.Username, data: Omit<SendSgMsgReq, 'pre' | 'to'>, pre: SgMsgs.Pre, createdAt: SgMsgs.CreatedAt) {
-  const {fakeId, content, type} = data
+  const {fakeId, content, type, status} = data
   return executeSocketSql<InsertModal>(ws,
     'insert into single_chat(fakeId, pre, `from`, `to`, content, type, createdAt, status) values(?, ?, ?, ?, ?, ?, ?, ?);',
-    [fakeId, pre, from, to, typeof content !== 'string' ? JSON.stringify(content) : content, type, createdAt, MsgStatus.normal])
+    [fakeId, pre, from, to, typeof content !== 'string' ? JSON.stringify(content) : content, type, createdAt, status])
 }
 
 export function selectSgMsgByIdAndFrom(ws: ExtWebSocket, id: SgMsgs.Id, from: SgMsgs.From) {

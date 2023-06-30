@@ -11,7 +11,8 @@ export enum MsgType { // 消息类型
 
 export enum MsgStatus {
   normal = 0,
-  retract = 1
+  retract = 1,
+  reply = 2
 }
 
 export enum MsgRead {
@@ -33,4 +34,25 @@ export enum MsgState {
 export enum SysMsgContType {
   text = 1, // 普通文本
   username = 2 // 用户名
+}
+
+export namespace GroupApls {
+  export enum Type {
+    active = 1, // 加群申请
+    passive = 2 // 邀请申请
+  }
+
+  export enum Status {
+    pending = 0,  // 待确认
+    accept = 1, // 同意
+    reject = 2 // 拒绝
+  }
+}
+
+export namespace FriendApls {
+  export enum Status {
+    pending = 0, // 待确认
+    accept = 1, // 同意
+    reject = 2 // 拒绝
+  }
 }

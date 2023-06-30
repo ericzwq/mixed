@@ -12,7 +12,7 @@ declare namespace Groups {
 
 declare namespace GpMsgs {
   type Id = number
-  type Content = string | number[] | number | ChatLog
+  type Content = MsgContent
   type From = Users.Username
   type To = Groups.Id
   type FakeId = string // 前端消息id
@@ -85,6 +85,7 @@ interface GpMsg extends Partial<GpMsgRes> {
   type: MsgType
   state?: MsgState
   isPlay?: boolean
+  read?: MsgRead // 本用户是否已读
 }
 
 
@@ -101,13 +102,15 @@ interface GpMsg extends Partial<GpMsgRes> {
 // }
 
 declare namespace GroupApls {
-  type Id = Groups.Id
-  type  Reason = string
-  type Pre = Id
-  type Next = Id
+  type Id = number
+  type GroupId = Groups.Id
+  type Reason = string
+  type Pre = GroupId
+  type Next = GroupId
   type Invitee = Users.Username
   type From = Users.Username
   type CreatedAt = string
+  type UpdatedAt = string
 
   enum Type {
     active = 1, // 加群申请
@@ -121,18 +124,30 @@ declare namespace GroupApls {
   }
 }
 
+interface GroupApl {
+  id: GroupApls.Id
+  groupId: GroupApls.GroupId
+  from: Users.Username
+  reason: GroupApls.Reason
+  nickname: Groups.Name
+  avatar: Groups.Avatar
+  type: GroupApls.Type
+  status: GroupApls.Status
+  updatedAt: GroupApls.UpdatedAt
+}
+
 interface AddGroupReq {
   id: Groups.Id
   reason: GroupApls.Reason
 }
 
 interface GroupInviteRetReq {
-  id: GroupApls.Id
+  id: GroupApls.GroupId
   status: GroupApls.Status
 }
 
 interface GroupInviteRetRes {
-  id: GroupApls.Id
+  id: GroupApls.GroupId
   status: GroupApls.Status
   createdAt: GroupApls.CreatedAt
 }
@@ -154,7 +169,7 @@ interface GroupInviteReq {
 }
 
 interface GetGroupAplsReq {
-  lastGroupAplId?: GroupApls.Id
+  lastGroupAplId?: GroupApls.GroupId
 }
 
 interface ReadGpMsgsReq {

@@ -14,8 +14,12 @@ interface IAppOption {
   setToSaveFakeIds: (to: Users.Username | Groups.Id, fakeIds: SgMsgs.FakeId[], isSingle: boolean) => void
   addRecSgMsgsListener: () => void
   addRecGpMsgsListener: () => void
-  recMsgSuccessHandler: <T extends SgMsg | GpMsg>(data: SocketResponse<T[]>, isSingle: boolean) => void
+  recMsgSuccessHandler: <T extends SgMsgRes | GpMsgRes>(data: SocketResponse<T[]>, isSingle: boolean) => void
   getMessageInfo: (to: Users.Username | Groups.Id, chatType: ChatType) => MessageInfo<SgMsg | GpMsg>
+  addReadMsgsListener: () => void
+  addRecReadMsgsListener: () => void
+  readMsgsHandler: (data: SocketResponse, isSingle: boolean) => void
+  recReadMsgsHandler: (data: SocketResponse, isSingle: boolean) => void
   // userInfoReadyCallback?: WechatMiniprogram.GetUserInfoSuccessCallback,
 }
 

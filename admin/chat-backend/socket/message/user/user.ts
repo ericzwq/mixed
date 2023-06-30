@@ -1,5 +1,5 @@
-import {checkMessageParams, createFakeId, formatDate, notifyUpdateUser, updateUser} from '../../../common/utils'
-import {User, Users} from '../../../router/user/user-types'
+import {checkMessageParams, createFakeId, formatDate, updateUser} from '../../../common/utils'
+import {User} from '../../../router/user/user-types'
 import {AddUserReq, AddUserRetReq, FriendApls, SearchUsersReq} from './user-types'
 import {getUserByUsername} from './user-sql'
 import {addUserRetSchema, addUserSchema, getFriendAplsSchema, searchUserSchema} from './user-schema'
@@ -16,10 +16,10 @@ import {
   resetFriendAplById,
   selectFriendAplByAddUser,
   selectFriendAplsById,
-  updateFriendAplStatus,
-  updateLastFriendAplId
+  updateFriendAplStatus
 } from '../single/single-sql'
 import {addContactByMasterAndSub, resetContactById, selectContactBySub, updateContactStatus} from "../contact/contact-sql";
+import {PageQuery} from "../common/common-types";
 
 
 export async function searchUsers(ws: ExtWebSocket, user: User, data: RequestMessage<SearchUsersReq>) {
@@ -32,9 +32,9 @@ export async function searchUsers(ws: ExtWebSocket, user: User, data: RequestMes
 }
 
 // 获取好友申请记录
-export async function getFriendApls(ws: ExtWebSocket, user: User, data: RequestMessage<{ lastFriendAplId: Users.LastFriendAplId }>) {
+export async function getFriendApls(ws: ExtWebSocket, user: User, data: RequestMessage<PageQuery>) {
   await checkMessageParams(ws, getFriendAplsSchema, data.data, 1019)
-  const {result} = await selectFriendAplsById(ws, user.username, data.data.lastFriendAplId, user.lastFriendAplId)
+  const {result} = await selectFriendAplsById(ws, user.username, data.data)
   ws.json({action: data.action, message: '查询成功', data: result.reverse()})
 }
 
@@ -61,10 +61,6 @@ export async function addUser(ws: ExtWebSocket, user: User, data: RequestMessage
   if (!result.length) {
     const {result: {insertId}} = await addFriendApl(ws, contactId, reason)
     friendAplId = insertId
-    await updateLastFriendAplId(ws, [from, to], friendAplId)
-    user.lastFriendAplId = friendAplId
-    await client.set((await client.get(from))!, JSON.stringify(user))
-    await updateUser(to, 'lastFriendAplId', friendAplId)
   } else {
     friendAplId = result[0].id
     const status = result[0].status
@@ -74,9 +70,9 @@ export async function addUser(ws: ExtWebSocket, user: User, data: RequestMessage
   }
   const status = FriendApls.Status.pending
   let {nickname, avatar} = user
-  usernameClientMap[to]?.json({action: REC_ADD_USER, data: {friendAplId, contactId, from, reason, nickname, avatar, status}});
+  usernameClientMap[to]?.json({action: REC_ADD_USER, data: {id: friendAplId, contactId, from, reason, nickname, avatar, status}});
   ({nickname, avatar} = users[0])
-  ws.json({action: data.action, message: '申请成功', data: {friendAplId, contactId, from, nickname, avatar, reason, status}})
+  ws.json({action: data.action, message: '申请成功', data: {id: friendAplId, contactId, from, nickname, avatar, reason, status}})
 }
 
 export async function addUserRet(ws: ExtWebSocket, user: User, data: RequestMessage<AddUserRetReq>) {
@@ -97,7 +93,8 @@ export async function addUserRet(ws: ExtWebSocket, user: User, data: RequestMess
     content: '你们已成为好友，可以一起尬聊了',
     type: MsgType.system,
     fakeId: createFakeId(from, to),
-    to
+    to,
+    status: MsgStatus.normal
   }
   const {result: {insertId}} = await addSgMsg(ws, from, to, message, null, formatDate())
   const res: SgMsgRes = {
@@ -105,7 +102,6 @@ export async function addUserRet(ws: ExtWebSocket, user: User, data: RequestMess
     from,
     id: insertId,
     next: null,
-    status: MsgStatus.normal,
     read: MsgRead.no
   }
   ws.json({action: data.action, data: {friendAplId, from, status, updatedAt}})

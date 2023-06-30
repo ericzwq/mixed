@@ -3,14 +3,15 @@ import {userStore} from '../../store/user'
 import {BASE_URL, LOAD_MESSAGE_COUNT, primaryColor, SAVE_MESSAGE_LENGTH} from '../../consts/consts'
 import {chatSocket} from '../../socket/socket'
 import {formatDate, formatDetailDate} from '../../common/utils'
-import {REC_GP_MSGS, REC_SG_MSGS, SEND_GP_MSG, SEND_SG_MSG} from '../../socket/socket-actions'
+import {READ_GP_MSGS, READ_SG_MSGS, REC_GP_MSGS, REC_SG_MSGS, SEND_GP_MSG, SEND_SG_MSG} from '../../socket/socket-actions'
 import {ChooseFriendPath, GroupInfoPath, SingleInfoPath, UserDetailPath} from '../../consts/routes'
-import {ChatType, MsgState, MsgType} from '../../socket/socket-types'
+import {ChatType, MsgState, MsgStatus, MsgType} from '../../socket/socket-types'
 // @ts-ignore
 import Dialog from "@vant/weapp/dialog/dialog";
 import {ChooseMode} from "../choose-friend/choose-friend-types";
 import {stagingStore} from "../../store/staging";
 import {TransmitType} from "./chat-detail-types";
+import storage from "../../common/storage";
 
 const app = getApp<IAppOption>()
 Page({
@@ -60,6 +61,8 @@ Page({
       {name: '逐条转发', type: TransmitType.single},
       {name: '合并转发', type: TransmitType.union}
     ],
+    replyTarget: null as SgMsg | GpMsg | null, // 回复的对象
+    maxReadCount: 1,
   },
   storeBindings: {} as StoreBindings,
   containerTap(e: WechatMiniprogram.CustomEvent) {
@@ -79,7 +82,7 @@ Page({
       store: userStore,
       fields: ['user', 'unameUserMap'],
     })
-    let target: Contact | GroupInfo, title: string, plus = ''
+    let target: Contact | GroupInfo, title: string, plus = '', maxReadCount = 1
     new Promise<void>(resolve => {
       if (type === ChatType.single) {
         target = {...userStore.contactMap[to], ...userStore.unameUserMap[to], username: to}
@@ -90,17 +93,19 @@ Page({
         userStore.getGroupIdGroupInfo(+to).then(groupInfo => {
           target = groupInfo
           title = groupInfo.name
-          plus = '（' + groupInfo.count + '）'
+          maxReadCount = groupInfo.count
+          plus = '（' + maxReadCount + '）'
           resolve()
         })
       }
     }).then(() => {
-      this.setData({target, chatType: type, title: title + plus})
+      this.setData({target, chatType: type, title: title + plus, maxReadCount})
       this.clearChat()
       wx.setNavigationBarTitle({title})
       const messageInfo = app.getMessageInfo(to, type)
       messageInfo.showedMsgsMinIndex = messageInfo.messages.length
       this.loadMsgs()
+      this.readMsgs(messageInfo)
     })
   },
   onReady() {
@@ -140,6 +145,21 @@ Page({
     chatSocket.removeErrorHandler(REC_SG_MSGS, this.sgMsgErrorHandler)
     const messageInfo = app.getMessageInfo(this.getTo(), this.data.chatType)
     messageInfo.showedMsgsMinIndex = messageInfo.messages.length
+  },
+  handleTimeoutMsgs() {
+
+  },
+  readMsgs(messageInfo: MessageInfo<SgMsg | GpMsg>) {
+    const ids: SgMsgs.Id[] = []
+    const to = this.getTo()
+    const {chatType} = this.data
+    const isSingle = chatType === ChatType.single
+    messageInfo.messages.forEach(msg => {
+      if ((isSingle && msg.read === MsgRead.no) || (!isSingle && !msg.read)) {
+        ids.push(msg.id!)
+      }
+    })
+    chatSocket.send({action: isSingle ? READ_SG_MSGS : READ_GP_MSGS, data: {ids, to}})
   },
   onPullDownRefresh() {
     this.loadMsgs()
@@ -397,6 +417,9 @@ Page({
   getValidMsgFromStorage<T extends SgMsg | GpMsg>(messageInfo: MessageInfo<T>, count: number, prefixKey: string) {
     const msgs = []
     let validMsgCount = 0
+    const {chatType} = this.data
+    const untreatedRetractMsgInfoSet = storage.getUntreatedRetractMsgInfoSet()
+    const untreatedReadMsgInfoSet = storage.getUntreatedReadMsgInfoSet()
     while (validMsgCount < count && messageInfo.loadedMsgsMinIndex > 0) {
       const lastMessages: T[] = JSON.parse(wx.getStorageSync(prefixKey + (--messageInfo.loadedMsgsMinIndex)))
       messageInfo.messages = lastMessages.concat(messageInfo.messages)
@@ -404,8 +427,17 @@ Page({
       for (; i > -1 && validMsgCount < count; i--) {
         msgs.push(lastMessages[i])
         lastMessages[i].state !== MsgState.delete && validMsgCount++
+        const key = lastMessages[i].id + '-' + chatType
+        if (untreatedRetractMsgInfoSet.delete(key)) { // 处理撤回的消息
+          lastMessages[i].status = MsgStatus.retract
+        }
+        if (untreatedReadMsgInfoSet.delete(key)) { // 处理已读的消息
+          chatType === ChatType.single ? lastMessages[i].read = MsgRead.yes : (lastMessages as GpMsg[])[i].readCount!++
+        }
       }
     }
+    storage.setUntreatedRetractMsgInfoSet(untreatedRetractMsgInfoSet)
+    storage.setUntreatedReadMsgInfoSet(untreatedReadMsgInfoSet)
     this.resetMessagesMap(messageInfo)
     console.log('从缓存中获取', {messages: [...msgs].reverse(), validMsgCount})
     return msgs.reverse()
@@ -556,30 +588,34 @@ Page({
     }
     this.setData({recordState: this.data.recordState})
   },
-  async send() {
-    // console.log(this.data.recordState, this.data.inputState)
+  send() {
     const type = this.data.recordState === 2 && this.data.inputState === 1 ? MsgType.audio : MsgType.text // 语音或文字
-    const {target, chatType, title} = this.data
+    const status = this.data.replyTarget ? MsgStatus.reply : MsgStatus.normal
+    let content: string | number[]
+    if (type === MsgType.audio) {
+      const fsm = wx.getFileSystemManager()
+      const arrayBuffer = fsm.readFileSync(this.data._recordFilePath) as ArrayBuffer
+      content = Array.prototype.slice.call(new Uint8Array(arrayBuffer))
+    } else {
+      content = this.data.content
+    }
+    this.handleSend(type, status, content)
+  },
+  async handleSend(type: MsgType, status: MsgStatus, content: MsgContent) {
+    const {target, chatType, title, replyTarget} = this.data
     const isSingle = chatType === ChatType.single
     const to = this.getTo()
     const username = userStore.user.username
     const fakeId = username + '-' + to + '-' + Date.now().toString(36)
-    let data: string | number[]
-    if (type === MsgType.audio) {
-      const fsm = wx.getFileSystemManager()
-      const arrayBuffer = fsm.readFileSync(this.data._recordFilePath) as ArrayBuffer
-      data = Array.prototype.slice.call(new Uint8Array(arrayBuffer))
-    } else {
-      data = this.data.content
-    }
+    const saveData = type === MsgType.audio ? '' : content // 音频不保存在本地
     const message = {
       from: username,
-      content: type === MsgType.audio ? '' : data, // 音频不保存在本地
+      content: replyTarget ? {id: replyTarget.id, data: saveData} as ReplyContent : saveData,
       type,
       fakeId,
       state: MsgState.loading,
       createdAt: formatDate(),
-      status: 0
+      status
     }
     const messageInfo = app.getMessageInfo(to, this.data.chatType)
     const {messages} = messageInfo
@@ -591,9 +627,10 @@ Page({
     chatSocket.send({
       data: {
         to,
-        content: data,
+        content: replyTarget ? {id: replyTarget.id, data: content} as ReplyContent : content,
         fakeId,
         type,
+        status: message.status,
         ext: type === MsgType.audio ? '.aac' : '',
         lastId: validIndex > -1 ? messages[validIndex].id! : null
       },
@@ -719,10 +756,19 @@ Page({
     }
     console.log({selecteds})
   },
-  reply() {
-    wx.showToast({title: '敬请期待！'})
+  retract() {
+    Dialog.confirm({message: '确定撤回该消息吗？'}).then(() => {
+      this.handleSend(MsgType.system, MsgStatus.retract, this.data.viewMessages[this.data.activeIndex].id!)
+    })
     this.setData({activeIndex: -1})
     this.data.floatMenu.close()
+  },
+  reply() {
+    this.setData({replyTarget: this.data.viewMessages[this.data.activeIndex], activeIndex: -1})
+    this.data.floatMenu.close()
+  },
+  cancelReply() {
+    this.setData({replyTarget: null})
   },
   delete() {
     const {viewMessages, activeIndex, chatType, showSelects, selecteds} = this.data

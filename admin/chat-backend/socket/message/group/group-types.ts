@@ -1,7 +1,5 @@
 import {Users} from '../../../router/user/user-types'
-import {MsgStatus, MsgType, SysMsgCont} from '../../socket-types'
-import {SgMsgRes, SgMsgs} from '../single/single-types'
-import {ChatLog} from '../common/common-types'
+import {MsgContent, MsgStatus, MsgType} from '../../socket-types'
 
 export namespace Groups {
   export type Id = number
@@ -17,7 +15,6 @@ export namespace Groups {
 
 export namespace GpMsgs {
   export type Id = number
-  export type Content = string | number[] | number | SysMsgCont[] | ChatLog[]
   export type From = Users.Username
   export type To = Groups.Id
   export type FakeId = string // 前端消息id
@@ -41,11 +38,12 @@ export enum GpMemberOrigin {
 
 export interface SendGpMsgReq {
   type: MsgType
-  content: GpMsgs.Content
+  content: MsgContent
   fakeId: GpMsgs.FakeId
   ext?: GpMsgs.Ext
   lastId?: GpMsgs.Id
   to: GpMsgs.To
+  status: MsgStatus
   pre: GpMsgs.Pre // 额外的
 }
 
@@ -62,7 +60,7 @@ export interface GpMsgRes {
   from: GpMsgs.From
   to: GpMsgs.To
   createdAt: GpMsgs.CreatedAt
-  content: GpMsgs.Content
+  content: MsgContent
   status: MsgStatus
   next: GpMsgs.Next
   pre: GpMsgs.Pre
@@ -140,10 +138,6 @@ export interface GroupInviteReq {
   to: Groups.Id
 }
 
-export interface GetGroupAplsReq {
-  lastGroupAplId?: GroupApls.Id
-}
-
 export interface ReadGpMsgsReq {
   ids: GpMsgs.Id[]
   to: GpMsgs.To
@@ -151,8 +145,8 @@ export interface ReadGpMsgsReq {
 
 export interface GetHisGpMsgReq {
   count: number | null
-  maxId: SgMsgs.Id
-  minId: SgMsgs.Id | null
+  maxId: GpMsgs.Id
+  minId: GpMsgs.Id | null
 }
 
 export interface GetGpMsgByIdsReq {

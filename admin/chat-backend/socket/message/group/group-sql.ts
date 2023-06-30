@@ -1,4 +1,4 @@
-import {executeSocketSql} from '../../../db'
+import {executeSocketSql, getLimitSql} from '../../../db'
 import {ExtWebSocket, MsgStatus} from '../../socket-types'
 import {Users} from '../../../router/user/user-types'
 import {CreateGroupReq, GetGroupsRes, GetHisGpMsgReq, GpMemberOrigin, GpMembers, SendGpMsgReq, GpMsgRes, GpMsgs, Group, GroupApls, Groups} from './group-types'
@@ -6,6 +6,7 @@ import {InsertModal, UpdateModal} from '../../../types/sql-types'
 import c = require('koa-session/lib/context')
 import {GetHisSgMsgReq, SgMsgs} from '../single/single-types'
 import exp = require('constants')
+import {PageQuery} from "../common/common-types";
 
 export function addGroup(ws: ExtWebSocket, from: Users.Username, data: CreateGroupReq, createdAt: Groups.CreatedAt) {
   const {name, avatar} = data
@@ -88,10 +89,12 @@ export function resetGroupApl(ws: ExtWebSocket, groupId: GroupApls.Id, from: Use
   return executeSocketSql<UpdateModal>(ws, 'update group_applications set reason = ? where `from` = ? and groupId = ?;', [reason, from, groupId])
 }
 
-export function selectGroupAplsById(ws: ExtWebSocket, from: Users.Username, preId: GroupApls.Id | undefined, lastGroupAplId: GroupApls.Id) {
-  const join = preId == null ? '=' : '>='
-  return executeSocketSql(ws, 'select * from group_applications where (`from` = ? and type = ?) or invitee = ? and id ' + join + ' ?;',
-    [from, GroupApls.Type.active, from, preId || lastGroupAplId])
+export function selectGroupAplsById(ws: ExtWebSocket, from: Users.Username, data: PageQuery) {
+  return executeSocketSql(ws, `select *
+                               from group_applications
+                               where (\`from\` = ? and type = ?)
+                                  or invitee = ? ${getLimitSql(data)};`,
+    [from, GroupApls.Type.active, from])
 }
 
 export function selectGpMsgReadsById(ws: ExtWebSocket, id: GpMsgs.Id, to: GpMsgs.To) {

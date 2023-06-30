@@ -1,16 +1,16 @@
 import {Context} from 'koa'
 import {AnySchema} from 'joi'
 import {ResponseSchema} from '../response/response'
-import {ExtWebSocket} from '../socket/socket-types'
+import {ExtWebSocket, MsgContent, MsgStatus} from '../socket/socket-types'
 import {usernameClientMap} from '../socket/message/single/single'
 import {User, Users} from '../router/user/user-types'
-import {SendSgMsgReq, SgMsgs} from '../socket/message/single/single-types'
-import fs = require('fs')
-import path = require('path')
+import {ReplyContent, SendSgMsgReq, SgMsgs} from '../socket/message/single/single-types'
 import client from '../redis/redis'
 import {ChatLog, ChatType} from '../socket/message/common/common-types'
 import {selectSgMsgById} from '../socket/message/single/single-sql'
 import {selectGpMsgById} from '../socket/message/group/group-sql'
+import fs = require('fs');
+import path = require('path');
 
 export const setExcelType = function (res: any) {
   // res.setHeader('Content-Type', 'application/vnd.ms-excel') // application/vnd.openxmlformats
@@ -67,14 +67,16 @@ export function createFakeId(from: Users.Username, to: Users.Username | number) 
 }
 
 // 处理音频
-export function handleAudio(message: Pick<SendSgMsgReq, 'content' | 'ext'>, createdAt: SgMsgs.CreatedAt) {
-  const uint8Array = new Uint8Array(message.content as [])
+export function handleAudio(message: Pick<SendSgMsgReq, 'content' | 'ext' | 'status'>, createdAt: SgMsgs.CreatedAt) {
+  const content: MsgContent = message.status === MsgStatus.reply ? (message.content as unknown as ReplyContent).data : message.content
+  const uint8Array = new Uint8Array(content as [])
   const urlDir = '/staging/' + createdAt.slice(0, -9) + '/'
   const dir = path.resolve(__dirname, '../public' + urlDir)
   if (!fs.existsSync(dir)) fs.mkdirSync(dir)
   const filename = Date.now() + '' + Math.random() + (message.ext || '.webm')
   fs.writeFileSync(path.resolve(dir, filename), uint8Array)
-  message.content = urlDir + filename // 文件内容保存为地址
+  if (message.status === MsgStatus.reply) (message.content as ReplyContent).data = urlDir + filename // 文件内容保存为地址
+  else message.content = urlDir + filename
 }
 
 export async function updateUser(username: Users.Username, key: keyof User, value: User[typeof key]) {
@@ -89,7 +91,6 @@ export async function updateUser(username: Users.Username, key: keyof User, valu
 
 // 校验聊天记录里消息的真假
 export async function checkChatLog(ws: ExtWebSocket, data: ChatLog) {
-  console.log(data)
   const {chatType, ids} = data
   const fn = chatType === ChatType.single ? selectSgMsgById : selectGpMsgById
   for (const id of ids) {

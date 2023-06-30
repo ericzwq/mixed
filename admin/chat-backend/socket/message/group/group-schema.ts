@@ -2,13 +2,16 @@ import * as Joi from "joi";
 import {userSchemas} from "../../../router/user/user-schema";
 import {GroupApls} from "./group-types";
 import Status = GroupApls.Status;
+import {sendSgMsgSchema, sgMsgSchemas} from "../single/single-schema";
+import {indexSchema, sizeSchema} from "../common/common-schems";
 
 export const groupSchemas = {
   id: Joi.number().required(),
   friendAplId: Joi.number().required(),
   reason: Joi.string().max(50).required(),
   name: Joi.string().max(20).required(),
-  avatar: Joi.string().max(100).allow('')
+  avatar: Joi.string().max(100).allow(''),
+  status: Joi.valid(0, 1, 2).required()
 }
 
 const gpMsgSchemas = {
@@ -17,6 +20,7 @@ const gpMsgSchemas = {
   fakeId: Joi.string().required(), // 前端消息id
   type: Joi.valid(1, 2, 3, 4, 5, 6, 7),
   ext: Joi.string().allow(null, ''),
+  status: groupSchemas.status
 }
 
 export const sendGpMsgSchema = Joi.object({
@@ -61,8 +65,9 @@ export const groupInviteRetSchema = Joi.object({
 }).unknown().required()
 
 export const getGroupAplsSchema = Joi.object({
-  lastGroupAplId: userSchemas.lastGroupAplId
-}).unknown().required()
+  index: indexSchema,
+  size: sizeSchema
+}).unknown()
 
 export const readGpMsgsSchema = Joi.object({
   ids: Joi.array().required().min(1).max(100),
@@ -86,4 +91,9 @@ export const getGroupMembersSchema = Joi.object({
 export const getGpMsgByIdsSchema = Joi.object({
   fakeId: Joi.string().required(),
   data: Joi.array().required()
+}).unknown().required()
+
+export const replyGpContSchema = Joi.object({
+  id: gpMsgSchemas.id,
+  data: gpMsgSchemas.content
 }).unknown().required()

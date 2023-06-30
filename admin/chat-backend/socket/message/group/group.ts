@@ -4,15 +4,17 @@ import {ExtWebSocket, MsgStatus, MsgType, RequestMessage, SysMsgCont, SysMsgCont
 import {
   addGroupRetSchema,
   addGroupSchema,
-  createGroupSchema, getGpMsgByIdsSchema,
+  createGroupSchema,
+  getGpMsgByIdsSchema,
   getGroupAplsSchema,
   getGroupInfoSchema,
   getGroupMembersSchema,
   getHisGpMsgsSchema,
   groupInviteRetSchema,
   groupInviteSchema,
-  readGpMsgsSchema,
-  sendGpMsgSchema, transmitGpMsgsSchema
+  readGpMsgsSchema, replyGpContSchema,
+  sendGpMsgSchema,
+  transmitGpMsgsSchema
 } from './group-schema'
 import {
   addGpMsg,
@@ -20,13 +22,15 @@ import {
   addGroupApl,
   addGroupMember,
   resetGroupApl,
-  selectGpMsgByFakeId, selectGpMsgById,
+  selectGpMsgByFakeId,
+  selectGpMsgById,
   selectGpMsgByIdAndFrom,
   selectGpMsgReadsById,
   selectGroupAplByAddGroup,
   selectGroupAplByInvite,
   selectGroupAplsById,
-  selectGroupById, selectGroupInfo,
+  selectGroupById,
+  selectGroupInfo,
   selectHisGpMsgs,
   selectLastGpMsg,
   selectNewGpMsgs,
@@ -41,10 +45,10 @@ import {
   AddGroupReq,
   AddGroupRetReq,
   CreateGroupReq,
-  GetGroupAplsReq, GetGroupsRes,
+  GetGpMsgByIdsReq,
+  GetGroupsRes,
   GetHisGpMsgReq,
   GpMemberOrigin,
-  SendGpMsgReq,
   GpMsgRes,
   GpMsgs,
   Group,
@@ -53,14 +57,17 @@ import {
   GroupInviteRetReq,
   GroupInviteRetRes,
   Groups,
-  ReadGpMsgsReq, TransmitGpMsgsReq, GetGpMsgByIdsReq
+  ReadGpMsgsReq,
+  SendGpMsgReq,
+  TransmitGpMsgsReq
 } from './group-types'
 import client from '../../../redis/redis'
 import {usernameClientMap} from '../single/single'
 import {REC_ADD_GROUP, REC_GP_MSGS, REC_GROUP_INVITE, REC_GROUP_INVITE_RET, REC_READ_GP_MSGS} from '../../socket-actions'
 import {beginSocketSql, commitSocketSql} from '../../../db'
 import {addUserGroups, selectUserGroups} from '../user/user-sql'
-import {ChatLog} from '../common/common-types'
+import {ChatLog, PageQuery} from '../common/common-types'
+import {ReplyContent} from "../single/single-types";
 
 // 创建群聊
 export async function createGroup(ws: ExtWebSocket, user: User, data: RequestMessage<CreateGroupReq>) {
@@ -179,9 +186,9 @@ export async function groupInviteRet(ws: ExtWebSocket, user: User, data: Request
 }
 
 // 获取群申请列表
-export async function getGroupApls(ws: ExtWebSocket, user: User, data: RequestMessage<GetGroupAplsReq>) {
+export async function getGroupApls(ws: ExtWebSocket, user: User, data: RequestMessage<PageQuery>) {
   await checkMessageParams(ws, getGroupAplsSchema, data.data, 1012)
-  const {result} = await selectGroupAplsById(ws, user.username, data.data.lastGroupAplId, user.lastGroupAplId)
+  const {result} = await selectGroupAplsById(ws, user.username, data.data)
   ws.json({action: data.action, data: result.reverse(), message: '查询成功'})
 }
 
@@ -203,7 +210,7 @@ export async function readGpMsgs(ws: ExtWebSocket, user: User, data: RequestMess
     await updateGpMsgReads(ws, id, to, reads.join(','))
     readIds.push(id)
   }
-  broadGpMsg(group, JSON.stringify({action: REC_READ_GP_MSGS, data: {ids: readIds, from, to}}))
+  broadGpMsg(group, JSON.stringify({action: REC_READ_GP_MSGS, data: {ids: readIds, to}}))
 }
 
 async function getGroupById(ws: ExtWebSocket, id: Groups.Id): Promise<Group> {
@@ -273,7 +280,7 @@ export async function joinGroupRet(ws: ExtWebSocket, user: User, data: RequestMe
 export async function sendGpMsg(ws: ExtWebSocket, user: User, data: RequestMessage<SendGpMsgReq>) {
   const {action, data: body} = data
   await checkMessageParams(ws, sendGpMsgSchema, body, 1007)
-  const {to, type, fakeId} = body
+  const {to, type, fakeId, status} = body
   const group = await getGroupById(ws, to)
   const from = user.username
   if (!isUserInGroup(from, group)) return ws.json({action, status: 1006, message: '您不在群内'})
@@ -283,6 +290,7 @@ export async function sendGpMsg(ws: ExtWebSocket, user: User, data: RequestMessa
   if (!result2.length) return ws.json({action, status: 1009, message: 'lastId错误'})
   await beginSocketSql(ws)
   const createdAt = formatDate()
+  if (status === MsgStatus.reply) await handleReply(ws, body)
   if (type === MsgType.audio) handleAudio(body, createdAt) // 音频
   else if (type === MsgType.retract) await handleRetract(ws, body, from)
   else if (type === MsgType.chatLogs) await checkChatLog(ws, body.content as unknown as ChatLog)
@@ -414,6 +422,18 @@ async function handleRetract(ws: ExtWebSocket, message: SendGpMsgReq, from: GpMs
   if (await handler() !== true) return Promise.reject('撤回群消息异常')
 }
 
+// 处理回复
+async function handleReply(ws: ExtWebSocket, message: SendGpMsgReq) {
+  const handler = async () => {
+    await checkMessageParams(ws, replyGpContSchema, message.content, 1012)
+    const {id} = message.content as unknown as ReplyContent
+    const {result: targetMsgs} = await selectGpMsgById(ws, id, true)
+    if (!targetMsgs.length) return ws.json({message: '消息' + id + '不存在', status: 1013})
+    return true
+  }
+  if (await handler() !== true) return Promise.reject('回复消息异常')
+}
+
 // 广播群消息
 function broadGpMsg(group: Group, data: string, self?: Users.Username) {
   const usernames = [group.leader, ...Array.from(group.managers), ...Array.from(group.members)]
@@ -427,6 +447,6 @@ async function broadGroupInvite(ws: ExtWebSocket, members: Users.Username[], gro
     if (!username || !(await selectUserByUsername(ws, username)).result.length) continue
     const {result: {insertId: groupAplId}} = await addGroupApl(ws, groupId, from, username, null)
     usernameClientMap[username]?.json({action: REC_GROUP_INVITE, data: {id: groupAplId, groupId, from, status: GroupApls.Status.pending, createdAt}})
-    await updateUser(username, 'lastGroupAplId', groupAplId)
+    // await updateUser(username, 'lastGroupAplId', groupAplId)
   }
 }

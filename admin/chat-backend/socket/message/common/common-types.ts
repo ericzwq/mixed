@@ -9,3 +9,8 @@ export interface ChatLog {
   chatType: ChatType
   ids: SgMsgs.Id[]
 }
+
+export interface PageQuery {
+  index?: number
+  size?: number
+}

@@ -8,8 +8,6 @@ export namespace Users {
   export type Avatar = string
   export type Email = string
   export type Code = string
-  export type LastFriendAplId = number
-  export type LastGroupAplId = number
 }
 
 // session储存信息
@@ -23,8 +21,6 @@ export interface User extends Session {
   email: Users.Email
   emailCode?: Users.Code
   emailCodeTime?: number
-  lastFriendAplId: number
-  lastGroupAplId: number
 }
 
 export interface RegisterBody {

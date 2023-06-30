@@ -1,19 +1,18 @@
 import {createStoreBindings} from 'mobx-miniprogram-bindings'
 import {BASE_URL} from '../../consts/consts'
-import {FriendSettingPath} from '../../consts/routes'
 import {chatSocket} from '../../socket/socket'
-import {ADD_USER_RET, REC_ADD_USER} from '../../socket/socket-actions'
+import {ADD_USER_RET, GROUP_INVITE_RET, REC_ADD_USER} from '../../socket/socket-actions'
 import {userStore} from '../../store/user'
 import storage from "../../common/storage";
+import {GroupApls} from "../../socket/socket-types";
 
 Page({
-
   /**
    * 页面的初始数据
    */
   data: {
     BASE_URL,
-    friendApls: [] as FriendApl[]
+    groupApls: [] as GroupApl[]
   },
 
   receAddUserHandler: null as any,
@@ -24,26 +23,24 @@ Page({
       fields: ['user']
     })
     this.receAddUserHandler = () => {
-      userStore.setNewCatAplCount(0)
-      this.setData({friendApls: storage.getFriendApls()})
+      userStore.setNewGroupMsgCount(0)
+      this.setData({groupApls: storage.getGroupApls()})
     }
     this.receAddUserHandler()
     chatSocket.addSuccessHandler(REC_ADD_USER, this.receAddUserHandler)
     userStore.setNewCatAplCount(0)
   },
   accept(e: WechatMiniprogram.CustomEvent) {
-    const friendApl = this.data.friendApls[e.currentTarget.dataset.i]
-    wx.navigateTo({url: FriendSettingPath + '?data=' + encodeURIComponent(JSON.stringify(friendApl))})
+    const groupApl = this.data.groupApls[e.currentTarget.dataset.i]
+    chatSocket.send({action: groupApl.type === GroupApls.Type.active ? ADD_USER_RET : GROUP_INVITE_RET, data: {id: groupApl.id, status: GroupApls.Status.accept}})
   },
   reject(e: WechatMiniprogram.CustomEvent) {
-    const friendApl = this.data.friendApls[e.currentTarget.dataset.i]
+    const groupApl = this.data.groupApls[e.currentTarget.dataset.i]
     const data = {
-      id: friendApl.id,
-      contactId: friendApl.contactId,
-      to: friendApl.from,
-      status: 2
+      id: groupApl.id,
+      status: GroupApls.Status.reject
     }
-    chatSocket.send({action: ADD_USER_RET, data})
+    chatSocket.send({action: groupApl.type === GroupApls.Type.active ? ADD_USER_RET : GROUP_INVITE_RET, data})
   },
   onReady() {
 

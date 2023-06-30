@@ -18,8 +18,6 @@ create table users
     nickname           varchar(20)             not null,
     email              varchar(20)             not null,
     `groups`           varchar(16000),
-    last_friend_apl_id bigint comment '与用户有关的最后一条好友申请表id',
-    last_group_apl_id  bigint comment '与用户有关的最后一条群聊申请表id',
     createdAt          timestamp               not null default current_timestamp comment '创建时间',
     updatedAt          timestamp               not null default current_timestamp on update current_timestamp comment '修改时间'
 );

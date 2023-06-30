@@ -1,11 +1,9 @@
 import {Users} from '../../../router/user/user-types'
-import {MsgRead, MsgStatus, MsgType, SysMsgCont} from '../../socket-types'
-import {GpMsgRes} from '../group/group-types'
-import {ChatLog} from '../common/common-types'
+import {MsgContent, MsgRead, MsgStatus, MsgType, SysMsgCont} from '../../socket-types'
+import {ChatLog, ChatType} from '../common/common-types'
 
 export namespace SgMsgs {
   export type Id = number
-  export type Content = string | number[] | number | SysMsgCont[] | ChatLog[]
   export type From = Users.Username
   export type To = Users.Username
   export type FakeId = string // 前端消息id
@@ -23,11 +21,12 @@ export interface GetHisSgMsgReq {
 
 export interface SendSgMsgReq {
   type: MsgType
-  content: SgMsgs.Content
+  content: MsgContent
   fakeId: SgMsgs.FakeId
-  ext?: SgMsgs.Ext
   lastId?: SgMsgs.Id
+  ext?: SgMsgs.Ext
   to: SgMsgs.To
+  status: MsgStatus
   pre: SgMsgs.Pre // 额外的
 }
 
@@ -44,7 +43,7 @@ export interface SgMsgRes {
   from: SgMsgs.From
   to: SgMsgs.To
   createdAt?: SgMsgs.CreatedAt
-  content: SgMsgs.Content
+  content: MsgContent
   status: MsgStatus
   next: SgMsgs.Next
   pre: SgMsgs.Pre
@@ -59,4 +58,9 @@ export interface ReadSgMsgsReq {
 export interface GetSgMsgByIdsReq {
   fakeId: string
   data: SgMsgs.Id[]
+}
+
+export interface ReplyContent { // 回复的消息格式
+  id: SgMsgs.Id
+  data: MsgContent
 }

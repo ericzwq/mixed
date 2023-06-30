@@ -25,7 +25,7 @@ ws2.json = (data) => ws2.send(JSON.stringify(data))
 
 ws2.json({action: 'addUser', data: {username: 'eric4', reason: 'reason', remark: 'remark'}})
 ws2.json({action: 'groupInviteRet', data: {id: 5, status: 1}})
-ws2.json({action: 'getGroupApls', data: {lastGroupAplId: undefined}})
+ws2.json({action: 'getGroupApls', data: {}})
 
 
 fetch(

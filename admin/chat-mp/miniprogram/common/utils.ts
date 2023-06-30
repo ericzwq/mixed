@@ -1,3 +1,5 @@
+import {MsgStatus} from "../socket/socket-types";
+
 export function formatDate(date = new Date()) {
   const y = date.getFullYear()
   const m = date.getMonth() + 1 + ''
@@ -27,4 +29,9 @@ export function formatDetailDate(date: Date) { // 聊天详情中展示
 export function valueModel(this: WechatMiniprogram.Page.Instance<WechatMiniprogram.Page.DataOption, WechatMiniprogram.Page.CustomOption>, e: WechatMiniprogram.CustomEvent) {
   const key = e.target.dataset['bindkey']
   this.setData({[key]: e.detail.value})
+}
+
+// 回复的消息转普通消息
+export function replyMsgToNormalMsg(msg: SgMsg | GpMsg) {
+  msg.status === MsgStatus.reply && (msg.content = (msg.content as ReplyContent).data)
 }

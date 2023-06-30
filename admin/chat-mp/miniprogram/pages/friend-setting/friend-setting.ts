@@ -1,5 +1,6 @@
 import { chatSocket } from "../../socket/socket"
 import { ADD_USER_RET } from "../../socket/socket-actions"
+import {FriendApls} from "../../socket/socket-types";
 
 // pages/friend-setting/friend-setting.ts
 Page({
@@ -28,10 +29,10 @@ Page({
     const friendApl = this.data.friendApl
     chatSocket.send({
       action: ADD_USER_RET, data: {
-        friendAplId: friendApl.friendAplId,
+        id: friendApl.id,
         contactId: friendApl.contactId,
         to: friendApl.from,
-        status: 1,
+        status: FriendApls.Status.accept,
         remark: this.data.formData.remark
       }
     })

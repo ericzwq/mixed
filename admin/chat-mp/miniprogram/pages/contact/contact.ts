@@ -4,11 +4,12 @@ import {GroupsPath, NewFriendsPath, UserDetailPath} from '../../consts/routes'
 import {chatSocket} from '../../socket/socket'
 import {REC_ADD_USER} from '../../socket/socket-actions'
 import {userStore} from '../../store/store'
+import storage from "../../common/storage";
 
 Page({
   data: {
     BASE_URL,
-    newFriendCount: ''
+    newCatAplCount: 0
   },
   toDetail(e: WechatMiniprogram.CustomEvent) {
     const data = userStore.contacts[e.currentTarget.dataset.i]
@@ -28,7 +29,7 @@ Page({
       store: userStore,
       fields: ['contacts', 'contactMap', 'unameUserMap'],
     })
-    this.recAddUserHandler = () => this.setData({newFriendCount: wx.getStorageSync('newFriendCount-' + userStore.user.username)})
+    this.recAddUserHandler = () => this.setData({newCatAplCount: storage.getNewCatAplCount()})
     chatSocket.addSuccessHandler(REC_ADD_USER, this.recAddUserHandler)
   },
   /**
