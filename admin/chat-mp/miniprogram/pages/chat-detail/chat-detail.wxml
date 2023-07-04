@@ -12,14 +12,12 @@
       </view>
       <block wx:elif="{{user.username !== item.from}}">
         <view wx:if="{{item.state !== 3}}" class="item left" bindtap="onTap" data-i="{{index}}">
-          <van-checkbox value="{{fakeIdSelectedMap[item.fakeId]}}" mark:toggle="1" class="checkbox box-{{index}} {{showSelects ? '' : 'hidden'}}"
-                        checked-color="{{primaryColor}}"/>
+          <van-checkbox value="{{fakeIdSelectedMap[item.fakeId]}}" mark:toggle="1" class="checkbox box-{{index}} {{showSelects ? '' : 'hidden'}}" checked-color="{{primaryColor}}" />
           <view class="info">
             <image mark:toUserDetail="1" class="avatar-s" src="{{BASE_URL + target.avatar}}"></image>
             <view class="main-box">
-              <chat-log class="chat-log" class="chat-log" data="{{item.content}}" wx:if="{{item.type === 7}}"/>
-              <view wx:else class="content" bindlongpress="handleLongPress" bindtouchstart="onTouchStart" bindtouchcancel="onTouchCancel" bindtouchend="onTouchCancel"
-                    data-i="{{index}}">
+              <chat-log class="chat-log" class="chat-log" data="{{item.content}}" wx:if="{{item.type === 7}}" />
+              <view wx:else class="content" bindlongpress="handleLongPress" bindtouchstart="onTouchStart" bindtouchcancel="onTouchCancel" bindtouchend="onTouchCancel" data-i="{{index}}">
                 <text class="{{index === activeIndex ? 'active' : ''}} text" wx:if="{{item.type === 1}}">{{item.content}}</text>
                 <image mark:audioPlay="1" src="../../static/image/voice.svg" wx:elif="{{item.type === 3}}" width="30" class="audio {{item.isPlay ? 'play' : ''}}"></image>
               </view>
@@ -27,13 +25,14 @@
               <image src="../../static/image/error.svg" wx:elif="{{item.state === 2}}" width="20" color="red" class="status error">
               </image>
               <block wx:elif="{{chatType === '1'}}">
-                <van-icon name="passed" wx:if="{{item.read}}" class="complete"/>
-                <van-icon name="circle" wx:else class="empty"/>
+                <van-icon name="passed" wx:if="{{item.read}}" class="complete" size="20" />
+                <van-icon name="circle" wx:else class="empty" size="20" />
               </block>
               <block wx:else>
-                <van-icon name="passed" wx:if="{{item.readCount === maxReadCount}}" class="complete"/>
-                <van-icon name="circle" class="empty" wx:elif="{{item.readCount === 0}}"/>
-                <view wx:else class="round"></view>
+                <van-icon name="passed" wx:if="{{item.readCount === maxReadCount}}" class="complete" size="20" />
+                <van-icon name="circle" class="empty" wx:elif="{{item.readCount === 0}}" size="20" />
+                <view wx:elif="{{item.readCount > 9}}" class="round">9+</view>
+                <view wx:else class="round">{{item.readCount}}</view>
               </block>
             </view>
           </view>
@@ -41,25 +40,24 @@
       </block>
       <block wx:else>
         <view wx:if="{{item.state !== 3}}" class="item right" bindtap="onTap" data-i="{{index}}" data-right="1">
-          <van-checkbox value="{{fakeIdSelectedMap[item.fakeId]}}" mark:toggle="1" class="checkbox box-{{index}} {{showSelects ? '' : 'hidden'}}"
-                        checked-color="{{primaryColor}}"/>
+          <van-checkbox value="{{fakeIdSelectedMap[item.fakeId]}}" mark:toggle="1" class="checkbox box-{{index}} {{showSelects ? '' : 'hidden'}}" checked-color="{{primaryColor}}" />
           <view class="info">
             <view class="main-box">
               <image src="../../static/image/loading.svg" wx:if="{{item.state === 1}}" class="status loading"></image>
               <image src="../../static/image/error.svg" wx:elif="{{item.state === 2}}" color="red" class="status error">
               </image>
               <block wx:elif="{{chatType === '1'}}">
-                <van-icon name="passed" wx:if="{{item.read}}" class="complete"/>
-                <van-icon name="circle" wx:else class="empty"/>
+                <van-icon name="passed" wx:if="{{item.read}}" size="20" class="complete" />
+                <van-icon name="circle" size="20" wx:else class="empty" />
               </block>
               <block wx:else>
-                <van-icon name="passed" wx:if="{{item.readCount === maxReadCount}}" class="complete"/>
-                <van-icon name="circle" class="empty" wx:elif="{{item.readCount === 0}}"/>
-                <view wx:else class="round"></view>
+                <van-icon name="passed" wx:if="{{item.readCount === maxReadCount}}" class="complete" size="20" />
+                <van-icon name="circle" class="empty" wx:elif="{{item.readCount === 0}}" size="20" />
+                <view wx:elif="{{item.readCount > 9}}" class="round">9+</view>
+                <view wx:else class="round">{{item.readCount}}</view>
               </block>
-              <chat-log class="chat-log" data="{{item.content}}" wx:if="{{item.type === 7}}"/>
-              <view wx:else class="content" bindlongpress="handleLongPress" bindtouchstart="onTouchStart" bindtouchcancel="onTouchCancel" bindtouchend="onTouchCancel"
-                    data-i="{{index}}">
+              <chat-log class="chat-log" data="{{item.content}}" wx:if="{{item.type === 7}}" />
+              <view wx:else class="content" bindlongpress="handleLongPress" bindtouchstart="onTouchStart" bindtouchcancel="onTouchCancel" bindtouchend="onTouchCancel" data-i="{{index}}">
                 <text class="{{index === activeIndex ? 'active' : ''}} text" wx:if="{{item.type === 1}}">{{item.content}}</text>
                 <image mark:audioPlay="1" src="../../static/image/voice.svg" wx:elif="{{item.type === 3}}" width="30" class="audio {{item.isPlay ? 'play' : ''}}"></image>
               </view>
@@ -74,8 +72,8 @@
     <view class="input-box">
       <image class="img" src="../../static/image/mic.svg" hidden="{{inputState !== 0}}" style="margin: 0;" bindtap="handleMic"></image>
       <image class="img" src="../../static/image/keyboard.svg" hidden="{{inputState !== 1}}" bindtap="retKeybroad"></image>
-      <view>
-        <input id="content" focus="{{true}}" hidden="{{inputState !== 0}}" model:value="{{content}}" bindconfirm="send" bindinput="contentInput"/>
+      <view class="input-main">
+        <input id="content" focus="{{true}}" hidden="{{inputState !== 0}}" model:value="{{content}}" bindconfirm="send" bindinput="contentInput" />
         <view hidden="{{!replyTarget}}">
           <icon type="clear" bindtap="cancelReply"></icon>
         </view>
@@ -121,7 +119,7 @@
       </view>
     </view>
   </uni-popup> -->
-  <van-icon name="ellipsis" class="float-btn" bindtap="toChatInfo"/>
+  <van-icon name="ellipsis" class="float-btn" bindtap="toChatInfo" />
   <float-menu class="float-menu" bind:close="onClose">
     <view hidden="{{activeIndex > -1 && viewMessages[activeIndex].type !== 1}}" class="f-item" bindtap="copy">复制</view>
     <view class="f-item" bindtap="transmit">转发</view>
@@ -131,25 +129,25 @@
     <view hidden="{{activeIndex > -1 && viewMessages[activeIndex].state && viewMessages[activeIndex].from === user.username}}" class="f-item" bindtap="reply">回复</view>
     <view class="f-item" bindtap="delete">删除</view>
   </float-menu>
-  <van-dialog id="van-dialog"/>
+  <van-dialog id="van-dialog" />
   <view class="mul-sel-opt {{showSelects ? '' : 'hidden'}}">
     <view class="opt-item" bindtap="transmit">
-      <van-icon name="share-o"/>
+      <van-icon name="share-o" />
       <text>转发</text>
     </view>
     <view class="opt-item" bindtap="collect">
-      <van-icon name="star-o"/>
+      <van-icon name="star-o" />
       <text>收藏</text>
     </view>
     <view class="opt-item" bindtap="delete">
-      <van-icon name="delete-o"/>
+      <van-icon name="delete-o" />
       <text>删除</text>
     </view>
     <view class="opt-item" bindtap="closeMulSelOpt">
-      <van-icon name="close"/>
+      <van-icon name="close" />
       <text>取消</text>
     </view>
   </view>
-  <van-action-sheet show="{{ showActions }}" actions="{{ actions }}" cancel-text="取消" bind:cancel="onCloseActions" bind:select="onSelectAction"/>
+  <van-action-sheet show="{{ showActions }}" actions="{{ actions }}" cancel-text="取消" bind:cancel="onCloseActions" bind:select="onSelectAction" />
 
 </view>

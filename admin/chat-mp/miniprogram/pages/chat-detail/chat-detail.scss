@@ -72,15 +72,27 @@
   height: 30rpx;
 }
 
-// todo
 .complete {
-
+  margin: 0 20rpx;
+  color: skyblue;
 }
 
 .empty {
+  margin: 0 20rpx;
+  color: skyblue;
 }
 
 .round {
+  display: block;
+  width: 30rpx;
+  height: 30rpx;
+  line-height: 30rpx;
+  text-align: center;
+  margin: 0 20rpx;
+  border: 1px solid skyblue;
+  color: skyblue;
+  font-size: 10px;
+  border-radius: 50%;
 }
 
 .link {
@@ -212,7 +224,7 @@
     }
   }
 
-  input {
+  .input-main {
     flex-grow: 1;
     background-color: #fff;
     padding: 10rpx;

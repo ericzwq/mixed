@@ -1,12 +1,12 @@
 <view class="contact-box">
-  <view class="contact-item">
+  <view class="contact-item" bindtap="toNewFriends">
     <image class="avatar" src="../../static/image/add.svg" style="background: #FFC125;"></image>
-    <view class="right" bindtap="toNewFriends">
+    <view class="right">
       新的朋友
       <van-tag round>{{newCatAplCount === 0 ? '' : newCatAplCount}}</van-tag>
     </view>
   </view>
-  <view class="contact-item">
+  <view class="contact-item" bindtap="toGroupNotice">
     <image class="avatar" src="../../static/image/add.svg" style="background: #FFC125;"></image>
     <view class="right">
       群通知
