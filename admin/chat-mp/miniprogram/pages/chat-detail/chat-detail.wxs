@@ -3,7 +3,7 @@ function getRecordStateText(recordState) {
 }
 
 function canRetract(createdAt) {
-  return getDate(createdAt).getTime() + 120000 < getDate().getTime()
+  return getDate(createdAt).getTime() + 120000 > getDate().getTime()
 }
 
 module.exports.getRecordStateText = getRecordStateText

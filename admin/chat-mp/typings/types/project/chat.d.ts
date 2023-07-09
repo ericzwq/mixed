@@ -52,10 +52,12 @@ interface GetMsgsByIdsRes {
 
 interface ReadSgMsgsRes {
   ids: SgMsgs.Id[]
+  from: SgMsgs.From
   to: SgMsgs.To
 }
 
 interface ReadGpMsgsRes {
   ids: GpMsgs.Id[]
+  from: GpMsgs.From
   to: GpMsgs.To
 }

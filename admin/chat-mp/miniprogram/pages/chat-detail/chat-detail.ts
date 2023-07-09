@@ -77,6 +77,7 @@ Page({
   onLoad(query: { to: string, type: ChatType }) {
     this.addSgMsgListener()
     this.addGpMsgListener()
+    this.addReadMsgsHandler()
     const { to, type } = query
     this.storeBindings = createStoreBindings(this, {
       store: userStore,
@@ -143,10 +144,12 @@ Page({
     this.storeBindings.destroyStoreBindings()
     chatSocket.removeSuccessHandler(REC_SG_MSGS, this.sgMsgSuccessHandler)
     chatSocket.removeErrorHandler(REC_SG_MSGS, this.sgMsgErrorHandler)
+    chatSocket.removeSuccessHandler(READ_SG_MSGS, this.readMsgsHandler)
+    chatSocket.removeSuccessHandler(READ_GP_MSGS, this.readMsgsHandler)
     const messageInfo = app.getMessageInfo(this.getTo(), this.data.chatType)
     messageInfo.showedMsgsMinIndex = messageInfo.messages.length
   },
-  handleTimeoutMsgs() {
+  handleTimeoutMsgs() { // todo
 
   },
   readMsgs(messageInfo: MessageInfo<SgMsg | GpMsg>) {
@@ -408,8 +411,10 @@ Page({
     let validMsgCount = 0
     let i = messageInfo.showedMsgsMinIndex - 1
     for (; i > -1 && validMsgCount < LOAD_MESSAGE_COUNT; i--) {
-      msgs.push(messageInfo.messages[i])
-      messageInfo.messages[i].state !== MsgState.delete && validMsgCount++
+      const msg = messageInfo.messages[i]
+      delete msg.isPlay
+      msgs.push(msg) // 撤回动作的消息不要
+      msg.state !== MsgState.delete && msg.type !== MsgType.retract && validMsgCount++
     }
     console.log('从内存中获取', { messages: [...msgs].reverse(), validMsgCount })
     return { messages: msgs.reverse(), validMsgCount }
@@ -426,7 +431,7 @@ Page({
       let i = lastMessages.length - 1
       for (; i > -1 && validMsgCount < count; i--) {
         msgs.push(lastMessages[i])
-        lastMessages[i].state !== MsgState.delete && validMsgCount++
+        lastMessages[i].state !== MsgState.delete && lastMessages[i].type !== MsgType.retract && validMsgCount++
         const key = lastMessages[i].id + '-' + chatType
         if (untreatedRetractMsgInfoSet.delete(key)) { // 处理撤回的消息
           lastMessages[i].status = MsgStatus.retract
@@ -452,34 +457,29 @@ Page({
   },
   // 注册单聊消息监听
   addSgMsgListener() {
-    this.sgMsgSuccessHandler = ((data: SocketResponse<SgMsg[]>) => {
+    this.sgMsgSuccessHandler = ((data: SocketResponse<SgMsgRes[] | GpMsgRes[]>) => {
       const viewMessages = this.data.viewMessages as SgMsg[]
-      // const {chatType} = this.data
+      const { chatType } = this.data
       const { user: { username } } = userStore
       const msg = data.data[0]
       if (!msg) return
-      // const to = chatType === ChatType.single ? msg.to === username ? msg.from! : msg.to! : msg.to!
-      // const {messages} = app.getMessageInfo(to, chatType)
-      data.data.forEach((message: SgMsg) => {
+      const ids: SgMsgs.Id[] = []
+      const { to } = app.getRealFromTo(msg.from, msg.to)
+      data.data.forEach((message: SgMsgRes | GpMsgRes) => {
         let flag = false
         if (message.from === username) { // 自己发的
           let ownMessage = viewMessages.find(msg => msg.fakeId === message.fakeId) as SgMsg | GpMsg
-          if (!ownMessage) {
-            // ownMessage = messages.find(msg => msg.fakeId === message.fakeId) as SgMsg | GpMsg
-            flag = true
-            // if (ownMessage) {
-            // delete ownMessage.state
-            // ownMessage.createdAt = message.createdAt
-            // }
-          }
+          !ownMessage && (flag = true)
         } else {
           flag = true
+          app.globalData.visible && ids.push(message.id) // 处理已读
         }
         if (flag) {
           const length = viewMessages.push(message as SgMsg)
           viewMessages.splice(length - 2, 2, ...this.handleViewMessageTime(undefined, length - 2) as SgMsg[])
         }
       })
+      ids.length && chatSocket.send({ action: chatType === ChatType.single ? READ_SG_MSGS : REC_GP_MSGS, data: { ids, to } })
       this.setData({ viewMessages: [...viewMessages] })
       this.scrollView()
       app.saveMessages()
@@ -495,6 +495,17 @@ Page({
   addGpMsgListener() {
     chatSocket.addSuccessHandler(REC_GP_MSGS, this.sgMsgSuccessHandler)
     chatSocket.addErrorHandler(REC_GP_MSGS, this.sgMsgErrorHandler)
+  },
+  readMsgsHandler() {
+  },
+  addReadMsgsHandler() {
+    this.readMsgsHandler = () => {
+      if (!app.globalData.visible) return
+      const { viewMessages } = this.data
+      this.setData({ viewMessages: [...viewMessages] as typeof viewMessages })
+    }
+    chatSocket.addSuccessHandler(READ_SG_MSGS, this.readMsgsHandler)
+    chatSocket.addSuccessHandler(READ_GP_MSGS, this.readMsgsHandler)
   },
   cmpTime(t1: string | number, t2: string | number) {
     return new Date(t1).getTime() < new Date(t2).getTime() - 180000 // 大于3分钟显示时间
@@ -571,6 +582,9 @@ Page({
   },
   // 取消发送
   cancel() {
+    if (this.data.recordState === 1) { // 录制中
+      this.data._recorderManager.stop()
+    }
     this.setData({ recordState: 0 })
   },
   // 返回键盘输入
@@ -758,9 +772,10 @@ Page({
   },
   retract() {
     Dialog.confirm({ message: '确定撤回该消息吗？' }).then(() => {
-      this.handleSend(MsgType.system, MsgStatus.retract, this.data.viewMessages[this.data.activeIndex].id!)
+      this.handleSend(MsgType.retract, MsgStatus.normal, this.data.viewMessages[this.data.activeIndex].id!)
+    }).finally(() => {
+      this.setData({ activeIndex: -1 })
     })
-    this.setData({ activeIndex: -1 })
     this.data.floatMenu.close()
   },
   reply() {
@@ -798,7 +813,7 @@ Page({
       app.setToSaveFakeIds(this.getTo(), fakeIds, chatType === ChatType.single)
       this.handleDelSysTimeMsg(viewMessages, indexes)
       app.saveMessages()
-      this.setData({ activeIndex: -1, viewMessages, showSelects: false })
+      this.setData({ activeIndex: -1, viewMessages: [...viewMessages] as typeof viewMessages, showSelects: false })
     }).catch(() => this.setData({ activeIndex: -1, showSelects: false })).finally(() => this.setData({ selecteds: [], fakeIdSelectedMap: {} }))
   },
   handleDelSysTimeMsg(viewMessages: SgMsg[] | GpMsg[], indexes: number[]) {
@@ -837,5 +852,8 @@ Page({
   onSelectAction(e: WechatMiniprogram.CustomEvent<{ type: TransmitType }>) {
     stagingStore.chatLog.type = e.detail.type
     wx.navigateTo({ url: ChooseFriendPath + '?mode=' + ChooseMode.chats })
+  },
+  selectPics() { // todo
+    wx.chooseMedia({ mediaType: ['image'] })
   },
 })

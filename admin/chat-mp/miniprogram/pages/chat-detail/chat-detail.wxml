@@ -11,7 +11,7 @@
         </block>
       </view>
       <block wx:elif="{{user.username !== item.from}}">
-        <view wx:if="{{item.state !== 3}}" class="item left" bindtap="onTap" data-i="{{index}}">
+        <view wx:if="{{item.state !== 3 && item.type !== 5}}" class="item left" bindtap="onTap" data-i="{{index}}">
           <van-checkbox value="{{fakeIdSelectedMap[item.fakeId]}}" mark:toggle="1" class="checkbox box-{{index}} {{showSelects ? '' : 'hidden'}}" checked-color="{{primaryColor}}" />
           <view class="info">
             <image mark:toUserDetail="1" class="avatar-s" src="{{BASE_URL + target.avatar}}"></image>
@@ -24,22 +24,13 @@
               <image src="../../static/image/loading.svg" wx:if="{{item.state === 1}}" width="20" class="status loading"></image>
               <image src="../../static/image/error.svg" wx:elif="{{item.state === 2}}" width="20" color="red" class="status error">
               </image>
-              <block wx:elif="{{chatType === '1'}}">
-                <van-icon name="passed" wx:if="{{item.read}}" class="complete" size="20" />
-                <van-icon name="circle" wx:else class="empty" size="20" />
-              </block>
-              <block wx:else>
-                <van-icon name="passed" wx:if="{{item.readCount === maxReadCount}}" class="complete" size="20" />
-                <van-icon name="circle" class="empty" wx:elif="{{item.readCount === 0}}" size="20" />
-                <view wx:elif="{{item.readCount > 9}}" class="round">9+</view>
-                <view wx:else class="round">{{item.readCount}}</view>
-              </block>
             </view>
           </view>
         </view>
       </block>
       <block wx:else>
-        <view wx:if="{{item.state !== 3}}" class="item right" bindtap="onTap" data-i="{{index}}" data-right="1">
+        <!-- 未删除且非撤回动作 -->
+        <view wx:if="{{item.state !== 3 && item.type !== 5}}" class="item right" bindtap="onTap" data-i="{{index}}" data-right="1">
           <van-checkbox value="{{fakeIdSelectedMap[item.fakeId]}}" mark:toggle="1" class="checkbox box-{{index}} {{showSelects ? '' : 'hidden'}}" checked-color="{{primaryColor}}" />
           <view class="info">
             <view class="main-box">
@@ -72,20 +63,21 @@
     <view class="input-box">
       <image class="img" src="../../static/image/mic.svg" hidden="{{inputState !== 0}}" style="margin: 0;" bindtap="handleMic"></image>
       <image class="img" src="../../static/image/keyboard.svg" hidden="{{inputState !== 1}}" bindtap="retKeybroad"></image>
-      <view class="input-main">
-        <input id="content" focus="{{true}}" hidden="{{inputState !== 0}}" model:value="{{content}}" bindconfirm="send" bindinput="contentInput" />
-        <view hidden="{{!replyTarget}}">
-          <icon type="clear" bindtap="cancelReply"></icon>
+      <view class="input-main" hidden="{{inputState !== 0}}">
+        <input id="content" focus="{{true}}" model:value="{{content}}" bindconfirm="send" bindinput="contentInput" />
+        <view class="info-box {{replyTarget ? '' : 'hidden'}}">
+          <view class="info">{{replyTarget.content}}</view>
+          <icon class="del" size="16" type="clear" bindtap="cancelReply"></icon>
         </view>
       </view>
       <button hidden="{{inputState !== 1}}" class="btn-small" size="mini" bindtap="handleRecording">{{chat.getRecordStateText(recordState)}}</button>
-      <image class="img" id="showOpt" src="../../static/image/more.svg" hidden="{{!(!content && !recorder)}}" bindtap="handleShowOpts">
+      <image class="img" id="showOpt" src="../../static/image/more.svg" hidden="{{!((!content && inputState === 0) || recordState === 0)}}" bindtap="handleShowOpts">
       </image>
-      <button hidden="{{!(content || recordState === 2 )}}" size="mini" type="primary" bindtap="send">发送</button>
-      <button hidden="{{!(inputState === 1 && recordState === 2)}}" size="mini" type="default" class="cancel" bindtap="cancel">取消</button>
+      <button class="btn" hidden="{{!((content && inputState === 0) || recordState === 2 )}}" size="mini" type="primary" bindtap="send">发送</button>
+      <button hidden="{{!(inputState === 1 && recordState !== 0)}}" size="mini" type="default" class="cancel btn" bindtap="cancel">取消</button>
     </view>
     <view mark:opts="1" style="{{showOpts ? '' : 'display: none;'}}" class="opts">
-      <view class="opt-item">
+      <view class="opt-item" bindtap="selectPics">
         <image src="../../static/image/pic.svg" width="40"></image>
         <text>图片</text>
       </view>
@@ -98,7 +90,7 @@
         <text>语音</text>
       </view>
       <view class="opt-item">
-        <image src="../../static/image/voice.svg" width="40"></image>
+        <image src="../../static/image/more.svg" width="40"></image>
         <text>视频</text>
       </view>
     </view>
