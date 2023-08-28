@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <style>
+
+  </style>
+</head>
+
+<body>
+a< >
+<div c="a">
+  c
+  <div>child</div>
+  <img src=""/>
+</div>
+bf
+<script>
+  const CLOSE_TAG = 'closeTag', OPEN_TAG = 'openTag', SELF_CLOSING_TAG = 'selfClosingTag', TEXT = 'text'
+  const TAG_TYPE = 'tag', TEXT_TYPE = 'text'
+
+  function htmlTokenizer(str) {
+    let temp = '', data = []
+    for (let i = 0, l = str.length; i < l;) {
+      let s = str[i]
+      if (s === '<') {
+        let matches
+        if (str[i + 1] === '/' && (matches = str.slice(i).match(/^<\/[^>\s]+[^>]*>/))) { // </div >
+          temp && data.push({type: 'text', value: temp}) && (temp = '')
+          data.push({type: CLOSE_TAG, value: matches[0]})
+          i += matches[0].length
+        } else if ((matches = str.slice(i).match(/^<[^>\s]+[^>]*>/))) { // <div a="b" >
+          temp && data.push({type: TEXT, value: temp}) && (temp = '')
+          data.push({type: matches[0][matches[0].length - 2] === '/' ? SELF_CLOSING_TAG : OPEN_TAG, value: matches[0]})
+          i += matches[0].length
+        } else {
+          temp += s
+          i++
+        }
+      } else {
+        temp += s
+        i++
+      }
+    }
+    temp && data.push({type: 'text', value: temp})
+    return data
+  }
+
+  function parseTag(str, isSelfClosing) {
+    const matches = str.match(/^<([^>\s]+)([^>]*)>/)
+    if (!matches) throw '标签不合法'
+    const [, tagName, attrStr] = matches
+    str = (isSelfClosing ? attrStr.slice(0, -1) : attrStr).trim()
+    const attrs = str ? str.split(/\s+/).reduce((pre, cur) => {
+      const [key, value = ''] = cur.split('=')
+      pre[key] = value
+      return pre
+    }, {}) : {}
+    return {tagName, attrs}
+  }
+
+  function htmlParser(tokens) {
+    const tree = {children: []}, stack = [tree]
+    let root = tree.children
+    for (const token of tokens) {
+      const {type, value} = token
+      if (type === OPEN_TAG) {
+        const {attrs, tagName} = parseTag(value)
+        const node = {children: [], attrs, tagName, type: TAG_TYPE}
+        stack.push(node)
+        root.push(node)
+        root = node.children
+      } else if (type === SELF_CLOSING_TAG) {
+        const {attrs, tagName} = parseTag(value, true)
+        const node = {attrs, tagName, type: TAG_TYPE}
+        root.push(node)
+      } else if (type === CLOSE_TAG) {
+        root = stack.pop().children
+        stack.length && (root = stack.pop().children)
+      } else if (type === 'text') {
+        root.push({value, type: TEXT_TYPE})
+      } else throw '未知的类型：' + type
+    }
+    return tree
+  }
+
+  let str = 'a< ><div c="a"> c <div>child</div> <img src=""/> </div >bf'
+  console.log(str)
+  const tokens = htmlTokenizer(str)
+  console.log(tokens)
+  const tree = htmlParser(tokens)
+  console.log(tree)
+</script>
+</body>
+</html>
