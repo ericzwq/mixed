@@ -23,6 +23,7 @@
   height: 60rpx;
   width: 60rpx;
   margin: 0 10rpx;
+  flex-shrink: 0;
 }
 
 .content {
@@ -138,6 +139,10 @@
     margin-left: 10rpx;
   }
 
+  .audio {
+    height: 60rpx;
+  }
+
   .content,
   .chat-log {
     margin-left: 16rpx;
@@ -176,6 +181,7 @@
 
   .audio {
     rotate: 180deg;
+    height: 60rpx;
   }
 }
 
@@ -200,9 +206,33 @@
 
   .input-box {
     display: flex;
-    align-items: center;
-    height: 72rpx;
+    align-items: flex-end;
+    // height: 72rpx;
     padding-bottom: 20rpx;
+
+    .btn {
+      flex-shrink: 0;
+    }
+
+    .info-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #ccc;
+      border-radius: 8rpx;
+      padding: 8rpx;
+      font-size: 24rpx;
+    }
+
+    .info {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .del {
+      flex-shrink: 0;
+    }
   }
 
   .opts {
@@ -221,6 +251,8 @@
 
     image {
       margin: auto;
+      width: 80rpx;
+      height: 80rpx;
     }
   }
 
@@ -228,8 +260,9 @@
     flex-grow: 1;
     background-color: #fff;
     padding: 10rpx;
-    // margin: 0 10rpx;
+    overflow: hidden;
     border-radius: 8rpx;
+    margin-right: 10rpx;
   }
 
   button {

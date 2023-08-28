@@ -63,11 +63,11 @@ import {
 } from './group-types'
 import client from '../../../redis/redis'
 import {usernameClientMap} from '../single/single'
-import {REC_ADD_GROUP, REC_GP_MSGS, REC_GROUP_INVITE, REC_GROUP_INVITE_RET, REC_READ_GP_MSGS} from '../../socket-actions'
+import {READ_GP_MSGS, REC_ADD_GROUP, REC_GP_MSGS, REC_GROUP_INVITE, REC_GROUP_INVITE_RET} from '../../socket-actions'
 import {beginSocketSql, commitSocketSql} from '../../../db'
 import {addUserGroups, selectUserGroups} from '../user/user-sql'
 import {ChatLog, PageQuery} from '../common/common-types'
-import {ReplyContent} from "../single/single-types";
+import {ReplyContent} from '../single/single-types'
 
 // 创建群聊
 export async function createGroup(ws: ExtWebSocket, user: User, data: RequestMessage<CreateGroupReq>) {
@@ -210,7 +210,7 @@ export async function readGpMsgs(ws: ExtWebSocket, user: User, data: RequestMess
     await updateGpMsgReads(ws, id, to, reads.join(','))
     readIds.push(id)
   }
-  broadGpMsg(group, JSON.stringify({action: REC_READ_GP_MSGS, data: {ids: readIds, to}}))
+  broadGpMsg(group, JSON.stringify({action, data: {ids: readIds, from, to}}))
 }
 
 async function getGroupById(ws: ExtWebSocket, id: Groups.Id): Promise<Group> {

@@ -1,37 +1,42 @@
-import {createStoreBindings} from 'mobx-miniprogram-bindings'
-import {ChatDetailPath, LoginPath} from './consts/routes'
-import {chatSocket} from "./socket/socket"
-import {READ_GP_MSGS, READ_SG_MSGS, REC_GP_MSGS, REC_READ_GP_MSGS, REC_READ_SG_MSGS, REC_SG_MSGS} from './socket/socket-actions'
-import {userStore} from "./store/user"
-import {ChatType, MsgState, MsgType} from './socket/socket-types'
-import {SAVE_MESSAGE_LENGTH} from "./consts/consts";
+import { createStoreBindings } from 'mobx-miniprogram-bindings'
+import { ChatDetailPath, LoginPath } from './consts/routes'
+import { chatSocket } from "./socket/socket"
+import { READ_GP_MSGS, READ_SG_MSGS, REC_GP_MSGS, REC_SG_MSGS } from './socket/socket-actions'
+import { userStore } from "./store/user"
+import { ChatType, MsgState, MsgType, MsgRead, MsgStatus } from './socket/socket-types'
+import { SAVE_MESSAGE_LENGTH } from "./consts/consts";
 import storage from "./common/storage";
 
-// todo 转发
-
+// todo 回复回显 文本超长
 App<IAppOption>({
   globalData: {
     toSaveUnameFakeIdsMap: {} as { [k in string]: Set<SgMsgs.FakeId> },
     toSaveGroupIdFakeIdsMap: {} as { [k in string]: Set<SgMsgs.FakeId> },
     saveStatus: '',
+    visible: true
+  },
+  onShow() {
+    this.globalData.visible = true
+  },
+  onHide() {
+    this.globalData.visible = false
   },
   onLaunch() {
-    createStoreBindings({setData: () => 0}, {
+    createStoreBindings({ setData: () => 0 }, {
       store: userStore,
       actions: ['setUser']
     })
     this.addRecSgMsgsListener()
     this.addRecGpMsgsListener()
     this.addReadMsgsListener()
-    this.addRecReadMsgsListener()
     if (!this.getUser()) return
-    wx.showLoading({title: '加载中...', mask: true})
+    wx.showLoading({ title: '加载中...', mask: true })
     chatSocket.connect()
       .then(() => userStore.init())
       .then(() => wx.hideLoading())
       .catch(e => {
         wx.hideLoading()
-        wx.showToast({title: '初始化异常', icon: 'error'})
+        wx.showToast({ title: '初始化异常', icon: 'error' })
         console.log('初始化异常', e)
       })
   },
@@ -40,14 +45,14 @@ App<IAppOption>({
     const user = wx.getStorageSync('user')
     if (!user) {
       chatSocket.close('无用户信息')
-      wx.navigateTo({url: LoginPath})
+      wx.navigateTo({ url: LoginPath })
     } else {
       userStore.setUser(JSON.parse(user))
     }
     return !!user
   },
   getMessageInfo(to: Users.Username | Groups.Id, chatType: ChatType) {
-    const {unameMessageInfoMap, groupIdMessageInfoMap, user: {username}} = userStore
+    const { unameMessageInfoMap, groupIdMessageInfoMap, user: { username } } = userStore
     const isSingle = chatType === ChatType.single
     let messageInfo = isSingle ? unameMessageInfoMap[to] : groupIdMessageInfoMap[to]
     if (!messageInfo) {
@@ -73,12 +78,12 @@ App<IAppOption>({
     return messageInfo
   },
   async recMsgSuccessHandler<T extends SgMsgRes | GpMsgRes>(data: SocketResponse<T[]>, isSingle: boolean) {
-    const {user: {username}} = userStore
+    const { user: { username } } = userStore
     const msg = data.data[0]
     if (!msg) return
     const to = isSingle ? msg.to === username ? msg.from! : msg.to! : msg.to!
     const messageInfo = this.getMessageInfo(to, isSingle ? ChatType.single : ChatType.group)
-    const {messages, fakeIdIndexMap} = messageInfo
+    const { messages, fakeIdIndexMap } = messageInfo
     let newCount = 0
     data.data.forEach((message: T) => {
       let isNew = false
@@ -109,7 +114,7 @@ App<IAppOption>({
           fakeIds.push(msg.fakeId!)
         } else {
           const retractMsgs = storage.getUntreatedRetractMsgInfos()
-          retractMsgs.push({id: message.id, chatType: isSingle ? ChatType.single : ChatType.group})
+          retractMsgs.push({ id: message.id, chatType: isSingle ? ChatType.single : ChatType.group })
           storage.setUntreatedRetractMsgInfos(retractMsgs)
         }
       }
@@ -125,7 +130,7 @@ App<IAppOption>({
       this.saveChats(data.data[data.data.length - 1], userStore.unameUserMap[to], newCount, ChatType.single)
     } else {
       const groupInfo = await userStore.getGroupIdGroupInfo(to as Groups.Id)
-      this.saveChats(data.data[data.data.length - 1], {nickname: groupInfo.name, avatar: groupInfo.avatar}, newCount, ChatType.group)
+      this.saveChats(data.data[data.data.length - 1], { nickname: groupInfo.name, avatar: groupInfo.avatar }, newCount, ChatType.group)
     }
     this.saveMessages()
     if (!isSingle) await userStore.getUsers([msg.from!])
@@ -163,10 +168,14 @@ App<IAppOption>({
       message.state = MsgState.error
     })
   },
-  saveChats(message: SgMsg | GpMsg, target: { nickname: string, avatar: string }, newCount: number, chatType: ChatType) {
+  isAtChatDetailPage() {
     const pages = getCurrentPages()
-    const isChatDetailPath = '/' + pages[pages.length - 1].route === ChatDetailPath
+    return '/' + pages[pages.length - 1].route === ChatDetailPath
+  },
+  saveChats(message: SgMsg | GpMsg, target: { nickname: string, avatar: string }, newCount: number, chatType: ChatType) {
+    const isChatDetailPath = this.isAtChatDetailPage()
     const content = message.type === MsgType.audio ? '' : message.content
+    const { from, to } = this.getRealFromTo(message.from!, message.to!)
     const chat: ChatItem = {
       nickname: target.nickname,
       avatar: target.avatar,
@@ -174,14 +183,14 @@ App<IAppOption>({
       createdAt: message.createdAt!,
       newCount,
       type: message.type,
-      from: message.from!,
-      to: message.to!,
+      from,
+      to,
       chatType,
       state: message.state,
       isTop: false
     }
     if (!message.to) console.error('chat to error', message, target, newCount, chatType)
-    const {chats} = userStore
+    const { chats } = userStore
     const index = chats.findIndex(chat => chat.nickname === target.nickname)
     if (index > -1) {
       chat.newCount = isChatDetailPath ? 0 : chats[index].newCount + newCount
@@ -200,7 +209,7 @@ App<IAppOption>({
     }
   },
   saveMessagesHandler() {
-    const {username} = userStore.user
+    const { username } = userStore.user
     const handler = <T extends SgMsg | GpMsg>(to: Users.Username | GpMsgs.Id, chatType: ChatType, messageInfo: MessageInfo<T>) => {
       const prefixKey = username + '-' + chatType + '-' + to + '-'
       const pages = new Set<number>();
@@ -222,36 +231,33 @@ App<IAppOption>({
     this.globalData.toSaveGroupIdFakeIdsMap = {}
     this.globalData.saveStatus = ''
   },
+  // 已读消息
+  addReadMsgsListener() {
+    chatSocket.addSuccessHandler(READ_SG_MSGS, data => this.readMsgsHandler(data, true))
+    chatSocket.addSuccessHandler(READ_GP_MSGS, data => this.readMsgsHandler(data, false))
+  },
+  getRealFromTo(from: GpMsgs.From | GpMsgs.To, to: GpMsgs.From | GpMsgs.To) {
+    return userStore.user.username === from ? { from, to } : { from: to as GpMsgs.From, to: from }
+  },
   readMsgsHandler(data: SocketResponse, isSingle: boolean) {
     const chatType = isSingle ? ChatType.single : ChatType.group
-    const {ids, to} = data.data as ReadSgMsgsRes | ReadGpMsgsRes
+    const { ids, from: _from, to: _to } = data.data as ReadSgMsgsRes | ReadGpMsgsRes
+    const { to } = this.getRealFromTo(_from, _to)
     const messageInfo = this.getMessageInfo(to, chatType)
     const fakeIds: SgMsgs.FakeId[] = []
     ids.forEach(id => {
       const msg = messageInfo.messages.find(msg => msg.id === id)
+      console.log('消息已读', msg, messageInfo, id)
       if (msg) {
         isSingle ? msg.read = MsgRead.yes : (msg as GpMsg).readCount!++
         fakeIds.push(msg.fakeId!)
       } else {
         const untreatedReadMsgInfos = storage.getUntreatedReadMsgInfos()
-        untreatedReadMsgInfos.push({id, chatType})
+        untreatedReadMsgInfos.push({ id, chatType })
         storage.setUntreatedReadMsgInfos(untreatedReadMsgInfos)
       }
     })
     this.setToSaveFakeIds(to, fakeIds, isSingle)
-    app.saveMessages()
-  },
-  // 本用户已读消息
-  addReadMsgsListener() {
-    chatSocket.addSuccessHandler(READ_SG_MSGS, data => this.readMsgsHandler(data, true))
-    chatSocket.addSuccessHandler(READ_GP_MSGS, data => this.readMsgsHandler(data, false))
-  },
-  recReadMsgsHandler(data: SocketResponse, isSingle: boolean) {
-    console.log(data, isSingle)
-  },
-  // 其他用户已读消息
-  addRecReadMsgsListener() {
-    chatSocket.addSuccessHandler(REC_READ_SG_MSGS, data => this.recReadMsgsHandler(data, true))
-    chatSocket.addSuccessHandler(REC_READ_GP_MSGS, data => this.recReadMsgsHandler(data, false))
+    this.saveMessages()
   },
 })

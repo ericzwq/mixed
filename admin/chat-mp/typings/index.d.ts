@@ -6,7 +6,9 @@ interface IAppOption {
     toSaveUnameFakeIdsMap: { [k in string]: Set<SgMsgs.FakeId> }
     toSaveGroupIdFakeIdsMap: { [k in string]: Set<GpMsgs.FakeId> }
     saveStatus: string
+    visible: boolean
   }
+  isAtChatDetailPage: () => boolean
   getUser: () => boolean
   saveMessages: () => void
   saveMessagesHandler: () => void
@@ -17,9 +19,8 @@ interface IAppOption {
   recMsgSuccessHandler: <T extends SgMsgRes | GpMsgRes>(data: SocketResponse<T[]>, isSingle: boolean) => void
   getMessageInfo: (to: Users.Username | Groups.Id, chatType: ChatType) => MessageInfo<SgMsg | GpMsg>
   addReadMsgsListener: () => void
-  addRecReadMsgsListener: () => void
   readMsgsHandler: (data: SocketResponse, isSingle: boolean) => void
-  recReadMsgsHandler: (data: SocketResponse, isSingle: boolean) => void
+  getRealFromTo: (from: GpMsgs.From | GpMsgs.To, to: GpMsgs.From | GpMsgs.To) => { from: GpMsgs.From, to: GpMsgs.From | GpMsgs.To }
   // userInfoReadyCallback?: WechatMiniprogram.GetUserInfoSuccessCallback,
 }
 

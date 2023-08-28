@@ -1,8 +1,8 @@
-import {ChatsPath, ContactPath, FoundPath, GroupNoticePath, NewFriendsPath, PersonalPath} from "../consts/routes";
-import {chatSocket} from "../socket/socket";
-import {REC_ADD_GROUP, REC_ADD_USER, REC_GROUP_INVITE} from "../socket/socket-actions";
-import {userStore} from "../store/user";
-import {createStoreBindings} from "mobx-miniprogram-bindings";
+import { ChatsPath, ContactPath, FoundPath, GroupNoticePath, NewFriendsPath, PersonalPath } from "../consts/routes";
+import { chatSocket } from "../socket/socket";
+import { REC_ADD_GROUP, REC_ADD_USER, REC_GROUP_INVITE } from "../socket/socket-actions";
+import { userStore } from "../store/user";
+import { createStoreBindings } from "mobx-miniprogram-bindings";
 import storage from "../common/storage";
 
 Component({
@@ -22,7 +22,7 @@ Component({
           userStore.setNewCatAplCount(userStore.newCatAplCount + 1)
           const count = userStore.newCatAplCount + userStore.newGroupAplCount
           this.data.list[0].info = count ? count + '' : ''
-          this.setData({list: [...this.data.list]})
+          this.setData({ list: [...this.data.list] })
         }
         const friendApls: FriendApl[] = storage.getFriendApls()
         friendApls.unshift(data.data)
@@ -34,7 +34,7 @@ Component({
           userStore.setNewGroupMsgCount(userStore.newGroupAplCount + 1)
           const count = userStore.newCatAplCount + userStore.newGroupAplCount
           this.data.list[0].info = count ? count + '' : ''
-          this.setData({list: [...this.data.list]})
+          this.setData({ list: [...this.data.list] })
         }
         const groupApls: GroupApl[] = storage.getGroupApls()
         groupApls.unshift(data.data)
@@ -95,16 +95,17 @@ Component({
         2: FoundPath,
         3: PersonalPath
       } as { [key in string]: string }
-      this.setData({active: event.detail})
-      wx.switchTab({url: routeMap[event.detail]})
+      this.setData({ active: event.detail })
+      wx.switchTab({ url: routeMap[event.detail] })
     },
     init() {
       const page = getCurrentPages().pop()
+      if (!userStore.user.username) return
       userStore.setNewCatAplCount(storage.getNewCatAplCount())
       userStore.setNewGroupMsgCount(storage.getNewGroupAplCount())
       const count = userStore.newCatAplCount + userStore.newGroupAplCount
       this.data.list[0].info = count ? count + '' : ''
-      this.setData({active: this.data.list.findIndex(v => v.url === '/' + page!.route) + 1, list: [...this.data.list]})
+      this.setData({ active: this.data.list.findIndex(v => v.url === '/' + page!.route) + 1, list: [...this.data.list] })
     }
   }
 })

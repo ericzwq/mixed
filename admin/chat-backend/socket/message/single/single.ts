@@ -14,7 +14,7 @@ import {
   updateSgMsgRead,
   updateSgMsgStatus
 } from './single-sql'
-import {REC_READ_SG_MSGS, REC_SG_MSGS} from '../../socket-actions'
+import {REC_SG_MSGS} from '../../socket-actions'
 import {getHisSgMsgsSchema, getSgMsgByIdsSchema, readSgMsgSchema, replySgContSchema, sendSgMsgSchema, transmitSgMsgsSchema} from './single-schema'
 import {GetHisSgMsgReq, GetSgMsgByIdsReq, ReadSgMsgsReq, ReplyContent, SendSgMsgReq, SgMsgRes, SgMsgs, TransmitSgMsgsReq} from './single-types'
 import {beginSocketSql} from '../../../db'
@@ -22,7 +22,7 @@ import client from '../../../redis/redis'
 import {selectContactBySub} from '../contact/contact-sql'
 import {Contacts} from '../contact/contact-types'
 import {ChatLog} from '../common/common-types'
-import Status = Contacts.Status;
+import Status = Contacts.Status
 
 export const usernameClientMap = {} as { [key in string]?: ExtWebSocket }
 
@@ -186,7 +186,7 @@ async function handleReply(ws: ExtWebSocket, message: SendSgMsgReq) {
 export async function readSgMsgs(ws: ExtWebSocket, user: User, data: RequestMessage<ReadSgMsgsReq>) {
   await checkMessageParams(ws, readSgMsgSchema, data.data, 1013)
   await beginSocketSql(ws)
-  const {ids, to} = data.data
+  const {action, data: {ids, to}} = data
   const from = user.username
   const readIds: SgMsgs.Id[] = []
   for (const id of ids) {
@@ -195,8 +195,8 @@ export async function readSgMsgs(ws: ExtWebSocket, user: User, data: RequestMess
     await updateSgMsgRead(ws, id, from)
     readIds.push(id)
   }
-  ws.json({action: data.action, data: {ids: readIds, to}})
-  usernameClientMap[to]?.json({action: REC_READ_SG_MSGS, data: {ids: readIds, from}})
+  ws.json({action, data: {ids: readIds, from, to}})
+  usernameClientMap[to]?.json({action, data: {ids: readIds, from, to}})
 }
 
 // 获取用户和目标用户的好友关系
